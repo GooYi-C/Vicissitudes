@@ -1,0 +1,1332 @@
+{
+  "$schema": "./schema.md",
+  "version": 2,
+  "generated": "2026-09-14",
+  "source": "rebuild-v2.0/REBUILD.md（承 v1.0 REBUILD.md + 附录 D/E/F；v2.0 新增见 baseline/assertions-v2.json）",
+  "note": "v1.0 的 10 组 85 条逐字保留；v2.0 新增组按 §十四～§二十六 各章「校验汇总」建账。条数以本文件为唯一事实源（正文不写死）。",
+  "groups": [
+    {
+      "prefix": "SKL",
+      "module": "skeleton",
+      "origin": "REBUILD.md §3.3",
+      "assertions": [
+        {
+          "id": "SKL-1",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "typecheck / build / test:unit 全绿（对齐基线组）"
+        },
+        {
+          "id": "SKL-2",
+          "tier": "e2e",
+          "mode": "zero-llm",
+          "text": "免 API 开局走序章框架，十一面板有内容"
+        },
+        {
+          "id": "SKL-3",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "过月 12 个月：市场、势力、事件调度全部运转",
+          "legacy": "旧版 test-world 系列语义"
+        },
+        {
+          "id": "SKL-4",
+          "tier": "e2e",
+          "mode": "mock-llm",
+          "text": "脚本化回复跑通「玩家说一句话→引擎结算→落档」完整回合",
+          "legacy": "旧版 e2e.mts 23 项主流程语义"
+        },
+        {
+          "id": "SKL-5",
+          "tier": "e2e",
+          "mode": "zero-llm",
+          "text": "刷新页面存档完好",
+          "legacy": "旧版 e2e-persistence 15 项语义"
+        }
+      ]
+    },
+    {
+      "prefix": "ARC",
+      "module": "architecture",
+      "origin": "REBUILD.md §4.8",
+      "assertions": [
+        {
+          "id": "ARC-1",
+          "tier": "unit",
+          "mode": "static",
+          "text": "分层依赖 ESLint 零违例（CI 拦截）",
+          "mut": "加一条同层 import → lint 必须失败"
+        },
+        {
+          "id": "ARC-2",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "越界写模块 → 注册期报错",
+          "mut": "构造越界写模块注册 → 必须报错",
+          "legacy": "旧版 effect-only 迁移问题的结构解"
+        },
+        {
+          "id": "ARC-3",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "同相位同域双写者 → 注册期报错",
+          "mut": "构造双写者注册 → 必须报错",
+          "legacy": "旧版 71/72 分叉根因的注册期拦截"
+        },
+        {
+          "id": "ARC-4",
+          "tier": "unit",
+          "mode": "static",
+          "text": "依赖图快照：新增同层 import 即失败",
+          "mut": "快照与实际 import 图 diff → 必须失败"
+        },
+        {
+          "id": "ARC-5",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "跨月 replay 与单月直推同月同果",
+          "mut": "顺序分叉注入 → 必须失败",
+          "legacy": "旧版 test-pipeline-order 12 项语义"
+        },
+        {
+          "id": "ARC-6",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "rng 确定性：同 (模块, monthIndex, salt) 重放，事件抽样序列逐位一致",
+          "legacy": "旧版 worldtick determinism 语义扩展到 rng 派生"
+        },
+        {
+          "id": "ARC-7",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "selector 版本失效：写域 A 不触发只读域 B 重算",
+          "mut": "全量失效注入 → 重算计数必须上升（防恒真）"
+        }
+      ]
+    },
+    {
+      "prefix": "LLM",
+      "module": "llm-interface",
+      "origin": "REBUILD.md §6.8",
+      "assertions": [
+        {
+          "id": "LLM-1",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "Propose 恶意样本全灭（超幅 silver / authority 路径 set / 超额 ops / 超限 options）",
+          "mut": "撤钳制 → 恶意样本必须穿透（证明钳制在起作用）"
+        },
+        {
+          "id": "LLM-2",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "提议经存档往返重放一致（sentinel templateId 生存）",
+          "mut": "撤 sentinel 放行 → 往返后提议定义丢失"
+        },
+        {
+          "id": "LLM-3",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "提议不越过玩家：无动作 → 到期自动过期 → 世界零变更",
+          "mut": "过期机制注坏 → 过期后 ResolveRef 仍可结算（必须失败）"
+        },
+        {
+          "id": "LLM-4",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "命令意图与 UI 命令等价：同 state 同输入 → 同 ops"
+        },
+        {
+          "id": "LLM-5",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "Occupation 提议必经确认门：无确认零执行",
+          "mut": "撤确认门 → 提议直接执行（必须失败）"
+        },
+        {
+          "id": "LLM-6",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "合池采样中「街谈」占比有界，不挤占硬事件配额",
+          "legacy": "旧版 test:event-content 模板份额断言扩展"
+        },
+        {
+          "id": "LLM-7",
+          "tier": "e2e",
+          "mode": "zero-llm",
+          "text": "免 API 全流程零 LLM 调用",
+          "legacy": "旧版序章/过月零调用语义"
+        },
+        {
+          "id": "LLM-8",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "三调用模式计数：compact 全家桶单调用含三结构块；split 忙日 2 次（0.1/0.7）闲日 1 次；call 模式全规则路径零 LLM",
+          "mut": "模式切换不生效 → 计数与模式不符",
+          "legacy": "新增（旧版无调用模式概念）"
+        },
+        {
+          "id": "LLM-9",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "代理 SSRF 白名单样本全灭（私网／回环／169.254.169.254／重定向／非 https／file:）",
+          "rel": "LL-10"
+        },
+        {
+          "id": "LLM-10",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "流中断语义：已收结构块照常处理，世界不因中断回滚",
+          "rel": "LL-10、LL-02"
+        },
+        {
+          "id": "LLM-11",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "middleware：Origin 非白名单 → 403 且不进端点；CORS 头不回 *",
+          "rel": "LL-11"
+        },
+        {
+          "id": "LLM-12",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "key 不进日志：Authorization ＋ X-Vic-Upstream-Key 双屏蔽（日志样本断言）",
+          "rel": "LL-10；与 SAV-14 互为两侧"
+        },
+        {
+          "id": "LLM-13",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "静态头模板哈希跨回合稳定（同设置下；prompt 段结构）",
+          "rel": "LL-12"
+        },
+        {
+          "id": "LLM-14",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "未知标签／坏 JSON → 丢该块 ＋ 注记；叙事照常；回合不中断",
+          "rel": "LL-02"
+        },
+        {
+          "id": "LLM-15",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "模型自报 actor 被剥离（构造期不读取；静态 ＋ 行为双断言）",
+          "rel": "LL-03"
+        },
+        {
+          "id": "LLM-16",
+          "tier": "unit",
+          "mode": "static",
+          "text": "sanitize 白名单 = §十八 M-03 投影逐行一致",
+          "rel": "LL-04；与 MOD-6 为同一断言的两侧"
+        },
+        {
+          "id": "LLM-17",
+          "tier": "unit",
+          "mode": "static",
+          "text": "Tier 0 六项 ↔ M-03 引擎独占列逐项一致；任一 authority set 被剥除",
+          "rel": "LL-06、LL-04"
+        },
+        {
+          "id": "LLM-18",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "提议钳制常量与实现一致（silver 100／reputation 5／health 10／ops 8／options 2–4／单轮 1）",
+          "rel": "LL-07"
+        },
+        {
+          "id": "LLM-19",
+          "tier": "unit",
+          "mode": "static",
+          "text": "engine／debug capability 无下发路径（构造期无该分支）",
+          "rel": "LL-03"
+        },
+        {
+          "id": "LLM-20",
+          "tier": "unit",
+          "mode": "static",
+          "text": "编译函数签名不含来源参数（同层静态断言，与 LLM-4 互为加强）",
+          "rel": "LL-08"
+        },
+        {
+          "id": "LLM-21",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "DoH 降级链：前两解析器失败 → 第三成功；全失败 → 系统 DNS 兜底 ＋ 注记",
+          "rel": "LL-11"
+        },
+        {
+          "id": "LLM-22",
+          "tier": "unit",
+          "mode": "static",
+          "text": "网络出口封闭性：全仓库 fetch 调用点仅两处（/api/* 同源代理、玩家自配 embedding 端点）",
+          "rel": "LL-10、LL-18、TEC-03"
+        },
+        {
+          "id": "LLM-23",
+          "tier": "unit",
+          "mode": "static",
+          "text": "「实质内容」判定为零 LLM（判定函数不引用 llm client）",
+          "rel": "LL-14"
+        },
+        {
+          "id": "LLM-24",
+          "tier": "unit",
+          "mode": "static",
+          "text": "意图识别器词典源 = L0 表（无第二份词表）",
+          "rel": "LL-16"
+        },
+        {
+          "id": "LLM-25",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "识别器纪律：复合句不触发；裸命令触发；「已按指令执行」注记必现",
+          "rel": "LL-16"
+        },
+        {
+          "id": "LLM-26",
+          "tier": "unit",
+          "mode": "static",
+          "text": "embedding 走浏览器直连、无服务端 embedding 代理；无内置端点／key",
+          "rel": "LL-18"
+        },
+        {
+          "id": "LLM-27",
+          "tier": "unit",
+          "mode": "static",
+          "text": "错误分类封闭枚举（无 other 桶；switch 穷尽性）",
+          "rel": "LL-19"
+        },
+        {
+          "id": "LLM-28",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "任一 LLM 失败路径不中断回合（mock 各失败逐一）",
+          "rel": "LL-19"
+        },
+        {
+          "id": "LLM-29",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "降级不产生机制效果：各失败路径与零调用地板下世界状态逐位一致",
+          "rel": "LL-19、LL-14"
+        },
+        {
+          "id": "LLM-30",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "重试纪律：流中断不重试；连接层重试 ≤ 1 次",
+          "rel": "LL-10、LL-17"
+        }
+      ],
+      "notes": [
+        "〔v2.0〕v2.0 新增 LLM-9～LLM-30。LLM-1～LLM-8 为 v1.0 承继（不改）。LLM-19 与 LL-19 同为「错误表」编号，前者为断言、后者为契约，勿混。"
+      ]
+    },
+    {
+      "prefix": "MEM",
+      "module": "memory",
+      "origin": "REBUILD.md §7.8",
+      "assertions": [
+        {
+          "id": "MEM-1",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "无服务纯规则：全流程零 embedding 调用，召回非空",
+          "legacy": "旧版「无服务=纯规则」验收前提"
+        },
+        {
+          "id": "MEM-2",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "pinned 必入：12+3 塞满，注入必含 3 条 pinned",
+          "legacy": "旧版「pinned 必入」前提"
+        },
+        {
+          "id": "MEM-3",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "向量失败不中断回合（mock 超时）",
+          "legacy": "旧版铁律"
+        },
+        {
+          "id": "MEM-3b",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "混合槽位：mock 向量把硬相关排尾，注入仍含该条（规则保底席生效）",
+          "mut": "移除规则槽 → 硬相关被挤出（必须失败）",
+          "legacy": "新增"
+        },
+        {
+          "id": "MEM-3c",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "索引卫生：归档 item 向量月度清理；换模型标脏索引、重建后恢复"
+        },
+        {
+          "id": "MEM-3d",
+          "tier": "unit",
+          "mode": "static",
+          "text": "embedding 不进变量树 / 不进 SaveRecord（仅存 meta store）",
+          "legacy": "旧版铁律结构化"
+        },
+        {
+          "id": "MEM-3e",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "daylog 语义回查：「关外当铺」query 命中日叙 ±1 日上下文",
+          "legacy": "新增"
+        },
+        {
+          "id": "MEM-3f",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "提议向量去重：cos ≥0.92 同义提议拒入；无向量时字符串路径不受影响（A/B 双通道）",
+          "mut": "撤向量闸 → 同义提议入库（必须失败）",
+          "legacy": "新增"
+        },
+        {
+          "id": "MEM-3g",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "槽位分配：钉 15 → 含 12 + 「钉住过多」提示；同名被 mock 向量排尾仍注入；双命中占规则席",
+          "legacy": "新增"
+        },
+        {
+          "id": "MEM-4",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "单轮 +3：10 条 memory ops 只 3 条落账 + 诊断",
+          "legacy": "旧版 sanitize 口径"
+        },
+        {
+          "id": "MEM-5",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "引擎保底：importance ≥7 结算后 items 新增 engine 条目（零模型参与）",
+          "legacy": "旧版保底设计"
+        },
+        {
+          "id": "MEM-6",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "旧账点名：Grudge 引用的 people id 必能反查到共同经历",
+          "legacy": "旧版 followups/记忆联动"
+        },
+        {
+          "id": "MEM-7",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "append-only：结算写回新 item，原 item 数值不变（diff 断言）"
+        },
+        {
+          "id": "MEM-8",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "RelationsPanel 时间线与 items 交叉一致（无悬空引用）"
+        },
+        {
+          "id": "MEM-9",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "注入契约：assembler 含「不要复述原文」指令段（prompt 快照）",
+          "legacy": "旧版实测教训结构化"
+        }
+      ]
+    },
+    {
+      "prefix": "EVT",
+      "module": "events",
+      "origin": "REBUILD.md §8.7",
+      "assertions": [
+        {
+          "id": "EVT-1",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "事件节奏基线：冷却真实天数、重现间隔、无元旦清零",
+          "legacy": "旧版 test-event-cadence 13 项语义"
+        },
+        {
+          "id": "EVT-2",
+          "tier": "data",
+          "mode": "data",
+          "text": "内容契约全量跑：schema/词表/门槛等值（含情报/人脉/靠山）/id 唯一/followUp 可接线",
+          "legacy": "旧版 test-event-content 41 项语义扩展"
+        },
+        {
+          "id": "EVT-3",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "五时代双向差异：相邻时代同身份推 12 个月，处境池差异非空",
+          "legacy": "旧版时代覆盖断言"
+        },
+        {
+          "id": "EVT-4",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "合池采样：模板侧占比有界；硬事件加量不压缩模板配额",
+          "mut": "还原硬事件优先 → 模板占比塌方（必须失败）",
+          "legacy": "旧版 0.8%→30.8% 修复的防回归"
+        },
+        {
+          "id": "EVT-5",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "街谈占比 ≤ 上限"
+        },
+        {
+          "id": "EVT-6",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "双重门槛：门槛不足 + 直接结算请求 → 拒绝（非静默降级）",
+          "mut": "还原静默降级 → 点 C 得 A（必须失败）",
+          "legacy": "旧版玩家契约事故的防回归"
+        },
+        {
+          "id": "EVT-7",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "payload 往返零丢失（含 requiresForces 逐字段比对）",
+          "mut": "schema 漏登记字段 → 往返丢失（必须失败）",
+          "legacy": "旧版 requiresForces 剥键事故的防回归"
+        },
+        {
+          "id": "EVT-8",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "rng 确定性：同 (monthIndex, salt) 重放抽取序列逐位一致"
+        },
+        {
+          "id": "EVT-9",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "过期队列不被投影替代：过期后 ResolveRef 引用即报错"
+        }
+      ]
+    },
+    {
+      "prefix": "ECO",
+      "module": "economy",
+      "origin": "REBUILD.md §9.9",
+      "assertions": [
+        {
+          "id": "ECO-1",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "等价锁：specialty→ResourceSite 后 nationalSupply 逐商品相等（1e-9 ×3 初始状态）",
+          "legacy": "旧版标定纪律第 1 步"
+        },
+        {
+          "id": "ECO-2",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "回压回归：volume 50/500/2000 三点实测锚对齐（420/3800/11760；8.40/7.60/5.88）",
+          "legacy": "旧版 test-trade-saturation 27 项锚点"
+        },
+        {
+          "id": "ECO-3",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "印钞机防回归：40× 运量 ≠ 40× 利润",
+          "mut": "压缩系数归零 → 40×=40×（必须失败）",
+          "legacy": "旧版 A/B 断言形态"
+        },
+        {
+          "id": "ECO-4",
+          "tier": "unit",
+          "mode": "static",
+          "text": "口径漂移：OUTPUT_UNITS 两处相等（源码正则）",
+          "legacy": "旧版口径漂移防护"
+        },
+        {
+          "id": "ECO-5",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "四闸顺序：时间/归属/阵营/通达各拦一例，blockedBy 正确",
+          "legacy": "旧版 test-resource-supply 语义"
+        },
+        {
+          "id": "ECO-6",
+          "tier": "data",
+          "mode": "data",
+          "text": "档位防虚高：国内石油不得高档；晋绥存在高档煤矿",
+          "legacy": "旧版双侧断言"
+        },
+        {
+          "id": "ECO-7",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "共担：同款商路 ×5 与单条 5 倍量共担，无套利"
+        },
+        {
+          "id": "ECO-8",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "降级安全：删 political-1936.json → tick 照常零 crash，价格退化旧口径"
+        },
+        {
+          "id": "ECO-9",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "中价不动不变式（±0.5 容差）"
+        }
+      ]
+    },
+    {
+      "prefix": "BIL",
+      "module": "billing",
+      "origin": "REBUILD.md §10.7",
+      "assertions": [
+        {
+          "id": "BIL-1",
+          "tier": "e2e",
+          "mode": "mock-llm",
+          "text": "按次模式全流程调用计数：单回合（含 memory 兜底触发、处境结算、提议块）恰好 1 次",
+          "mut": "模式开关失效 → 计数 ≠1（必须失败）",
+          "legacy": "新增"
+        },
+        {
+          "id": "BIL-2",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "extractor off 记忆地板：清空模型 memory 补丁 + importance ≥7 结算 → items 仍新增 engine 条目",
+          "legacy": "新增（依赖引擎保底）"
+        },
+        {
+          "id": "BIL-3",
+          "tier": "e2e",
+          "mode": "zero-llm",
+          "text": "零调用路径：序章+过月 12 月+读报+存读档全流程计数 = 0",
+          "legacy": "旧版零调用地板"
+        },
+        {
+          "id": "BIL-4",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "切换即时生效：token→call 后下一回合 extractor 不触发"
+        },
+        {
+          "id": "BIL-5",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "预算档位注入快照（12/18/24 历史；4000/5000/6000 世界书；800/1200/1200 记忆槽）；三档 schema 均过"
+        },
+        {
+          "id": "BIL-6",
+          "tier": "unit",
+          "mode": "static",
+          "text": "主补丁契约：extractor off 时 systemPrompt 含 memory 写入指令段（prompt 快照）"
+        },
+        {
+          "id": "BIL-7",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "成本面板双计量与 mock 计数一致",
+          "legacy": "旧版成本可见性硬风险转正"
+        }
+      ]
+    },
+    {
+      "prefix": "DAT",
+      "module": "data",
+      "origin": "附录 D-12",
+      "assertions": [
+        {
+          "id": "DAT-1",
+          "tier": "data",
+          "mode": "data",
+          "text": "表内不变量：各表「不变量」行全过（eras 无缝 / 40 组合唯一 / provinceId 唯一 / consumes DAG / 区间不重叠…）"
+        },
+        {
+          "id": "DAT-2",
+          "tier": "data",
+          "mode": "data",
+          "text": "跨表六组：specialty↔commodities、produces/consumes↔commodities、transport↔cities、eraIds↔eras、timeline.themes↔事件 tags 同词表、basePrice↔物价锚"
+        },
+        {
+          "id": "DAT-3",
+          "tier": "data",
+          "mode": "data",
+          "text": "政治数据集：覆盖层合并集四守卫（无空档/存续期包含/running-max 重叠复算/coverage 一致）",
+          "legacy": "旧版 test-political-dataset 47 项语义升格"
+        },
+        {
+          "id": "DAT-4",
+          "tier": "data",
+          "mode": "data",
+          "text": "条件分支审计：覆盖层存在校合并集，不存在校 1936 锚点"
+        },
+        {
+          "id": "DAT-5",
+          "tier": "data",
+          "mode": "data",
+          "text": "toponyms 第一圈区间不重叠；prologue 槽位渲染完整句"
+        },
+        {
+          "id": "DAT-6",
+          "tier": "data",
+          "mode": "data",
+          "text": "intervene.requires 谓词全部可被 resolver 求值",
+          "legacy": "新增（条件谓词升格）"
+        },
+        {
+          "id": "DAT-01",
+          "tier": "data",
+          "mode": "data",
+          "text": "`L0-01` ↔ `L0-02`：40 组合全覆盖无遗漏；eraIds.length === 5",
+          "rel": "v1.0 DAT-2 一侧"
+        },
+        {
+          "id": "DAT-02",
+          "tier": "data",
+          "mode": "data",
+          "text": "`L0-04` ↔ `L0-06`：city.specialty 全命中 commodity.id",
+          "rel": "v1.0 DAT-2 一侧"
+        },
+        {
+          "id": "DAT-03",
+          "tier": "data",
+          "mode": "data",
+          "text": "`L0-05` ↔ `L0-04`：transport.from/to 全可解析",
+          "rel": "v1.0 DAT-2 一侧"
+        },
+        {
+          "id": "DAT-04",
+          "tier": "data",
+          "mode": "data",
+          "text": "`L0-08` ↔ `L0-15`：timeline.themes 与事件 tags 同词表（单源）",
+          "rel": "v1.0 DAT-2 一侧"
+        },
+        {
+          "id": "DAT-05",
+          "tier": "data",
+          "mode": "data",
+          "text": "清单 ↔ 代码：schemaVersion 不符 → 拒载（非空断言）",
+          "rel": "§十七 D-02"
+        },
+        {
+          "id": "DAT-06",
+          "tier": "data",
+          "mode": "data",
+          "text": "清单 ↔ 数据：表 hash 不符 → 拒载（非空断言）",
+          "rel": "§十七 D-03"
+        },
+        {
+          "id": "DAT-07",
+          "tier": "data",
+          "mode": "data",
+          "text": "`L0-02` ↔ 物价锚：startMoney 量级纪律（承 §9.6 尺度纪律表）"
+        },
+        {
+          "id": "DAT-08",
+          "tier": "data",
+          "mode": "data",
+          "text": "`L0-03` ↔ `L0-16`：talents.effects 全过受限指令集（复用 resolver 语义，零平行机制）"
+        },
+        {
+          "id": "DAT-09",
+          "tier": "data",
+          "mode": "data",
+          "text": "`L0-05`：交通图连通性（出行基线口径）"
+        },
+        {
+          "id": "DAT-10",
+          "tier": "data",
+          "mode": "data",
+          "text": "`L0-06` ↔ systemPrompt：basePrice ↔ 物价锚表数值一致（防两表漂移）",
+          "rel": "与 NUM-1 同族"
+        },
+        {
+          "id": "DAT-11",
+          "tier": "data",
+          "mode": "data",
+          "text": "`L0-07` ↔ `L0-06`：produces / consumes 可解析；consumes 链无环"
+        },
+        {
+          "id": "DAT-12",
+          "tier": "data",
+          "mode": "data",
+          "text": "`L0-08`：intervene.requires 谓词全部可求值（不可求值即报错，防「形同虚设」）",
+          "rel": "v1.0 DAT-6"
+        },
+        {
+          "id": "DAT-13",
+          "tier": "data",
+          "mode": "data",
+          "text": "`L0-09`：政治覆盖层合并器四守卫（无空档／存续期包含／重叠复算／coverage 一致）",
+          "rel": "v1.0 DAT-3"
+        },
+        {
+          "id": "DAT-14",
+          "tier": "data",
+          "mode": "data",
+          "text": "`L0-10`：同 provinceId 区间不重叠",
+          "rel": "v1.0 DAT-5 一侧"
+        },
+        {
+          "id": "DAT-15",
+          "tier": "data",
+          "mode": "data",
+          "text": "`L0-11`：槽位渲染后无残留占位符",
+          "rel": "v1.0 DAT-5 一侧"
+        },
+        {
+          "id": "DAT-16",
+          "tier": "data",
+          "mode": "data",
+          "text": "`L0-13` ↔ `L0-04`：newspaper.city 可解析"
+        },
+        {
+          "id": "DAT-17",
+          "tier": "data",
+          "mode": "data",
+          "text": "`L0-15` / `L0-16`：事件与模板 id 唯一、followUp 可接线、门槛字段等值"
+        },
+        {
+          "id": "DAT-18",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "L0 深冻结：写入即抛错（内容包 loader 输出不可变）",
+          "rel": "§十七 D-06"
+        },
+        {
+          "id": "DAT-19",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "三检无降级分支：版本不符／缺表／hash 不符各自抛错（拒载而非猜测）",
+          "rel": "§十七 D-02"
+        },
+        {
+          "id": "DAT-20",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "表序稳定：LoadedData 键序 = L0-01…L0-16",
+          "rel": "§十七 D-06"
+        },
+        {
+          "id": "DAT-21",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "hash 稳定序列化：键序打乱后 hash 不变",
+          "rel": "§十七 D-03"
+        },
+        {
+          "id": "DAT-22",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "__proto__ 防护 ＋ payload 往返零丢失（三处共用断言）",
+          "rel": "承 v1.0 EVT-7 形态"
+        }
+      ],
+      "notes": [
+        "〔v2.0〕v2.0 新增零填充序列 DAT-01～DAT-22（逐表粒度）。与 v1.0 的 DAT-1～DAT-6 为**同一门的两种粒度**：v1.0 为聚合表述（如 DAT-2「跨表六组」），本组为逐表表述；两者**同时保留**，逐表者更严。DAT-01～DAT-17 ⊂ test:data；DAT-18～DAT-22 为 v2.0 新增不变式。条数以本账本为准，正文不写死。"
+      ]
+    },
+    {
+      "prefix": "NUM",
+      "module": "numeric",
+      "origin": "附录 E-4",
+      "assertions": [
+        {
+          "id": "NUM-1",
+          "tier": "data",
+          "mode": "data",
+          "text": "物价锚单源：systemPrompt 文案 ↔ commodities.basePrice ↔ E-1.1 三方一致"
+        },
+        {
+          "id": "NUM-2",
+          "tier": "data",
+          "mode": "data",
+          "text": "量纲带拦截：全事件 costBand × 身份月收入 ∈ [0.1,10]",
+          "mut": "插入 500 银元学生事件 → 拦截（必须失败）",
+          "legacy": "旧版尺度错配事故的结构解"
+        },
+        {
+          "id": "NUM-3",
+          "tier": "data",
+          "mode": "data",
+          "text": "声望档位门槛：全事件 requires 落档位边界（0/20/50/80）±2"
+        },
+        {
+          "id": "NUM-4",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "史实锚定校准：五时代开局各推 12 月，城池控制与时间线偏差 ≤2 座",
+          "mut": "扩张系数 ×2 注入 → 偏差爆表（必须失败）"
+        },
+        {
+          "id": "NUM-5",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "台阶衔接联测：民团顶配(100)攻不动典型城；正规营伍入门(100+1.2)可攻"
+        },
+        {
+          "id": "NUM-6",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "通胀体验带：各时代首月食宿支出/典型收入 ∈ 目标带（快照）"
+        },
+        {
+          "id": "NUM-7",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "进度弧线快照：无干预模拟 60 月 ×3 身份，声望 ≥50、结余跨入金带至少一次",
+          "mut": "声望获得率归零 → 弧线断（必须失败）",
+          "legacy": "新增（旧版无弧线验证）"
+        },
+        {
+          "id": "NUM-8",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "回压实测锚三点回归（归口 ECO-2，此处引用计数）"
+        }
+      ]
+    },
+    {
+      "prefix": "SAV",
+      "module": "save-meta",
+      "origin": "附录 F-7",
+      "assertions": [
+        {
+          "id": "SAV-1",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "日结滚动：同日 3 回合 → 1 条 DayLog（facts 覆盖 3 回合）；日期推进 → 昨日落档、facts 全量、日叙在预算内"
+        },
+        {
+          "id": "SAV-2",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "事实不灭：第 40 日抽查第 5 日 DayLog，deal/move/situation 与 turnLog 逐笔一致；facts 数不随月关账减少",
+          "mut": "月关账误删 facts → 抽查 diff 必须失败",
+          "legacy": "新增"
+        },
+        {
+          "id": "SAV-3",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "约定到期：promise dueDate 到期次月，events 注入对应处境（台账驱动非合池）",
+          "mut": "撤台账检查 → 到期无处境（必须失败）",
+          "legacy": "新增"
+        },
+        {
+          "id": "SAV-4",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "call 模式压缩：无 LLM 参与下日结照常（引擎 facts 全量 + 规则日叙），调用计数不增"
+        },
+        {
+          "id": "SAV-5",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "死亡完结：濒死缓冲 1 月 → 仍 ≤0 → 讣告 + 生平 + 档位完结 + CameoRecord 入注册表（全确定性）"
+        },
+        {
+          "id": "SAV-6",
+          "tier": "e2e",
+          "mode": "zero-llm",
+          "text": "完结档只读：加载 = 讣告视图，无回合操作入口"
+        },
+        {
+          "id": "SAV-7",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "时间一致性：CameoRecord（1930–1937）在新档 1929/1936 可触发、1948 必不触发",
+          "mut": "撤时间过滤 → 1948 触发（必须失败）",
+          "legacy": "新增（平行时空彩蛋）"
+        },
+        {
+          "id": "SAV-8",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "解锁链：触发客串 → 成就「平行时空」→ 开关显形 → 关闭后同档不再触发（状态机）"
+        },
+        {
+          "id": "SAV-9",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "跨档隔离：档 A 改史不影响档 B（两档同日推 12 月结果一致）",
+          "legacy": "新增（每档独立世界）"
+        },
+        {
+          "id": "SAV-10",
+          "tier": "e2e",
+          "mode": "zero-llm",
+          "text": "离线：存档后（时钟 mock）读档，世界状态逐位一致"
+        },
+        {
+          "id": "SAV-11",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "在途合并：+7 天旅行 → 1 条 transit DayLog；跨月回合日结先于月关账；空日 DayLog 落档但向量索引跳过",
+          "legacy": "新增"
+        },
+        {
+          "id": "SAV-12",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "IDB 单事务原子：注入写入中途失败 → 库内无半写记录，原档完好",
+          "rel": "S-02、S-06"
+        },
+        {
+          "id": "SAV-13",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "跨 store 原子：saves ＋ meta 同事务；拆两次事务的写法必须失败",
+          "rel": "S-02、S-03"
+        },
+        {
+          "id": "SAV-14",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "key 不入档：序列化后的 SaveRecord / MetaStore 字符串搜索不得含 key",
+          "rel": "S-01、S-04；与 LLM-12 互为两侧"
+        },
+        {
+          "id": "SAV-15",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "版本门四态：等／高／低／缺失 → 各自行为（高与低均拒载）",
+          "rel": "S-05、S-06"
+        },
+        {
+          "id": "SAV-16",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "配额超限策略：模拟配额不足 → 可见提示 ＋ 清理最旧自动档；主档不丢",
+          "rel": "S-17"
+        },
+        {
+          "id": "SAV-17",
+          "tier": "unit",
+          "mode": "static",
+          "text": "memoryIndex 为独立 object store；SaveRecord 不引用任何向量字段",
+          "rel": "S-02、S-18"
+        },
+        {
+          "id": "SAV-18",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "自动档滚动：推 20 月 → autoSaves 恰 12 条且为最近 12 月；完结后冻结",
+          "rel": "S-11、S-17"
+        },
+        {
+          "id": "SAV-19",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "回溯确定性：读月初档后推 3 月，与首次同输入推 3 月逐位一致",
+          "rel": "S-12；承附录 F-5.3-11c（v1.0 文字条目，本次建账）"
+        },
+        {
+          "id": "SAV-20",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "分叉丢弃：分叉点后 DayLog／记忆条目清除（diff）；meta 成就保留",
+          "rel": "S-12；承附录 F-5.3-11d（同上）"
+        }
+      ],
+      "notes": [
+        "〔v2.0〕v2.0 新增 SAV-12～SAV-20。SAV-1～SAV-11 为 v1.0 承继（不改）。SAV-19／SAV-20 承 v1.0 附录 F-5.3-11c／11d 的文字条目（v1.0 未建账，本次补建）。"
+      ]
+    },
+    {
+      "prefix": "TEC",
+      "module": "tech-stack",
+      "origin": "REBUILD.md §十四（契约 TEC-01～TEC-05；一契约一断言，ID 与契约同形）",
+      "assertions": [
+        {
+          "id": "TEC-01",
+          "tier": "unit",
+          "mode": "static",
+          "text": "依赖与版本策略：package.json 无浮动范围（^ / ~ / latest / *）；全仓库唯一 lockfile 且入库；升级为独立提交"
+        },
+        {
+          "id": "TEC-02",
+          "tier": "unit",
+          "mode": "static",
+          "text": "目录树 ↔ §十六 L-01 八层表一一对应；src/ 顶层不出现表外目录（防 core / utils / common 复活）"
+        },
+        {
+          "id": "TEC-03",
+          "tier": "unit",
+          "mode": "static",
+          "text": "代理同源且 Cloudflare 不可替换：前端只请求本站 /api/*；唯一例外＝玩家自配 embedding 端点；服务端零留存 key（不入 KV/D1/日志/分析）"
+        },
+        {
+          "id": "TEC-04",
+          "tier": "unit",
+          "mode": "static",
+          "text": "命令清单齐全（dev/build/typecheck/lint/test/test:data/data:hash/gate/gate:mut/gate:graph/deploy）；gate 退出码即完成宣称唯一依据"
+        },
+        {
+          "id": "TEC-05",
+          "tier": "unit",
+          "mode": "static",
+          "text": "禁用项不出现在依赖图与产物：Electron / Tauri / Capacitor / Flutter / RN、PWA / Service Worker / manifest / Workbox、独立 Node 服务端、raster 渲染链与像素回归"
+        }
+      ]
+    },
+    {
+      "prefix": "MOB",
+      "module": "mobile",
+      "origin": "REBUILD.md §十五（契约 MOB-01～MOB-06；一契约一断言，ID 与契约同形）",
+      "assertions": [
+        {
+          "id": "MOB-01",
+          "tier": "unit",
+          "mode": "static",
+          "text": "一份构建双端：单产物同时服务桌面与手机；L7 及以下不出现设备判断（matchMedia / UA 嗅探 / navigator）"
+        },
+        {
+          "id": "MOB-02",
+          "tier": "unit",
+          "mode": "static",
+          "text": "断点常量与 §十五 MOB-02 表一致；360px 宽无横向滚动；固定定位用 env(safe-area-inset-*)；关键容器高度不用 vh"
+        },
+        {
+          "id": "MOB-03",
+          "tier": "unit",
+          "mode": "static",
+          "text": "可交互元素命中区 ≥44×44 CSS px（触区常量断言）；hover 态存在非 hover 等价路径"
+        },
+        {
+          "id": "MOB-04",
+          "tier": "unit",
+          "mode": "static",
+          "text": "长列表 >200 项强制虚拟滚动或分页（阈值常量断言）；虚拟滚动不改变数据顺序"
+        },
+        {
+          "id": "MOB-05",
+          "tier": "unit",
+          "mode": "static",
+          "text": "首屏（壳＋开局菜单）≤300KB gzip；首屏 import 图无 maplibre 与任何地图数据；开局菜单零网络可渲染"
+        },
+        {
+          "id": "MOB-06",
+          "tier": "unit",
+          "mode": "static",
+          "text": "产物无 Service Worker / manifest.webmanifest / Workbox；无后台推演定时器（关标签页即结束）"
+        }
+      ]
+    },
+    {
+      "prefix": "LAYER",
+      "module": "architecture-layers",
+      "origin": "REBUILD.md §十六",
+      "note": "§十六.8 已标注 LAYER-1／LAYER-2／LAYER-3 分别是 v1.0 的 ARC-1／ARC-1.mut／ARC-4 的别名，**不重复建账**；本组只建 4 条新增。",
+      "assertions": [
+        {
+          "id": "LAYER-4",
+          "tier": "unit",
+          "mode": "static",
+          "text": "层表改但 lint 规则未同步 → 必须失败（防双份分层表）",
+          "rel": "L-06"
+        },
+        {
+          "id": "LAYER-5",
+          "tier": "unit",
+          "mode": "static",
+          "text": "`EXEMPT:` 注释与豁免表双向不符 → 必须失败（未登记的 disable 注释即失败）",
+          "rel": "L-07"
+        },
+        {
+          "id": "LAYER-6",
+          "tier": "unit",
+          "mode": "static",
+          "text": "`src/` 出现 `src/core/` 路径 → 必须失败（废除中间层，承 L-04 定案）",
+          "rel": "L-04"
+        },
+        {
+          "id": "LAYER-7",
+          "tier": "unit",
+          "mode": "static",
+          "text": "L2 文件数 ≠ 模块数（16）→ 必须失败（一模块一文件）",
+          "rel": "L-05"
+        }
+      ]
+    },
+    {
+      "prefix": "MOD",
+      "module": "engine-modules",
+      "origin": "REBUILD.md §十八",
+      "assertions": [
+        {
+          "id": "MOD-1",
+          "tier": "unit",
+          "mode": "static",
+          "text": "管线顺序定义唯一（无第二份顺序数组）；相位数量 11 ＋ 5",
+          "rel": "M-06、M-12"
+        },
+        {
+          "id": "MOD-2",
+          "tier": "unit",
+          "mode": "static",
+          "text": "M-08 三重映射表 ↔ 模块声明 ↔ M-07 文件配对三者一致",
+          "rel": "M-07、M-08、M-10"
+        },
+        {
+          "id": "MOD-3",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "越界写：dev/test ⇒ 断言失败；runtime ⇒ 记 diagnostic 且世界零变更（已提交 op 不回溯撤销）",
+          "rel": "M-02、M-09"
+        },
+        {
+          "id": "MOD-4",
+          "tier": "unit",
+          "mode": "static",
+          "text": "库层调用方唯一性（如 resourceSupply 仅 market 调用）＋ 库函数纯度",
+          "rel": "M-11"
+        },
+        {
+          "id": "MOD-5",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "同月每模块调用次数 ≡ 1（调用矩阵）",
+          "rel": "M-12"
+        },
+        {
+          "id": "MOD-6",
+          "tier": "unit",
+          "mode": "static",
+          "text": "M-03 写域表 ↔ sanitize 白名单逐行一致（防第二份清单）",
+          "rel": "与 LLM-16 为同一断言的两侧"
+        },
+        {
+          "id": "MOD-7",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "有序写者链③ memory.items 三源同通道，保底先于补写提交",
+          "rel": "M-04；落 §二十一 S-*"
+        }
+      ]
+    },
+    {
+      "prefix": "BUS",
+      "module": "bus-orchestration",
+      "origin": "REBUILD.md §十九",
+      "assertions": [
+        {
+          "id": "BUS-1",
+          "tier": "unit",
+          "mode": "static",
+          "text": "ctx 全字段只读；模块无法持引用写回（发布权归 L3）",
+          "rel": "B-01、B-04"
+        },
+        {
+          "id": "BUS-2",
+          "tier": "unit",
+          "mode": "static",
+          "text": "ctx.market 发布点唯一；无第二获取路径",
+          "rel": "B-03、B-04"
+        },
+        {
+          "id": "BUS-3",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "批内任一 op 非法 → 世界零变更（原子回滚）",
+          "rel": "B-06"
+        },
+        {
+          "id": "BUS-4",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "同 state 同输入 → 同 ops（命令与意图等价，编译器单点）",
+          "rel": "B-07；落 §二十 LL-08"
+        },
+        {
+          "id": "BUS-5",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "门槛不足 ＋ 直接结算请求 → 拒绝（防静默降级回归）",
+          "rel": "B-09；承 §8.7-6"
+        },
+        {
+          "id": "BUS-6",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "提交失败 → 不 bump 域版本（UI 不重算旧数据）",
+          "rel": "B-10"
+        },
+        {
+          "id": "BUS-7",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "双管线不交错：simulation 完整跑完才进 aftermath",
+          "rel": "B-05"
+        }
+      ]
+    },
+    {
+      "prefix": "UI",
+      "module": "ui-read-channel",
+      "origin": "REBUILD.md §二十二",
+      "assertions": [
+        {
+          "id": "UI-1",
+          "tier": "unit",
+          "mode": "static",
+          "text": "selector reads 完备性（开发期代理检测）＋ 字面量性（静态检查）",
+          "rel": "U-01"
+        },
+        {
+          "id": "UI-2",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "跨断点一致性：同 state 在 sm／md／lg 下全部 selector 输出逐位一致",
+          "rel": "U-07"
+        },
+        {
+          "id": "UI-3",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "虚拟滚动不改数据且排序键稳定唯一",
+          "rel": "U-07"
+        },
+        {
+          "id": "UI-4",
+          "tier": "unit",
+          "mode": "static",
+          "text": "零规则重实现：门槛判定函数只有一个定义处（UI 与结算层同源）",
+          "rel": "U-03；与 §十九 B-09 互为两侧"
+        },
+        {
+          "id": "UI-5",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "地图聚合缓存键为四元组（缺一即失败）＋ 删缓存重算逐位一致",
+          "rel": "U-04；视图非权威承 §13.6-3"
+        },
+        {
+          "id": "UI-6",
+          "tier": "unit",
+          "mode": "static",
+          "text": "面板注册表与 §二十二 U-05 表一致；面板数 = 11（地图位含在内）",
+          "rel": "U-05、U-06"
+        },
+        {
+          "id": "UI-7",
+          "tier": "e2e",
+          "mode": "zero-llm",
+          "text": "无查询参数时观测面板不挂载、零请求、零调用",
+          "rel": "U-08"
+        },
+        {
+          "id": "UI-8",
+          "tier": "unit",
+          "mode": "static",
+          "text": "DebugPanel 无直写 state 路径（写必经 L5 ＋ sanitize）",
+          "rel": "U-08"
+        },
+        {
+          "id": "UI-9",
+          "tier": "unit",
+          "mode": "static",
+          "text": "呈现参数不进入任何 memo 键；UI 偏好只落 localStorage 且不进存档",
+          "rel": "U-07、U-02"
+        }
+      ]
+    }
+  ]
+}

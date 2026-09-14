@@ -1,0 +1,55 @@
+{
+  "name": "vicissitudes",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "民国风云 · Vicissitudes — browser-native grand-strategy life sim (see ../rebuild-v2.0/REBUILD.md)",
+  "engines": {
+    "node": ">=20"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "unrs-resolver",
+      "workerd"
+    ]
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "vue-tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:e2e": "vitest run tests/e2e --passWithNoTests",
+    "test:data": "vitest run tests/data --passWithNoTests",
+    "data:hash": "node scripts/data-hash.mjs",
+    "gate:static": "node scripts/static-checks.mjs",
+    "gate:mut": "node scripts/mut-check.mjs",
+    "gate:graph": "node scripts/graph-check.mjs",
+    "gate": "pnpm typecheck && pnpm lint && pnpm test && pnpm test:data && pnpm gate:static",
+    "deploy": "wrangler pages deploy dist"
+  },
+  "dependencies": {
+    "pinia": "4.0.3",
+    "vue": "3.5.42",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@tsconfig/node24": "24.0.5",
+    "@types/node": "26.5.1",
+    "@vitejs/plugin-vue": "6.0.9",
+    "@vue/tsconfig": "0.9.1",
+    "eslint": "10.10.0",
+    "eslint-import-resolver-typescript": "4.4.5",
+    "eslint-plugin-import-x": "4.17.1",
+    "eslint-plugin-vue": "10.11.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.70.0",
+    "vite": "8.3.0",
+    "vitest": "5.0.0",
+    "vue-eslint-parser": "10.4.1",
+    "vue-tsc": "3.3.11",
+    "wrangler": "4.131.2"
+  }
+}

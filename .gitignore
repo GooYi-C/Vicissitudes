@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.wrangler/
+coverage/
+*.local
+.DS_Store
+# TEC-01：pnpm-lock.yaml 入库（唯一 lockfile），绝不忽略
