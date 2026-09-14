@@ -15,17 +15,8 @@ export function db(): Promise<VicDB> {
   return dbPromise
 }
 
-// 确定性键序序列化（S-02 不变量 5）：递归字典序 —— 同状态产出相同字节
-export function stableStringify(value: unknown): string {
-  const ser = (v: unknown): string => {
-    if (Array.isArray(v)) return `[${v.map(ser).join(',')}]`
-    if (v === null || typeof v !== 'object') return JSON.stringify(v) ?? 'null'
-    if (v instanceof Date) return JSON.stringify(v.toISOString())
-    const keys = Object.keys(v as Record<string, unknown>).sort()
-    return `{${keys.map((k) => `${JSON.stringify(k)}:${ser((v as Record<string, unknown>)[k])}`).join(',')}}`
-  }
-  return ser(value)
-}
+// 确定性键序序列化（S-02 不变量 5）：算法本体住 L1 stableJson（L4 亦共用）；此处转出口
+export { stableStringify } from '../validation/stableJson'
 
 // localStorage 前缀边界（S-02）：vic.* 键只允许 UI 偏好白名单
 const LS_ALLOWED_KEYS = new Set(['vic.ui.lastPanel', 'vic.ui.theme', 'vic.ui.panelOrder'])

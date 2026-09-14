@@ -2,6 +2,26 @@
   "version": 1,
   "edges": [
     {
+      "from": "src/gameCommands/index.ts",
+      "to": "src/turn/compiler.ts"
+    },
+    {
+      "from": "src/gameCommands/index.ts",
+      "to": "src/turn/compiler.ts"
+    },
+    {
+      "from": "src/gameCommands/index.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/gameCommands/index.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/gameCommands/index.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
       "from": "src/main.ts",
       "to": "src/App.vue"
     },
@@ -14,12 +34,24 @@
       "to": "src/validation/tree.ts"
     },
     {
+      "from": "src/parser/authorize.ts",
+      "to": "src/parser/blocks.ts"
+    },
+    {
+      "from": "src/parser/sanitize.ts",
+      "to": "src/turn/compiler.ts"
+    },
+    {
       "from": "src/stores/meta.ts",
       "to": "src/stores/persist.ts"
     },
     {
       "from": "src/stores/persist.ts",
       "to": "src/stores/db.ts"
+    },
+    {
+      "from": "src/stores/persist.ts",
+      "to": "src/validation/stableJson.ts"
     },
     {
       "from": "src/stores/saveSchema.ts",
@@ -36,6 +68,30 @@
     {
       "from": "src/stores/settings.ts",
       "to": "src/stores/persist.ts"
+    },
+    {
+      "from": "src/turn/TurnRunner.ts",
+      "to": "src/turn/compiler.ts"
+    },
+    {
+      "from": "src/turn/TurnRunner.ts",
+      "to": "src/turn/compiler.ts"
+    },
+    {
+      "from": "src/turn/TurnRunner.ts",
+      "to": "src/validation/stableJson.ts"
+    },
+    {
+      "from": "src/turn/TurnRunner.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/turn/TurnRunner.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/turn/compiler.ts",
+      "to": "src/validation/tree.ts"
     }
   ]
 }

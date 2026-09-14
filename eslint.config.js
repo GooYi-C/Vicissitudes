@@ -5,7 +5,10 @@ import pluginVue from 'eslint-plugin-vue'
 import vueParser from 'vue-eslint-parser'
 import tseslint from 'typescript-eslint'
 import importX from 'eslint-plugin-import-x'
+import { readdirSync, existsSync } from 'node:fs'
 import { LAYERS, OUTSIDE_PATHS } from './scripts/layers.mjs'
+
+
 
 // LAYER-003 豁免（§十六 L-07 豁免表，2026-09-15 登记，与文档仓豁免表双向登记）：
 // L7 stores 内部组合（db/persist/saveSchema/saves/settings/meta 六文件）互引不属 L-02 立法本意
@@ -13,25 +16,39 @@ import { LAYERS, OUTSIDE_PATHS } from './scripts/layers.mjs'
 // scripts/static-checks.mjs（LAYER-5 断言：六文件头注 EXEMPT:LAYER-003 + 面外文件出现即提示扩展）。
 // 失效条件：stores 拆层或 persist 并入单文件。
 
+// L-07 豁免面（§十六 L-07 豁免表，2026-09-15 登记，与文档仓豁免表双向登记）：
+// LAYER-003 L7 stores 内部组合；LAYER-004 L4 turn 管线两半（compiler/TurnRunner）；
+// LAYER-005 L6 parser 意图链三段（blocks/authorize/sanitize）。
+// 共同理由：均为「单一职责模块的内部组合」，非 L2 引擎模块运行时信息传递（L-02 立法本意）。
+// 豁免仅覆盖白名单文件；各层新增职责外文件互引仍被拦。失效条件见豁免表各行。
+const LAYER_EXEMPT = new Set([
+  // LAYER-003
+  'src/stores/db.ts', 'src/stores/persist.ts', 'src/stores/saveSchema.ts',
+  'src/stores/saves.ts', 'src/stores/settings.ts', 'src/stores/meta.ts',
+  // LAYER-004
+  'src/turn/compiler.ts', 'src/turn/TurnRunner.ts',
+  // LAYER-005
+  'src/parser/blocks.ts', 'src/parser/authorize.ts', 'src/parser/sanitize.ts',
+])
+
 function layerZones() {
   const zones = []
   const push = (target, from, message) => zones.push({ target: `./${target}`, from: `./${from}`, message })
+  // 列出某目录下的 .ts 文件（豁免面文件级判定需要；目录不存在返回空）
   for (const layer of LAYERS) {
     // L-02 同层零 import（L0 豁免：无状态、无顺序语义）
     if (layer.n !== 0) {
-      for (const t of layer.dirs) {
-        for (const f of layer.dirs) {
-          if (layer.n === 7) {
-            // LAYER-003 豁免（§十六 L-07 豁免表，2026-09-15 登记）：
-            // L7 stores 内部组合（db/persist/saveSchema/saves/settings/meta 六文件）互引不属 L-02
-            // 立法本意（L-02 约束 L2 引擎模块运行时信息流）。
-            // L7 同层 zone 只对「豁免面外文件」生效：豁免六文件互引不生成 zone；
-            // 面外文件（selectors/* 等）与任何 stores 文件互引由 static-checks 的
-            // LAYER-003 双向登记断言拦截（scripts/static-checks.mjs）。
-            // 失效条件：stores 拆层或 persist 并入单文件。
-            continue
+      for (const dir of layer.dirs) {
+        const files = existsSync(dir)
+          ? readdirSync(dir).filter((f) => f.endsWith('.ts') && !f.endsWith('.d.ts')).map((f) => `${dir}/${f}`)
+          : []
+        for (const t of files) {
+          for (const f of files) {
+            if (t === f) continue
+            // L-07 豁免（组合内部互引）：stores/turn/parser 白名单对
+            if (LAYER_EXEMPT.has(t) && LAYER_EXEMPT.has(f)) continue
+            push(t, f, `L-02 同层零 import（§十六）：${t} ↔ ${f} 之间信息只能经 TickContext 与状态树传递`)
           }
-          push(t, f, `L-02 同层零 import（§十六）：${t} ↔ ${f} 之间信息只能经 TickContext 与状态树传递`)
         }
       }
     }

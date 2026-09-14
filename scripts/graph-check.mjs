@@ -11,15 +11,17 @@ const root = join(import.meta.dirname, '..')
 const snapPath = join(root, 'baseline', 'layer-graph.json')
 const UPDATE = process.argv.includes('--update')
 
-// LAYER-003 豁免面（§十六 L-07 豁免表，2026-09-15 登记）：L7 stores 内部组合六文件互引豁免 L-02。
-// 失效条件：stores 拆层或 persist 并入单文件。豁免面外文件（selectors/* 等）与 stores 互引仍判非法。
-const LAYER_003_EXEMPT = new Set([
-  'src/stores/db.ts',
-  'src/stores/persist.ts',
-  'src/stores/saveSchema.ts',
-  'src/stores/saves.ts',
-  'src/stores/settings.ts',
-  'src/stores/meta.ts',
+// L-07 豁免面（§十六 L-07 豁免表，2026-09-15 登记，与 eslint.config.js / 文档仓豁免表三向一致）：
+// LAYER-003 L7 stores 内部组合；LAYER-004 L4 turn 管线两半；LAYER-005 L6 parser 意图链三段。
+// 豁免仅覆盖白名单文件；面外文件互引仍判非法。
+const LAYER_EXEMPT = new Set([
+  // LAYER-003
+  'src/stores/db.ts', 'src/stores/persist.ts', 'src/stores/saveSchema.ts',
+  'src/stores/saves.ts', 'src/stores/settings.ts', 'src/stores/meta.ts',
+  // LAYER-004
+  'src/turn/compiler.ts', 'src/turn/TurnRunner.ts',
+  // LAYER-005
+  'src/parser/blocks.ts', 'src/parser/authorize.ts', 'src/parser/sanitize.ts',
 ])
 
 // 轻量静态 import 提取：TS/JS 的 import ... from '...' / import '...'
@@ -69,8 +71,8 @@ for (const e of edges) {
   const toLayer = layerOf(e.to)
   if (!fromLayer || !toLayer) continue // 组合根 ↔ 层文件：从组合根 import 合法（main.ts 是壳）
   if (fromLayer.n !== 0 && fromLayer.n === toLayer.n) {
-    // LAYER-003：L7 stores 内部组合豁免（仅豁免面内六文件互引）
-    if (!(fromLayer.n === 7 && LAYER_003_EXEMPT.has(e.from) && LAYER_003_EXEMPT.has(e.to))) {
+    // L-07 豁免：组合内部互引（stores/turn/parser 白名单，见上方 LAYER_EXEMPT）
+    if (!(LAYER_EXEMPT.has(e.from) && LAYER_EXEMPT.has(e.to))) {
       illegal.push(`L-02 同层：${e.from} → ${e.to}`)
     }
   }

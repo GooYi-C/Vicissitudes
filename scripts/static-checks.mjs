@@ -125,23 +125,27 @@ check('SAV-4', settingsDefaultHits.length === 0,
 const savesSrc = readFileSync(join(root, 'src', 'stores', 'saves.ts'), 'utf8')
 check('U-2', !/domainVersions?|versionCounter/.test(savesSrc), 'SaveRecord 形状不含域版本号（U-02 不变量 3：版本号是会话级）')
 
-// ── LAYER-003 豁免面双向登记（L-07：注释 ↔ 豁免表；豁免仅覆盖白名单六文件）──
-const LAYER_003 = ['db.ts', 'persist.ts', 'saveSchema.ts', 'saves.ts', 'settings.ts', 'meta.ts']
-const storesDir = join(root, 'src', 'stores')
-const storesFiles = existsSync(storesDir) ? readdirSync(storesDir).filter((f) => f.endsWith('.ts')) : []
-const outsideExempt = storesFiles.filter((f) => !LAYER_003.includes(f))
-// 1) 豁免面外文件（selectors/* 等）出现时：与 stores 内任何文件互引即失败（由图校验承担，此处登记存在性）
-if (outsideExempt.length > 0) {
-  // 面外文件一旦存在，graph-check 的 L-02 校验须把它们算进同层判定（layers/graph 侧同批扩展）
-  check('LAYER-5', existsSync(join(root, 'scripts', 'layers.mjs')), `L7 出现豁免面外文件（${outsideExempt.join(', ')}）——同层 zone 需扩展（见 eslint.config.js LAYER-003 注释）`)
+// ── L-07 豁免面双向登记（注释 ↔ 豁免表；豁免仅覆盖白名单文件）──
+const LAYER_007_EXEMPTS = {
+  'LAYER-003': ['db.ts', 'persist.ts', 'saveSchema.ts', 'saves.ts', 'settings.ts', 'meta.ts'],
+  'LAYER-004': ['compiler.ts', 'TurnRunner.ts'],
+  'LAYER-005': ['blocks.ts', 'authorize.ts', 'sanitize.ts'],
 }
-// 2) 豁免六文件的头部必须带 EXEMPT 注释（双向登记的代码侧留痕）
-const missingMark = LAYER_003.filter((f) => {
-  const p = join(storesDir, f)
-  return existsSync(p) && !readFileSync(p, 'utf8').includes('EXEMPT:LAYER-003')
-})
-check('LAYER-5', missingMark.length === 0,
-  missingMark.length === 0 ? 'LAYER-003 豁免六文件均带 EXEMPT:LAYER-003 头注（L-07 双向登记）' : `缺 EXEMPT:LAYER-003 注释：${missingMark.join(', ')}`)
+const EXEMPT_DIRS = { 'LAYER-003': 'stores', 'LAYER-004': 'turn', 'LAYER-005': 'parser' }
+const missingMarks = []
+for (const [id, files] of Object.entries(LAYER_007_EXEMPTS)) {
+  const dir = join(root, 'src', EXEMPT_DIRS[id])
+  const present = existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith('.ts')) : []
+  for (const f of files) {
+    const p = join(dir, f)
+    if (existsSync(p) && !readFileSync(p, 'utf8').includes(`EXEMPT:${id}`)) missingMarks.push(`${id}: ${f}`)
+  }
+  // 豁免面外文件出现时提示扩展评估（面外文件与豁免面互引会被 lint/graph 拦）
+  const outside = present.filter((f) => !files.includes(f))
+  if (outside.length > 0) check('LAYER-5', true, `${id} 豁免面外文件（${outside.join(', ')}）——互引仍被 lint/graph 拦截`)
+}
+check('LAYER-5', missingMarks.length === 0,
+  missingMarks.length === 0 ? 'L-07 三组豁免（003 stores/004 turn/005 parser）文件均带 EXEMPT 头注（双向登记）' : `缺 EXEMPT 注释：${missingMarks.join(', ')}`)
 
 // ── 汇总 ──────────────────────────────────────────────────────────
 console.log('── 静态断言（TEC-01 / TEC-02 / TEC-05 / L-04）──')
