@@ -128,7 +128,7 @@ check('U-2', !/domainVersions?|versionCounter/.test(savesSrc), 'SaveRecord 形�
 // ── L-07 豁免面双向登记（注释 ↔ 豁免表；豁免仅覆盖白名单文件）──
 const LAYER_007_EXEMPTS = {
   'LAYER-003': ['db.ts', 'persist.ts', 'saveSchema.ts', 'saves.ts', 'settings.ts', 'meta.ts'],
-  'LAYER-004': ['compiler.ts', 'TurnRunner.ts'],
+  'LAYER-004': ['compiler.ts', 'TurnRunner.ts', 'monthRunner.ts'],
   'LAYER-005': ['blocks.ts', 'authorize.ts', 'sanitize.ts'],
 }
 const EXEMPT_DIRS = { 'LAYER-003': 'stores', 'LAYER-004': 'turn', 'LAYER-005': 'parser' }

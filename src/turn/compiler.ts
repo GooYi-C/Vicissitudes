@@ -5,30 +5,10 @@
 // 编译函数签名不含来源参数（LL-08 不变量 2 —— 等价性的结构保证）。
 
 import type { Tree } from '../validation/tree'
+import type { CommandInput, DomainEffect, Operation } from '../validation/effects'
 
-// ── 受限指令集（封闭；新增 = 契约变更，三处同改见 §二十四 SX-03）────
-export type DomainOp =
-  | 'cityEffect' // 对当前城市施加六维效果（§4.5 事件解耦缝的原型指令）
-  | 'setCurrency' // 货币锚点切换（temporal）
-  | 'advanceDate' // 日期推进（Travel 命令 / temporal）
-  | 'memoryWrite' // memory.items 写入（链③：三源同通道）
-  | 'situationEnqueue' // 待决处境入队（events 模块 / resolves 出队对称）
-  | 'situationDequeue' // 待决处境出队（resolves 命令）
-  | 'claimTerritory' // 控制权落账（链①：history/factions/Occupation 同一编译路径）
-  | 'modifyPlayer' // 主角级域（career/player —— sanitize 白名单投影的核心区）
-
-export interface DomainEffect {
-  readonly op: DomainOp
-  readonly args: Readonly<Record<string, unknown>>
-}
-
-// RFC 6902 子集（B-07 不变量 3：ops · RFC 6902，承 arch-minguo.json 边标注）
-export type JsonPatchOp =
-  | { op: 'add'; path: string; value: unknown }
-  | { op: 'remove'; path: string }
-  | { op: 'replace'; path: string; value: unknown }
-
-export type Operation = JsonPatchOp
+// 受限指令集与 Operation 的类型面住 L1 effects.ts（被 L2/L4/L5/L6 共用 —— SK-05 层间修正留痕）
+export type { DomainEffect, DomainOp, JsonPatchOp, Operation, CommandInput } from '../validation/effects'
 
 // ── 指令 → 路径映射（唯一事实源；模型永不直接产出 Operation）────────
 function cityPath(state: Readonly<Tree>, cityId: string, dim: string): string {
@@ -115,11 +95,6 @@ export function compile(effects: readonly DomainEffect[], state: Readonly<Tree>)
   return ops
 }
 
-// 命令编译入口（LL-08）：签名不含来源参数 —— 模型意图与玩家点击进入前已归一为 CommandInput
-export interface CommandInput {
-  readonly cmd: string
-  readonly args: Readonly<Record<string, unknown>>
-}
 export function compileCommand(input: CommandInput, state: Readonly<Tree>): DomainEffect[] {
   // SK-04 命令种子：命令名 → DomainEffect（完整命令集在 SK-06/R 环扩）
   switch (input.cmd) {

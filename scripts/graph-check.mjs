@@ -13,16 +13,17 @@ const UPDATE = process.argv.includes('--update')
 
 // L-07 豁免面（§十六 L-07 豁免表，2026-09-15 登记，与 eslint.config.js / 文档仓豁免表三向一致）：
 // LAYER-003 L7 stores 内部组合；LAYER-004 L4 turn 管线两半；LAYER-005 L6 parser 意图链三段。
-// 豁免仅覆盖白名单文件；面外文件互引仍判非法。
+// LAYER-006 单向：engine 模块 → engine/types.ts（接口定义处，M-01 明示意）。
 const LAYER_EXEMPT = new Set([
   // LAYER-003
   'src/stores/db.ts', 'src/stores/persist.ts', 'src/stores/saveSchema.ts',
   'src/stores/saves.ts', 'src/stores/settings.ts', 'src/stores/meta.ts',
   // LAYER-004
-  'src/turn/compiler.ts', 'src/turn/TurnRunner.ts',
+  'src/turn/compiler.ts', 'src/turn/TurnRunner.ts', 'src/turn/monthRunner.ts',
   // LAYER-005
   'src/parser/blocks.ts', 'src/parser/authorize.ts', 'src/parser/sanitize.ts',
 ])
+const LAYER_006_HUB = 'src/engine/types.ts'
 
 // 轻量静态 import 提取：TS/JS 的 import ... from '...' / import '...'
 function extractImports(file) {
@@ -71,10 +72,12 @@ for (const e of edges) {
   const toLayer = layerOf(e.to)
   if (!fromLayer || !toLayer) continue // 组合根 ↔ 层文件：从组合根 import 合法（main.ts 是壳）
   if (fromLayer.n !== 0 && fromLayer.n === toLayer.n) {
-    // L-07 豁免：组合内部互引（stores/turn/parser 白名单，见上方 LAYER_EXEMPT）
-    if (!(LAYER_EXEMPT.has(e.from) && LAYER_EXEMPT.has(e.to))) {
-      illegal.push(`L-02 同层：${e.from} → ${e.to}`)
-    }
+    // L-07 豁免：组合内部互引（stores/turn/parser 白名单）
+    if (LAYER_EXEMPT.has(e.from) && LAYER_EXEMPT.has(e.to)) continue
+    // LAYER-006：engine 模块 → types.ts（接口处）；registry.ts → 模块（聚合 hub，M-06）
+    if (e.to === LAYER_006_HUB) continue
+    if (e.from === 'src/engine/registry.ts') continue
+    illegal.push(`L-02 同层：${e.from} → ${e.to}`)
   }
   if (toLayer.n > fromLayer.n) illegal.push(`L-01 越层：${e.from}（${fromLayer.id}）→ ${e.to}（${toLayer.id}）`)
 }

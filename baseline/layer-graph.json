@@ -2,12 +2,220 @@
   "version": 1,
   "edges": [
     {
+      "from": "src/engine/consistency.ts",
+      "to": "src/engine/types.ts"
+    },
+    {
+      "from": "src/engine/consistency.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/crisis.ts",
+      "to": "src/engine/types.ts"
+    },
+    {
+      "from": "src/engine/crisis.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/events.ts",
+      "to": "src/engine/types.ts"
+    },
+    {
+      "from": "src/engine/events.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/factions.ts",
+      "to": "src/engine/types.ts"
+    },
+    {
+      "from": "src/engine/factions.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/finance.ts",
+      "to": "src/engine/types.ts"
+    },
+    {
+      "from": "src/engine/finance.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/fiscal.ts",
+      "to": "src/engine/types.ts"
+    },
+    {
+      "from": "src/engine/fiscal.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/goals.ts",
+      "to": "src/engine/types.ts"
+    },
+    {
+      "from": "src/engine/goals.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/history.ts",
+      "to": "src/engine/types.ts"
+    },
+    {
+      "from": "src/engine/history.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/intelligence.ts",
+      "to": "src/engine/types.ts"
+    },
+    {
+      "from": "src/engine/intelligence.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/labor.ts",
+      "to": "src/engine/types.ts"
+    },
+    {
+      "from": "src/engine/labor.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/market.ts",
+      "to": "src/engine/types.ts"
+    },
+    {
+      "from": "src/engine/market.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/memory.ts",
+      "to": "src/engine/types.ts"
+    },
+    {
+      "from": "src/engine/memory.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/registry.ts",
+      "to": "src/engine/consistency.ts"
+    },
+    {
+      "from": "src/engine/registry.ts",
+      "to": "src/engine/crisis.ts"
+    },
+    {
+      "from": "src/engine/registry.ts",
+      "to": "src/engine/events.ts"
+    },
+    {
+      "from": "src/engine/registry.ts",
+      "to": "src/engine/factions.ts"
+    },
+    {
+      "from": "src/engine/registry.ts",
+      "to": "src/engine/finance.ts"
+    },
+    {
+      "from": "src/engine/registry.ts",
+      "to": "src/engine/fiscal.ts"
+    },
+    {
+      "from": "src/engine/registry.ts",
+      "to": "src/engine/goals.ts"
+    },
+    {
+      "from": "src/engine/registry.ts",
+      "to": "src/engine/history.ts"
+    },
+    {
+      "from": "src/engine/registry.ts",
+      "to": "src/engine/intelligence.ts"
+    },
+    {
+      "from": "src/engine/registry.ts",
+      "to": "src/engine/labor.ts"
+    },
+    {
+      "from": "src/engine/registry.ts",
+      "to": "src/engine/market.ts"
+    },
+    {
+      "from": "src/engine/registry.ts",
+      "to": "src/engine/memory.ts"
+    },
+    {
+      "from": "src/engine/registry.ts",
+      "to": "src/engine/settlement.ts"
+    },
+    {
+      "from": "src/engine/registry.ts",
+      "to": "src/engine/temporal.ts"
+    },
+    {
+      "from": "src/engine/registry.ts",
+      "to": "src/engine/trade.ts"
+    },
+    {
+      "from": "src/engine/registry.ts",
+      "to": "src/engine/types.ts"
+    },
+    {
+      "from": "src/engine/registry.ts",
+      "to": "src/engine/types.ts"
+    },
+    {
+      "from": "src/engine/registry.ts",
+      "to": "src/engine/worldtick.ts"
+    },
+    {
+      "from": "src/engine/settlement.ts",
+      "to": "src/engine/types.ts"
+    },
+    {
+      "from": "src/engine/settlement.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/temporal.ts",
+      "to": "src/engine/types.ts"
+    },
+    {
+      "from": "src/engine/temporal.ts",
+      "to": "src/validation/calendar.ts"
+    },
+    {
+      "from": "src/engine/temporal.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/trade.ts",
+      "to": "src/engine/types.ts"
+    },
+    {
+      "from": "src/engine/trade.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/types.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/worldtick.ts",
+      "to": "src/engine/types.ts"
+    },
+    {
+      "from": "src/engine/worldtick.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
       "from": "src/gameCommands/index.ts",
       "to": "src/turn/compiler.ts"
     },
     {
       "from": "src/gameCommands/index.ts",
-      "to": "src/turn/compiler.ts"
+      "to": "src/validation/effects.ts"
     },
     {
       "from": "src/gameCommands/index.ts",
@@ -26,6 +234,26 @@
       "to": "src/App.vue"
     },
     {
+      "from": "src/orchestration/scheduler.ts",
+      "to": "src/engine/registry.ts"
+    },
+    {
+      "from": "src/orchestration/scheduler.ts",
+      "to": "src/engine/rng.ts"
+    },
+    {
+      "from": "src/orchestration/scheduler.ts",
+      "to": "src/engine/types.ts"
+    },
+    {
+      "from": "src/orchestration/scheduler.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/orchestration/world.ts",
+      "to": "src/validation/calendar.ts"
+    },
+    {
       "from": "src/orchestration/world.ts",
       "to": "src/validation/tree.ts"
     },
@@ -39,7 +267,7 @@
     },
     {
       "from": "src/parser/sanitize.ts",
-      "to": "src/turn/compiler.ts"
+      "to": "src/validation/effects.ts"
     },
     {
       "from": "src/stores/meta.ts",
@@ -91,6 +319,34 @@
     },
     {
       "from": "src/turn/compiler.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/turn/compiler.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/turn/compiler.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/turn/monthRunner.ts",
+      "to": "src/engine/types.ts"
+    },
+    {
+      "from": "src/turn/monthRunner.ts",
+      "to": "src/orchestration/scheduler.ts"
+    },
+    {
+      "from": "src/turn/monthRunner.ts",
+      "to": "src/turn/TurnRunner.ts"
+    },
+    {
+      "from": "src/turn/monthRunner.ts",
+      "to": "src/validation/calendar.ts"
+    },
+    {
+      "from": "src/turn/monthRunner.ts",
       "to": "src/validation/tree.ts"
     }
   ]

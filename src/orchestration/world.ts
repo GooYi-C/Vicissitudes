@@ -1,36 +1,20 @@
-// src/orchestration/world.ts — L3 编排（SK-03 起步位：canonical 日期 + authority 三根投影）
-// 完整职责（双管线调度/提交权/调用矩阵）在 SK-05 落地（§二十八 SK-03 范围外）。
-// canonical 日期唯一（SK-03 出口判据）：全仓日期只存在 Tree.world.date 此一处，
-// 引擎与状态层不得出现 new Date()/Date.now()（L-06 no-restricted-globals 拦截）。
+// src/orchestration/world.ts — L3 编排：authority 投影 + 树校验（纯函数位）
+// SK-05 层间修正后分工：月推进「收集→提交」住 L4 turn/monthRunner.ts
+// （提交权 = TurnRunner 住 L4，依 L-01 单向 L4→L3 编排调度器）；
+// 本文件保留：canonical 日期 re-export（L1 calendar）、authority 根只读投影、
+// 树校验入口与深冻结 —— 全部纯函数，无调度无提交。
+// canonical 日期唯一：全仓日期只存在 Tree.world.date 此一处。
 
-import type { GameDate, ReadonlyTree, Tree } from '../validation/tree'
+import type { Tree } from '../validation/tree'
 import { TreeSchema } from '../validation/tree'
 
-// 月序号（monthIndex）：1921-01 = 0；rng 派生与审计共用（B-01）
-export const EPOCH_YEAR = 1921
-export const EPOCH_MONTH = 1 // 1921-01
+// 日期换算纯函数住 L1（L2 temporal 与 L4 monthRunner 共用 —— L-05 纯工具住被依赖层）
+export { monthIndexFrom, dateFromMonthIndex, advanceMonth, EPOCH_YEAR, EPOCH_MONTH } from '../validation/calendar'
 
-export function monthIndexFrom(date: GameDate): number {
-  const [y, m] = date.split('-').map(Number)
-  return (y - EPOCH_YEAR) * 12 + (m - EPOCH_MONTH)
-}
-
-export function dateFromMonthIndex(idx: number): GameDate {
-  const y = EPOCH_YEAR + Math.floor(idx / 12)
-  const m = ((idx % 12) + 12) % 12 + 1
-  return `${y}-${String(m).padStart(2, '0')}` as GameDate
-}
-
-// canonical 日期唯一推进（temporal 模块经此函数产出推进 op；M-03 行 world.date）
-// 纯函数：同输入同输出，无 Date 依赖（B-02）
-export function advanceMonth(date: GameDate): GameDate {
-  return dateFromMonthIndex(monthIndexFrom(date) + 1)
-}
-
-// authority 根的只读投影（查询函数；写入走 L4 编译通道 —— 本文件在 SK-03 不写树）
+// authority 根的只读投影（查询函数；写入走 L4 编译通道）
 // activeOn（claim 层按当前日期查询投影；L0-04 升格：城市控制者不设时代默认字段，唯一事实源 = claim 层）
 export function activeController(
-  tree: Pick<ReadonlyTree, '_authority'>,
+  tree: Pick<Tree, '_authority'>,
   date: string,
 ): string | null {
   const iso = date.length === 7 ? `${date}-01` : date
@@ -38,7 +22,7 @@ export function activeController(
   for (const claim of tree._authority.territoryControl.claims) {
     if (claim.interval.from <= iso && iso < claim.interval.to) active = claim.controller
   }
-  return active // 空档 → null（与「无主」不可区分 —— 由合并器四守卫防（D-08））
+  return active // 空档 → null（与「无主」不可区分 —— 由合并器四守卫防，D-08）
 }
 
 // 深冻结（D-06 同款纪律：运行期对树的写入即抛错）

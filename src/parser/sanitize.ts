@@ -5,7 +5,7 @@
 // Tier 0（LL-06）：authority 路径的 set 一律剥除，先于幅度校验，无豁免。
 // 剥除逐 op 进行（不是整块拒绝）；越界剥除 + 注记，回合继续。
 
-import type { JsonPatchOp } from '../turn/compiler'
+import type { JsonPatchOp } from '../validation/effects'
 
 // ── M-03 写域登记表（单一事实源的结构化投影；改域 = 先改 M-03，本清单自动跟随）──
 // 全部登记行（M-03 表逐行）：

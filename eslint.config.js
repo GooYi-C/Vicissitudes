@@ -26,10 +26,16 @@ const LAYER_EXEMPT = new Set([
   'src/stores/db.ts', 'src/stores/persist.ts', 'src/stores/saveSchema.ts',
   'src/stores/saves.ts', 'src/stores/settings.ts', 'src/stores/meta.ts',
   // LAYER-004
-  'src/turn/compiler.ts', 'src/turn/TurnRunner.ts',
+  'src/turn/compiler.ts', 'src/turn/TurnRunner.ts', 'src/turn/monthRunner.ts',
   // LAYER-005
   'src/parser/blocks.ts', 'src/parser/authorize.ts', 'src/parser/sanitize.ts',
 ])
+
+// LAYER-006（单向豁免，§十六 L-07 豁免表 2026-09-15 登记）：
+// engine 模块 → engine/types.ts（EngineModule/TickContext 接口定义处 —— M-01/L-05 明示意）；
+// engine/registry.ts 为聚合 hub（M-06 单一权威数组 —— 注册表必然 import 全部模块）。
+// 模块↔模块互引仍禁；types/registry → 模块的反向依赖仅 registry 合法（聚合本体）。
+const LAYER_006_HUBS = new Set(['src/engine/types.ts', 'src/engine/registry.ts'])
 
 function layerZones() {
   const zones = []
@@ -47,6 +53,10 @@ function layerZones() {
             if (t === f) continue
             // L-07 豁免（组合内部互引）：stores/turn/parser 白名单对
             if (LAYER_EXEMPT.has(t) && LAYER_EXEMPT.has(f)) continue
+            // LAYER-006 单向豁免：模块 → types.ts/registry.ts（接口处与聚合 hub）；
+            // registry → 模块（聚合本体 —— M-06 单一权威数组必然 import 全部模块）
+            if (LAYER_006_HUBS.has(f)) continue
+            if (t === 'src/engine/registry.ts') continue
             push(t, f, `L-02 同层零 import（§十六）：${t} ↔ ${f} 之间信息只能经 TickContext 与状态树传递`)
           }
         }

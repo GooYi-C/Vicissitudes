@@ -12,8 +12,8 @@ import {
   monthIndexFrom,
   dateFromMonthIndex,
   advanceMonth,
-  activeController,
-} from '../../../src/orchestration/world'
+} from '../../../src/validation/calendar'
+import { activeController } from '../../../src/orchestration/world'
 
 const goodTree = initialTree('era-warlord', '1921-07')
 

@@ -2,7 +2,7 @@
 // 完整命令集（Occupation/Scout/Railway 等）在 R3/SK-06 扩（SX-06 配方：一命令一文件）。
 // 命令层纯函数：(输入, state) → DomainEffect[]，不读 store、不发请求、不看时钟。
 
-import type { CommandInput, DomainEffect } from '../turn/compiler'
+import type { CommandInput, DomainEffect } from '../validation/effects'
 import { compileCommand } from '../turn/compiler'
 import type { Tree } from '../validation/tree'
 import { initialTree } from '../validation/tree'
