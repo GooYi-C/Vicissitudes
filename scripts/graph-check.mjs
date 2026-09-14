@@ -79,7 +79,11 @@ for (const e of edges) {
     if (e.from === 'src/engine/registry.ts') continue
     illegal.push(`L-02 同层：${e.from} → ${e.to}`)
   }
-  if (toLayer.n > fromLayer.n) illegal.push(`L-01 越层：${e.from}（${fromLayer.id}）→ ${e.to}（${toLayer.id}）`)
+  // LAYER-007：L0 数据 → L1 dataSchemas（建表先建 schema）单向豁免
+  const L007 = e.to === 'src/validation/dataSchemas.ts' || e.to === 'src/validation/stableJson.ts'
+  if (toLayer.n > fromLayer.n && !(L007 && fromLayer.n === 0)) {
+    illegal.push(`L-01 越层：${e.from}（${fromLayer.id}）→ ${e.to}（${toLayer.id}）`)
+  }
 }
 
 if (UPDATE) {

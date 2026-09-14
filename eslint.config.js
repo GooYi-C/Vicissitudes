@@ -37,6 +37,11 @@ const LAYER_EXEMPT = new Set([
 // 模块↔模块互引仍禁；types/registry → 模块的反向依赖仅 registry 合法（聚合本体）。
 const LAYER_006_HUBS = new Set(['src/engine/types.ts', 'src/engine/registry.ts'])
 
+// LAYER-007（单向豁免，§十六 L-07 豁免表 2026-09-15 登记）：
+// L0 数据文件 → L1 dataSchemas.ts（D-04「建表先建 schema」—— 数据 import 自己的 schema 自校验）
+// 反向（validation → data）仍禁。
+const LAYER_007_TARGETS = new Set(['src/validation/dataSchemas.ts', 'src/validation/stableJson.ts'])
+
 function layerZones() {
   const zones = []
   const push = (target, from, message) => zones.push({ target: `./${target}`, from: `./${from}`, message })
@@ -67,7 +72,35 @@ function layerZones() {
       if (higher.n <= layer.n) continue
       for (const t of layer.dirs) {
         for (const f of higher.dirs) {
-          push(t, f, `L-01 单向依赖（§十六）：${t}（L${layer.n}）不得 import ${f}（L${higher.n}）`)
+          if (layer.n === 0) {
+            // L0 源侧：数据文件 → L1 仅 dataSchemas 合法（LAYER-007 建表先建 schema）。
+            // zone 用文件×文件矩阵：dataSchemas 目标不生成；其余 L1 文件全拦。
+            const l0Files = existsSync(t)
+              ? readdirSync(t).filter((x) => x.endsWith('.ts') && !x.endsWith('.d.ts')).map((x) => `${t}/${x}`)
+              : []
+            const l1Files = existsSync(f)
+              ? readdirSync(f).filter((x) => x.endsWith('.ts') && !x.endsWith('.d.ts')).map((x) => `${f}/${x}`)
+              : []
+            for (const lf of l0Files) {
+              for (const tf of l1Files) {
+                if (LAYER_007_TARGETS.has(tf)) continue // LAYER-007：数据→schema/序列化工具 单向豁免
+                push(lf, tf, `L-01 单向依赖（§十六）：${lf}（L0）不得 import ${tf}（L1）——数据文件仅可 import dataSchemas（LAYER-007）`)
+              }
+            }
+            continue
+          }
+          // 目标侧文件级（豁免判定需要具体文件）：枚举目标层文件生成 zone
+          const targetFiles = existsSync(f)
+            ? readdirSync(f).filter((x) => x.endsWith('.ts') && !x.endsWith('.d.ts')).map((x) => `${f}/${x}`)
+            : []
+          if (targetFiles.length > 0) {
+            for (const tf of targetFiles) {
+              if (layer.n === 0 && tf === LAYER_007_SCHEMA) continue // LAYER-007
+              push(t, tf, `L-01 单向依赖（§十六）：${t}（L${layer.n}）不得 import ${tf}（L${higher.n}）`)
+            }
+          } else {
+            push(t, f, `L-01 单向依赖（§十六）：${t}（L${layer.n}）不得 import ${f}（L${higher.n}）`)
+          }
         }
       }
     }

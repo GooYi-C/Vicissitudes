@@ -2,6 +2,202 @@
   "version": 1,
   "edges": [
     {
+      "from": "src/data/achievements.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/achievements.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/business.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/business.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/cities.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/cities.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/commodities.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/commodities.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/eras.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/eras.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/events.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/events.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/identities.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/identities.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/loader.ts",
+      "to": "src/data/achievements.ts"
+    },
+    {
+      "from": "src/data/loader.ts",
+      "to": "src/data/business.ts"
+    },
+    {
+      "from": "src/data/loader.ts",
+      "to": "src/data/cities.ts"
+    },
+    {
+      "from": "src/data/loader.ts",
+      "to": "src/data/commodities.ts"
+    },
+    {
+      "from": "src/data/loader.ts",
+      "to": "src/data/eras.ts"
+    },
+    {
+      "from": "src/data/loader.ts",
+      "to": "src/data/events.ts"
+    },
+    {
+      "from": "src/data/loader.ts",
+      "to": "src/data/identities.ts"
+    },
+    {
+      "from": "src/data/loader.ts",
+      "to": "src/data/newspapers.ts"
+    },
+    {
+      "from": "src/data/loader.ts",
+      "to": "src/data/political-1936.json"
+    },
+    {
+      "from": "src/data/loader.ts",
+      "to": "src/data/prologue.ts"
+    },
+    {
+      "from": "src/data/loader.ts",
+      "to": "src/data/situationTemplates.ts"
+    },
+    {
+      "from": "src/data/loader.ts",
+      "to": "src/data/talents.ts"
+    },
+    {
+      "from": "src/data/loader.ts",
+      "to": "src/data/timeline.ts"
+    },
+    {
+      "from": "src/data/loader.ts",
+      "to": "src/data/toponyms.ts"
+    },
+    {
+      "from": "src/data/loader.ts",
+      "to": "src/data/transport.ts"
+    },
+    {
+      "from": "src/data/loader.ts",
+      "to": "src/data/worldbook.ts"
+    },
+    {
+      "from": "src/data/loader.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/loader.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/loader.ts",
+      "to": "src/validation/stableJson.ts"
+    },
+    {
+      "from": "src/data/newspapers.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/newspapers.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/prologue.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/prologue.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/situationTemplates.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/situationTemplates.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/talents.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/talents.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/timeline.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/timeline.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/toponyms.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/toponyms.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/transport.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/transport.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/worldbook.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/data/worldbook.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
       "from": "src/engine/consistency.ts",
       "to": "src/engine/types.ts"
     },

@@ -1,0 +1,89 @@
+{
+  "id": "pol-overlay-1936",
+  "coverage": {
+    "from": "1936-01-01",
+    "to": "1936-12-31"
+  },
+  "groups": [
+    {
+      "groupId": "north",
+      "polities": [
+        {
+          "polityId": "vic.hebei",
+          "from": "1936-01-01",
+          "to": "1936-12-31",
+          "controller": "zhili"
+        },
+        {
+          "polityId": "vic.shanxi",
+          "from": "1936-01-01",
+          "to": "1936-12-31",
+          "controller": "zhiyuan"
+        },
+        {
+          "polityId": "vic.shaanxi",
+          "from": "1936-01-01",
+          "to": "1936-12-31",
+          "controller": "zhiyuan"
+        }
+      ]
+    },
+    {
+      "groupId": "east",
+      "polities": [
+        {
+          "polityId": "vic.jiangsu",
+          "from": "1936-01-01",
+          "to": "1936-12-31",
+          "controller": "guomin"
+        },
+        {
+          "polityId": "vic.zhejiang",
+          "from": "1936-01-01",
+          "to": "1936-12-31",
+          "controller": "guomin"
+        },
+        {
+          "polityId": "vic.shandong",
+          "from": "1936-01-01",
+          "to": "1936-12-31",
+          "controller": "zhili"
+        }
+      ]
+    },
+    {
+      "groupId": "south",
+      "polities": [
+        {
+          "polityId": "vic.guangdong",
+          "from": "1936-01-01",
+          "to": "1936-07-01",
+          "controller": "zhiyuan"
+        },
+        {
+          "polityId": "vic.guangdong",
+          "from": "1936-07-01",
+          "to": "1936-12-31",
+          "controller": "guomin"
+        },
+        {
+          "polityId": "vic.sichuan",
+          "from": "1936-01-01",
+          "to": "1936-12-31",
+          "controller": "zhili"
+        }
+      ]
+    },
+    {
+      "groupId": "northeast",
+      "polities": [
+        {
+          "polityId": "vic.fengtian",
+          "from": "1936-01-01",
+          "to": "1936-12-31",
+          "controller": "ri"
+        }
+      ]
+    }
+  ]
+}

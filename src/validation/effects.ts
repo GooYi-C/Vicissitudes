@@ -15,6 +15,12 @@ export type DomainOp =
   | 'claimTerritory' // 控制权落账（链①：history/factions/Occupation 同一编译路径）
   | 'modifyPlayer' // 主角级域（career/player —— sanitize 白名单投影的核心区）
 
+// 受限指令集封闭枚举（值形态 —— 测试与 sanitize 白名单侧可枚举）
+export const DOMAIN_OPS: readonly DomainOp[] = [
+  'cityEffect', 'setCurrency', 'advanceDate', 'memoryWrite',
+  'situationEnqueue', 'situationDequeue', 'claimTerritory', 'modifyPlayer',
+] as const
+
 export interface DomainEffect {
   readonly op: DomainOp
   readonly args: Readonly<Record<string, unknown>>

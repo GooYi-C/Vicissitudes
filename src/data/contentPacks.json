@@ -1,0 +1,41 @@
+{
+  "id": "vic:content:base",
+  "version": "0.1.0",
+  "schemaVersion": 1,
+  "tables": [
+    "L0-01",
+    "L0-02",
+    "L0-03",
+    "L0-04",
+    "L0-05",
+    "L0-06",
+    "L0-07",
+    "L0-08",
+    "L0-09",
+    "L0-10",
+    "L0-11",
+    "L0-12",
+    "L0-13",
+    "L0-14",
+    "L0-15",
+    "L0-16"
+  ],
+  "hash": {
+    "L0-01": "11d6b7e408342cfc8a2b093e67133f5210c3dc2744dead6b4cf5f696fcee75c8",
+    "L0-02": "62cd494c9057c7d44060427df1ea8e99b22f3d1dbe5f31f29172fc6d603fbe36",
+    "L0-03": "2570803727ef4e50ab96747833aeff86a303babe699700eb51bcd5488619d1a1",
+    "L0-04": "ccd09370178b5afd84e14c613ef27660f50c1d59d2a44534c5801b7e33564627",
+    "L0-05": "8752e1999d88e4ffda5ac6653a0bd5d624c670ec2fa53d7002d9afd3eb1b4cf0",
+    "L0-06": "dedeb9295d46eb4da85ee8f9fec8723b719ee5e83ef9e44620e2bfbf7410e69d",
+    "L0-07": "630c902277596366a3e8ba4c7591b5e10df8ec8464f9271d5a135a41e1419c2d",
+    "L0-08": "9382205ced38c39b6b77d389b414830453eaba388ff19d8b4ab3c8c85efaf1cc",
+    "L0-09": "178e402b024319b37ed09ac01700f3fdf470c1abf1aae3e5483523085b6afbe2",
+    "L0-10": "0d1a4d8c5f2050943f50d23b8f85cad3c92e92ddf7a7e4fe82d4e3456839c741",
+    "L0-11": "caba8171ff84abc2edec192faf21849d05c90c6d8d65610a0e5ae1bdf268118b",
+    "L0-12": "062b80436fc8276429dbae0ea465de91121ffb1506211ac1a1c6ed74fdc939ef",
+    "L0-13": "8a9b57a22744ee62c844789f4726cf7aa24788d9349ff3c23fb751c25e38983a",
+    "L0-14": "feb117a3ebfa82332022e08996ae85e5a37de3d5df6cb0cf14450303287b6061",
+    "L0-15": "ab9b03da6e70873dd4cc08235b042f40bac107563ae9f1388784cff9cd64f6fd",
+    "L0-16": "76d261d93b47a0740beb80f8be0bf7d272f617d232a9a6c50e744b72039969ee"
+  }
+}
