@@ -6,6 +6,14 @@
       "to": "src/App.vue"
     },
     {
+      "from": "src/orchestration/world.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/orchestration/world.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
       "from": "src/stores/meta.ts",
       "to": "src/stores/persist.ts"
     },
@@ -14,8 +22,16 @@
       "to": "src/stores/db.ts"
     },
     {
+      "from": "src/stores/saveSchema.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
       "from": "src/stores/saves.ts",
       "to": "src/stores/persist.ts"
+    },
+    {
+      "from": "src/stores/saves.ts",
+      "to": "src/stores/saveSchema.ts"
     },
     {
       "from": "src/stores/settings.ts",

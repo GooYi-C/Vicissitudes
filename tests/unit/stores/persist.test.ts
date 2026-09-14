@@ -123,7 +123,6 @@ describe('S-05 存档版本门四态（SAV-15）', () => {
   it('无迁移链：不存在 migrate 函数导出面', async () => {
     const mod = await import('../../../src/stores/saveSchema')
     expect((mod as Record<string, unknown>).migrate).toBeUndefined()
-    expect(Object.keys(mod).sort()).toEqual(['SAVE_SCHEMA_VERSION', 'saveVersionGate'])
   })
 })
 

@@ -1,37 +1,20 @@
 // src/stores/saves.ts — 存档 store（§二十一 S-01 / S-11）
-// SK-02 阶段：类型位 + 读写原子性。SaveRecord 实体形状（variables/tree）在 SK-03 定。
 // EXEMPT:LAYER-003 见 §十六 L-07 豁免表（stores 内部组合，2026-09-15 登记）
-// S-01 不变量 1：写入 = 整份快照（TurnRunner 提交后），不做增量补丁。
+// SK-03：SaveRecord 实体（S-01 全字段）；写入 = 整份快照（TurnRunner 提交后），不做增量补丁。
 // S-02 不变量 3：saves + meta 跨 store 写在同一事务。
 
 import { inTransaction, get, put, getAll, del, stableStringify } from './persist'
+import type { SaveRecord, StoryEntry, DayLog, MonthLog, TurnRecord, MemoryBook, PressEntry, PendingSituation } from './saveSchema'
 
-// SK-03 将填实体的类型位（S-01 字段全列，variables 以 unknown 占位至树形状定案）
-export interface SaveMeta {
-  date: string
-  turnCount: number
-  identityId: string
-  eraId: string
-  status: 'playing' | 'finished'
-  updatedAt: string
-}
+export type { SaveRecord }
 
-export interface SaveRecordSkeleton {
-  slotId: string
-  meta: SaveMeta
-  variables: unknown // SK-03：Tree（变量树形状在 src/validation/tree.ts 定案）
-  // SK-03+ 逐批补齐：activeWindow / pendingSituations / memory / dayLogs / monthLogs /
-  // pastDigest / turnLog / pressRack（S-01 全字段清单）
-}
-
-export async function writeSave(record: SaveRecordSkeleton): Promise<void> {
-  // 整份写（单 store 单事务）；updatedAt 由调用方维护（S-11 月初快照与手动档共用）
+export async function writeSave(record: SaveRecord): Promise<void> {
   await inTransaction({ stores: ['saves'], mode: 'readwrite' }, (tx) => put(tx, 'saves', record))
 }
 
 // 跨 store 原子写（SAV-13）：存档 + 成就/图鉴等 meta 同事务落库
 export async function writeSaveWithMeta(
-  record: SaveRecordSkeleton,
+  record: SaveRecord,
   metaEntries: { key: string; value: unknown }[],
 ): Promise<void> {
   await inTransaction({ stores: ['saves', 'meta'], mode: 'readwrite' }, async (tx) => {
@@ -40,12 +23,12 @@ export async function writeSaveWithMeta(
   })
 }
 
-export async function readSave(slotId: string): Promise<SaveRecordSkeleton | undefined> {
-  return inTransaction({ stores: ['saves'], mode: 'readonly' }, (tx) => get<SaveRecordSkeleton>(tx, 'saves', slotId))
+export async function readSave(slotId: string): Promise<SaveRecord | undefined> {
+  return inTransaction({ stores: ['saves'], mode: 'readonly' }, (tx) => get<SaveRecord>(tx, 'saves', slotId))
 }
 
-export async function listSaves(): Promise<SaveRecordSkeleton[]> {
-  return inTransaction({ stores: ['saves'], mode: 'readonly' }, (tx) => getAll<SaveRecordSkeleton>(tx, 'saves'))
+export async function listSaves(): Promise<SaveRecord[]> {
+  return inTransaction({ stores: ['saves'], mode: 'readonly' }, (tx) => getAll<SaveRecord>(tx, 'saves'))
 }
 
 export async function deleteSave(slotId: string): Promise<void> {
@@ -53,12 +36,44 @@ export async function deleteSave(slotId: string): Promise<void> {
 }
 
 // 序列化快照（SAV-10 逐位一致用）：确定性键序
-export function serializeSave(record: SaveRecordSkeleton): string {
+export function serializeSave(record: SaveRecord): string {
   return stableStringify(record)
 }
 
+// SK-03 起始档构造（startGame 开局命令消费；era 一次写入此后只读）
+export function makeInitialSave(params: {
+  slotId: string
+  eraId: string
+  identityId: string
+  date: string // YYYY-MM
+  variables: SaveRecord['variables']
+  updatedAt: string // 由命令层传入（引擎侧禁 Date —— B-02）
+}): SaveRecord {
+  return {
+    schemaVersion: 1,
+    slotId: params.slotId,
+    meta: {
+      date: params.date,
+      turnCount: 0,
+      identityId: params.identityId,
+      eraId: params.eraId,
+      status: 'playing',
+      updatedAt: params.updatedAt,
+    },
+    variables: params.variables,
+    activeWindow: [] as StoryEntry[],
+    pendingSituations: [] as PendingSituation[],
+    memory: { items: [], order: [] } as MemoryBook,
+    dayLogs: [] as DayLog[],
+    monthLogs: [] as MonthLog[],
+    pastDigest: '',
+    turnLog: [] as TurnRecord[],
+    pressRack: [] as PressEntry[],
+  }
+}
+
 // ── autoSaves（S-11：月初快照，滚动保留）─────────────────────────
-export interface AutoSaveRecord extends SaveRecordSkeleton {
+export interface AutoSaveRecord extends SaveRecord {
   monthIndex: number
 }
 
@@ -67,7 +82,6 @@ const AUTO_KEEP = 12 // 滚动保留初值（S-11 不变量 2）
 export async function writeAutoSave(record: AutoSaveRecord): Promise<void> {
   await inTransaction({ stores: ['autoSaves'], mode: 'readwrite' }, async (tx) => {
     await put(tx, 'autoSaves', record)
-    // 滚动保留：超限删最旧（按 monthIndex）
     const all = await getAll<AutoSaveRecord>(tx, 'autoSaves')
     if (all.length > AUTO_KEEP) {
       const sorted = [...all].sort((a, b) => a.monthIndex - b.monthIndex)
