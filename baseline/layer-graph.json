@@ -4,6 +4,22 @@
     {
       "from": "src/main.ts",
       "to": "src/App.vue"
+    },
+    {
+      "from": "src/stores/meta.ts",
+      "to": "src/stores/persist.ts"
+    },
+    {
+      "from": "src/stores/persist.ts",
+      "to": "src/stores/db.ts"
+    },
+    {
+      "from": "src/stores/saves.ts",
+      "to": "src/stores/persist.ts"
+    },
+    {
+      "from": "src/stores/settings.ts",
+      "to": "src/stores/persist.ts"
     }
   ]
 }

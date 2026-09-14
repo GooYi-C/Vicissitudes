@@ -7,6 +7,12 @@ import tseslint from 'typescript-eslint'
 import importX from 'eslint-plugin-import-x'
 import { LAYERS, OUTSIDE_PATHS } from './scripts/layers.mjs'
 
+// LAYER-003 豁免（§十六 L-07 豁免表，2026-09-15 登记，与文档仓豁免表双向登记）：
+// L7 stores 内部组合（db/persist/saveSchema/saves/settings/meta 六文件）互引不属 L-02 立法本意
+// （L-02 约束的是 L2 引擎模块运行时信息流）。豁免清单的机器登记点 =
+// scripts/static-checks.mjs（LAYER-5 断言：六文件头注 EXEMPT:LAYER-003 + 面外文件出现即提示扩展）。
+// 失效条件：stores 拆层或 persist 并入单文件。
+
 function layerZones() {
   const zones = []
   const push = (target, from, message) => zones.push({ target: `./${target}`, from: `./${from}`, message })
@@ -15,6 +21,16 @@ function layerZones() {
     if (layer.n !== 0) {
       for (const t of layer.dirs) {
         for (const f of layer.dirs) {
+          if (layer.n === 7) {
+            // LAYER-003 豁免（§十六 L-07 豁免表，2026-09-15 登记）：
+            // L7 stores 内部组合（db/persist/saveSchema/saves/settings/meta 六文件）互引不属 L-02
+            // 立法本意（L-02 约束 L2 引擎模块运行时信息流）。
+            // L7 同层 zone 只对「豁免面外文件」生效：豁免六文件互引不生成 zone；
+            // 面外文件（selectors/* 等）与任何 stores 文件互引由 static-checks 的
+            // LAYER-003 双向登记断言拦截（scripts/static-checks.mjs）。
+            // 失效条件：stores 拆层或 persist 并入单文件。
+            continue
+          }
           push(t, f, `L-02 同层零 import（§十六）：${t} ↔ ${f} 之间信息只能经 TickContext 与状态树传递`)
         }
       }

@@ -95,6 +95,54 @@ check('TEC-5', bannedHits.length === 0, bannedHits.length === 0 ? '源码禁用�
 // ── SK-00 阶段性目录断言：tests/ 与 baseline/ 就位 ─────────────────
 check('TEC-2', existsSync(join(root, 'baseline', 'assertions.json')), 'baseline/assertions.json 副本在位（文档仓为权威）')
 
+// ── S-02 / S-04 / U-02 侧静态断言（SK-02 起）────────────────────────
+// IO 唯一入口：indexedDB / localStorage 只允许出现在 src/stores/（L0–L6 零 IO）
+const ioHits = []
+for (const f of srcFiles) {
+  const rel = relative(root, f).split(sep).join('/')
+  const text = readFileSync(f, 'utf8')
+  if (!rel.startsWith('src/stores/')) {
+    if (/\bindexedDB\b/.test(text)) ioHits.push(`${rel}: indexedDB（S-02 IO 唯一入口 = src/stores/）`)
+    if (/\blocalStorage\b/.test(text) && !rel.startsWith('src/components/')) ioHits.push(`${rel}: localStorage（S-02 仅 stores persist 与 L8 UI 偏好）`)
+  }
+}
+check('SAV-2', ioHits.length === 0, ioHits.length === 0 ? 'IO 唯一入口：indexedDB/localStorage 只在 src/stores/（组件侧 UI 偏好除外）' : ioHits.join('; '))
+
+// 唯一库名：全 src 只允许 db.ts 出现 indexedDB.open
+const openSites = srcFiles.filter((f) => /indexedDB\.open\s*\(/.test(readFileSync(f, 'utf8')))
+check('SAV-2', openSites.length <= 1 && (openSites.length === 0 || relative(root, openSites[0]).split(sep).join('/') === 'src/stores/db.ts'),
+  openSites.length <= 1 ? 'indexedDB.open 唯一调用点 = src/stores/db.ts（库名 vicissitudes 唯一）' : `多个 open 调用点：${openSites.map((f) => relative(root, f)).join(', ')}`)
+
+// S-04：settings 默认值只在 settings.ts（禁止组件硬编码默认值）
+const settingsDefaultHits = srcFiles.filter((f) => {
+  const rel = relative(root, f).split(sep).join('/')
+  return !rel.startsWith('src/stores/settings') && /DEFAULT_SETTINGS|turnCallMode:\s*['"]/.test(readFileSync(f, 'utf8'))
+})
+check('SAV-4', settingsDefaultHits.length === 0,
+  settingsDefaultHits.length === 0 ? '设置默认值单点：src/stores/settings.ts（S-04 扩展方式）' : `组件硬编码设置默认值：${settingsDefaultHits.map((f) => relative(root, f)).join(', ')}`)
+
+// U-02 不变量 3：域版本号不进存档 —— SaveRecord 形状不得含版本号字段
+const savesSrc = readFileSync(join(root, 'src', 'stores', 'saves.ts'), 'utf8')
+check('U-2', !/domainVersions?|versionCounter/.test(savesSrc), 'SaveRecord 形状不含域版本号（U-02 不变量 3：版本号是会话级）')
+
+// ── LAYER-003 豁免面双向登记（L-07：注释 ↔ 豁免表；豁免仅覆盖白名单六文件）──
+const LAYER_003 = ['db.ts', 'persist.ts', 'saveSchema.ts', 'saves.ts', 'settings.ts', 'meta.ts']
+const storesDir = join(root, 'src', 'stores')
+const storesFiles = existsSync(storesDir) ? readdirSync(storesDir).filter((f) => f.endsWith('.ts')) : []
+const outsideExempt = storesFiles.filter((f) => !LAYER_003.includes(f))
+// 1) 豁免面外文件（selectors/* 等）出现时：与 stores 内任何文件互引即失败（由图校验承担，此处登记存在性）
+if (outsideExempt.length > 0) {
+  // 面外文件一旦存在，graph-check 的 L-02 校验须把它们算进同层判定（layers/graph 侧同批扩展）
+  check('LAYER-5', existsSync(join(root, 'scripts', 'layers.mjs')), `L7 出现豁免面外文件（${outsideExempt.join(', ')}）——同层 zone 需扩展（见 eslint.config.js LAYER-003 注释）`)
+}
+// 2) 豁免六文件的头部必须带 EXEMPT 注释（双向登记的代码侧留痕）
+const missingMark = LAYER_003.filter((f) => {
+  const p = join(storesDir, f)
+  return existsSync(p) && !readFileSync(p, 'utf8').includes('EXEMPT:LAYER-003')
+})
+check('LAYER-5', missingMark.length === 0,
+  missingMark.length === 0 ? 'LAYER-003 豁免六文件均带 EXEMPT:LAYER-003 头注（L-07 双向登记）' : `缺 EXEMPT:LAYER-003 注释：${missingMark.join(', ')}`)
+
 // ── 汇总 ──────────────────────────────────────────────────────────
 console.log('── 静态断言（TEC-01 / TEC-02 / TEC-05 / L-04）──')
 for (const line of ok) console.log(line)

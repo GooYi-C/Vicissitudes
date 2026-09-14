@@ -11,6 +11,17 @@ const root = join(import.meta.dirname, '..')
 const snapPath = join(root, 'baseline', 'layer-graph.json')
 const UPDATE = process.argv.includes('--update')
 
+// LAYER-003 豁免面（§十六 L-07 豁免表，2026-09-15 登记）：L7 stores 内部组合六文件互引豁免 L-02。
+// 失效条件：stores 拆层或 persist 并入单文件。豁免面外文件（selectors/* 等）与 stores 互引仍判非法。
+const LAYER_003_EXEMPT = new Set([
+  'src/stores/db.ts',
+  'src/stores/persist.ts',
+  'src/stores/saveSchema.ts',
+  'src/stores/saves.ts',
+  'src/stores/settings.ts',
+  'src/stores/meta.ts',
+])
+
 // 轻量静态 import 提取：TS/JS 的 import ... from '...' / import '...'
 function extractImports(file) {
   const text = readFileSync(file, 'utf8')
@@ -57,7 +68,12 @@ for (const e of edges) {
   const fromLayer = layerOf(e.from)
   const toLayer = layerOf(e.to)
   if (!fromLayer || !toLayer) continue // 组合根 ↔ 层文件：从组合根 import 合法（main.ts 是壳）
-  if (fromLayer.n !== 0 && fromLayer.n === toLayer.n) illegal.push(`L-02 同层：${e.from} → ${e.to}`)
+  if (fromLayer.n !== 0 && fromLayer.n === toLayer.n) {
+    // LAYER-003：L7 stores 内部组合豁免（仅豁免面内六文件互引）
+    if (!(fromLayer.n === 7 && LAYER_003_EXEMPT.has(e.from) && LAYER_003_EXEMPT.has(e.to))) {
+      illegal.push(`L-02 同层：${e.from} → ${e.to}`)
+    }
+  }
   if (toLayer.n > fromLayer.n) illegal.push(`L-01 越层：${e.from}（${fromLayer.id}）→ ${e.to}（${toLayer.id}）`)
 }
 

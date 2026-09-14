@@ -12,5 +12,10 @@ export default defineConfig({
   test: {
     include: ['tests/**/*.test.ts', 'tests/**/*.spec.ts'],
     environment: 'node',
+    // stores 测试需要 fake-indexeddb + localStorage（per-file 隔离）
+    environmentMatchGlobs: [
+      ['tests/unit/stores/**', 'happy-dom'],
+    ],
+    setupFiles: ['tests/unit/stores/setup.ts'],
   },
 })
