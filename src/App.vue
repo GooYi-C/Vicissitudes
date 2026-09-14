@@ -1,12 +1,14 @@
 <script setup lang="ts">
 // src/App.vue — 组合根视图（SK-06：11 面板挂载 + 真实数据 + 免 API 零 LLM 过月）
 // L8 只经 selector 读（U-03）；写只经 L5 命令。骨架门：免 API 开局 → 过月 → 存读档全流程零 LLM。
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import type { Tree } from './validation/tree'
 import { initialTree } from './validation/tree'
 import { bumpDomains } from './stores/selectors/types'
 import { tickWorld } from './turn/monthRunner'
 import { startGame, travel } from './gameCommands'
+import { writeSave, readSave, makeInitialSave, serializeSave } from './stores/saves'
+import { loadSaveRecord } from './stores/saveSchema'
 
 import GameHud from './components/GameHud.vue'
 import StoryView from './components/StoryView.vue'
@@ -31,6 +33,43 @@ const tree = ref<Tree>(initialTree('era-warlord', '1921-07'))
 const versions = ref<Record<string, number>>({})
 const story = ref<{ turn: number; date: string; text: string }[]>([])
 const turnCount = ref(0)
+const SLOT = 'auto-current' // SK-07 门 5：当前档（刷新恢复用；自动档体系 S-11 完整策略在 R2）
+
+/** 存档（SK-07 门 5：过月后落档 —— 整份快照，S-01 不变量 1） */
+async function persist() {
+  try {
+    const record = makeInitialSave({
+      slotId: SLOT,
+      eraId: tree.value.era.eraId,
+      identityId: 'student',
+      date: tree.value.world.date,
+      variables: JSON.parse(JSON.stringify(tree.value)), // 剥 Vue Proxy（存档投影纯数据）
+      updatedAt: tree.value.world.date, // 引擎侧禁 Date（B-02）：用游戏日期作 updated 标记
+    })
+    await writeSave({ ...record, meta: { ...record.meta, turnCount: turnCount.value } })
+  } catch (e) {
+    console.error('[vicissitudes] 存档失败：', e)
+  }
+}
+
+/** 读档（刷新恢复：拒载即回开局 —— S-06 宁拒载不猜测） */
+async function restore() {
+  try {
+    const raw = await readSave(SLOT)
+    if (!raw) return
+    const record = loadSaveRecord(raw, SLOT) // 版本门 + schema 校验
+    tree.value = record.variables
+    versions.value = {} // U-02 不变量 3：版本号会话级从零起算，不从存档恢复
+    turnCount.value = record.meta.turnCount
+    story.value = [{ turn: 0, date: record.variables.world.date, text: `读档恢复 · ${record.variables.world.date}（${serializeSave(record).length} 字节快照）` }]
+    started.value = true
+  } catch (e) {
+    // 拒载：回开局（拒绝必须可见 —— 控制台注记；完整 UI 呈现在 SK-06 设置页范围外）
+    console.warn('[vicissitudes] 存档拒载，回到开局：', (e as Error).message)
+  }
+}
+
+onMounted(restore)
 
 function onStart(eraId: string, kind: string) {
   const { variables } = startGame({ eraId, identityId: kind || 'student', date: '1921-07' })
@@ -38,9 +77,10 @@ function onStart(eraId: string, kind: string) {
   versions.value = {}
   story.value = [{ turn: 0, date: variables.world.date, text: '序章 · 盖印开局（免 API 模式，零 LLM 调用）' }]
   started.value = true
+  void persist()
 }
 
-/** 过月：L3 调度收集 → L4 单次原子提交 → 按实际写入域 bump（B-10/U-02） */
+/** 过月：L3 调度收集 → L4 单次原子提交 → 按实际写入域 bump（B-10/U-02）→ 落档 */
 function advanceTurn() {
   const result = tickWorld(tree.value)
   if (!result.ok) return
@@ -51,6 +91,7 @@ function advanceTurn() {
     ...story.value.slice(-9),
     { turn: turnCount.value, date: result.state.world.date, text: '本月平静。（规则日叙 —— 零 LLM 调用）' },
   ]
+  void persist()
 }
 
 /** 玩家行动（免 API：不触发模型 —— 零调用地板；命令直走 L5） */
