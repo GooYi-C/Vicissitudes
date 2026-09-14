@@ -2,6 +2,234 @@
   "version": 1,
   "edges": [
     {
+      "from": "src/App.vue",
+      "to": "src/components/ChoiceInput.vue"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/components/GameHud.vue"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/components/OpeningDossier.vue"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/components/StatusBar.vue"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/components/StoryView.vue"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/components/panels/CareerPanel.vue"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/components/panels/FinancePanel.vue"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/components/panels/GoalsPanel.vue"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/components/panels/HistoryPanel.vue"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/components/panels/IntelPanel.vue"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/components/panels/MapPanel.vue"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/components/panels/MemoryPanel.vue"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/components/panels/PressPanel.vue"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/components/panels/RelationsPanel.vue"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/components/panels/StatusPanel.vue"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/components/panels/WorldPanel.vue"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/gameCommands/index.ts"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/stores/selectors/types.ts"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/turn/monthRunner.ts"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/components/GameHud.vue",
+      "to": "src/stores/selectors/index.ts"
+    },
+    {
+      "from": "src/components/GameHud.vue",
+      "to": "src/stores/selectors/runtime.ts"
+    },
+    {
+      "from": "src/components/GameHud.vue",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/components/OpeningDossier.vue",
+      "to": "src/stores/selectors/index.ts"
+    },
+    {
+      "from": "src/components/OpeningDossier.vue",
+      "to": "src/stores/selectors/runtime.ts"
+    },
+    {
+      "from": "src/components/OpeningDossier.vue",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/components/panels/CareerPanel.vue",
+      "to": "src/stores/selectors/index.ts"
+    },
+    {
+      "from": "src/components/panels/CareerPanel.vue",
+      "to": "src/stores/selectors/runtime.ts"
+    },
+    {
+      "from": "src/components/panels/CareerPanel.vue",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/components/panels/FinancePanel.vue",
+      "to": "src/stores/selectors/index.ts"
+    },
+    {
+      "from": "src/components/panels/FinancePanel.vue",
+      "to": "src/stores/selectors/runtime.ts"
+    },
+    {
+      "from": "src/components/panels/FinancePanel.vue",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/components/panels/GoalsPanel.vue",
+      "to": "src/stores/selectors/index.ts"
+    },
+    {
+      "from": "src/components/panels/GoalsPanel.vue",
+      "to": "src/stores/selectors/runtime.ts"
+    },
+    {
+      "from": "src/components/panels/GoalsPanel.vue",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/components/panels/HistoryPanel.vue",
+      "to": "src/stores/selectors/index.ts"
+    },
+    {
+      "from": "src/components/panels/HistoryPanel.vue",
+      "to": "src/stores/selectors/runtime.ts"
+    },
+    {
+      "from": "src/components/panels/HistoryPanel.vue",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/components/panels/IntelPanel.vue",
+      "to": "src/stores/selectors/index.ts"
+    },
+    {
+      "from": "src/components/panels/IntelPanel.vue",
+      "to": "src/stores/selectors/runtime.ts"
+    },
+    {
+      "from": "src/components/panels/IntelPanel.vue",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/components/panels/MemoryPanel.vue",
+      "to": "src/stores/selectors/index.ts"
+    },
+    {
+      "from": "src/components/panels/MemoryPanel.vue",
+      "to": "src/stores/selectors/runtime.ts"
+    },
+    {
+      "from": "src/components/panels/MemoryPanel.vue",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/components/panels/PressPanel.vue",
+      "to": "src/stores/selectors/index.ts"
+    },
+    {
+      "from": "src/components/panels/PressPanel.vue",
+      "to": "src/stores/selectors/runtime.ts"
+    },
+    {
+      "from": "src/components/panels/PressPanel.vue",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/components/panels/RelationsPanel.vue",
+      "to": "src/stores/selectors/index.ts"
+    },
+    {
+      "from": "src/components/panels/RelationsPanel.vue",
+      "to": "src/stores/selectors/runtime.ts"
+    },
+    {
+      "from": "src/components/panels/RelationsPanel.vue",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/components/panels/StatusPanel.vue",
+      "to": "src/stores/selectors/index.ts"
+    },
+    {
+      "from": "src/components/panels/StatusPanel.vue",
+      "to": "src/stores/selectors/runtime.ts"
+    },
+    {
+      "from": "src/components/panels/StatusPanel.vue",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/components/panels/WorldPanel.vue",
+      "to": "src/stores/selectors/index.ts"
+    },
+    {
+      "from": "src/components/panels/WorldPanel.vue",
+      "to": "src/stores/selectors/runtime.ts"
+    },
+    {
+      "from": "src/components/panels/WorldPanel.vue",
+      "to": "src/validation/tree.ts"
+    },
+    {
       "from": "src/data/achievements.ts",
       "to": "src/validation/dataSchemas.ts"
     },
@@ -488,6 +716,54 @@
     {
       "from": "src/stores/saves.ts",
       "to": "src/stores/saveSchema.ts"
+    },
+    {
+      "from": "src/stores/selectors/index.ts",
+      "to": "src/data/achievements.ts"
+    },
+    {
+      "from": "src/stores/selectors/index.ts",
+      "to": "src/data/cities.ts"
+    },
+    {
+      "from": "src/stores/selectors/index.ts",
+      "to": "src/data/commodities.ts"
+    },
+    {
+      "from": "src/stores/selectors/index.ts",
+      "to": "src/data/eras.ts"
+    },
+    {
+      "from": "src/stores/selectors/index.ts",
+      "to": "src/data/identities.ts"
+    },
+    {
+      "from": "src/stores/selectors/index.ts",
+      "to": "src/data/newspapers.ts"
+    },
+    {
+      "from": "src/stores/selectors/index.ts",
+      "to": "src/data/situationTemplates.ts"
+    },
+    {
+      "from": "src/stores/selectors/index.ts",
+      "to": "src/data/worldbook.ts"
+    },
+    {
+      "from": "src/stores/selectors/index.ts",
+      "to": "src/stores/selectors/runtime.ts"
+    },
+    {
+      "from": "src/stores/selectors/index.ts",
+      "to": "src/stores/selectors/types.ts"
+    },
+    {
+      "from": "src/stores/selectors/index.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/stores/selectors/runtime.ts",
+      "to": "src/stores/selectors/types.ts"
     },
     {
       "from": "src/stores/settings.ts",

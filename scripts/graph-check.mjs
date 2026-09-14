@@ -18,6 +18,7 @@ const LAYER_EXEMPT = new Set([
   // LAYER-003
   'src/stores/db.ts', 'src/stores/persist.ts', 'src/stores/saveSchema.ts',
   'src/stores/saves.ts', 'src/stores/settings.ts', 'src/stores/meta.ts',
+  'src/stores/selectors/index.ts', 'src/stores/selectors/runtime.ts', 'src/stores/selectors/types.ts',
   // LAYER-004
   'src/turn/compiler.ts', 'src/turn/TurnRunner.ts', 'src/turn/monthRunner.ts',
   // LAYER-005

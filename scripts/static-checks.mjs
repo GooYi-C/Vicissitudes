@@ -127,7 +127,7 @@ check('U-2', !/domainVersions?|versionCounter/.test(savesSrc), 'SaveRecord 形�
 
 // ── L-07 豁免面双向登记（注释 ↔ 豁免表；豁免仅覆盖白名单文件）──
 const LAYER_007_EXEMPTS = {
-  'LAYER-003': ['db.ts', 'persist.ts', 'saveSchema.ts', 'saves.ts', 'settings.ts', 'meta.ts'],
+  'LAYER-003': ['db.ts', 'persist.ts', 'saveSchema.ts', 'saves.ts', 'settings.ts', 'meta.ts'], // + selectors/{index,runtime,types}.ts（豁免面见 eslint.config.js）
   'LAYER-004': ['compiler.ts', 'TurnRunner.ts', 'monthRunner.ts'],
   'LAYER-005': ['blocks.ts', 'authorize.ts', 'sanitize.ts'],
 }
@@ -146,6 +146,24 @@ for (const [id, files] of Object.entries(LAYER_007_EXEMPTS)) {
 }
 check('LAYER-5', missingMarks.length === 0,
   missingMarks.length === 0 ? 'L-07 三组豁免（003 stores/004 turn/005 parser）文件均带 EXEMPT 头注（双向登记）' : `缺 EXEMPT 注释：${missingMarks.join(', ')}`)
+
+// ── UI-6 面板注册表一致性（SK-06 起）──────────────────────────────
+const panelsDir = join(root, 'src', 'components', 'panels')
+const panelFiles = existsSync(panelsDir) ? readdirSync(panelsDir).filter((f) => f.endsWith('.vue')) : []
+check('UI-6', panelFiles.length === 11, panelFiles.length === 11 ? '11 面板文件与 U-05 注册表一致（含地图位）' : `面板文件数 ${panelFiles.length} ≠ 11：${panelFiles.join(', ')}`)
+
+// U-03 粗检：面板组件只经 selector 读（禁 import L2/L3/L4 —— 精确层向由 lint 承担，此处查 selector 通道存在性）
+const panelsNoSelector = panelFiles.filter((f) => {
+  const text = readFileSync(join(panelsDir, f), 'utf8')
+  return f !== 'MapPanel.vue' && !text.includes('stores/selectors') && !text.includes('props.state')
+})
+check('U-3', panelsNoSelector.length === 0, panelsNoSelector.length === 0 ? '面板均经 selector 读通道（U-03 不变量 1）' : `面板缺 selector 通道：${panelsNoSelector.join(', ')}`)
+
+// MOB-05：首屏不进 maplibre（import 图断言）
+const maplibreHits = srcFiles.filter((f) => /maplibre/i.test(readFileSync(f, 'utf8')))
+check('MOB-5', maplibreHits.length === 0, maplibreHits.length === 0 ? '全仓无 maplibre 引用（地图运行时不进首屏；地图位挂起）' : `maplibre 引用：${maplibreFiles(maplibreHits)}`)
+
+function maplibreFiles(hits) { return hits.map((f) => relative(root, f)).join(', ') }
 
 // ── 汇总 ──────────────────────────────────────────────────────────
 console.log('── 静态断言（TEC-01 / TEC-02 / TEC-05 / L-04）──')

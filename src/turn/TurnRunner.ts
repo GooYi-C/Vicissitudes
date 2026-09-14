@@ -11,8 +11,9 @@ import { TreeSchema } from '../validation/tree'
 
 // ── RFC 6902 应用器（纯函数；返回新树，失败返回 null —— 不改原树）────
 export function applyPatch(state: Readonly<Tree>, ops: readonly Operation[]): Tree | null {
-  // 深拷贝后逐 op 应用；任一失败 → 返回 null（调用方丢弃整批）
-  let draft: unknown = structuredClone(state)
+  // 深拷贝后逐 op 应用；任一失败 → 返回 null（调用方丢弃整批）。
+  // JSON 深拷贝（树是纯 JSON 数据）：structuredClone 不接受 Vue reactive Proxy（DataCloneError）
+  let draft: unknown = JSON.parse(JSON.stringify(state))
   for (const op of ops) {
     try {
       draft = applyOne(draft, op)
