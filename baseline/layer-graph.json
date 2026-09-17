@@ -71,6 +71,22 @@
     },
     {
       "from": "src/App.vue",
+      "to": "src/llm/client.ts"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/llm/errors.ts"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/llm/prompt.ts"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/llm/turnLoop.ts"
+    },
+    {
+      "from": "src/App.vue",
       "to": "src/stores/saveSchema.ts"
     },
     {
@@ -80,6 +96,10 @@
     {
       "from": "src/App.vue",
       "to": "src/stores/selectors/types.ts"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/stores/settings.ts"
     },
     {
       "from": "src/App.vue",
@@ -842,6 +862,66 @@
       "to": "src/validation/tree.ts"
     },
     {
+      "from": "src/llm/client.ts",
+      "to": "src/llm/errors.ts"
+    },
+    {
+      "from": "src/llm/client.ts",
+      "to": "src/llm/prompt.ts"
+    },
+    {
+      "from": "src/llm/prompt.ts",
+      "to": "src/data/commodities.ts"
+    },
+    {
+      "from": "src/llm/prompt.ts",
+      "to": "src/data/worldbook.ts"
+    },
+    {
+      "from": "src/llm/prompt.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/llm/prompt.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/llm/turnLoop.ts",
+      "to": "src/parser/authorize.ts"
+    },
+    {
+      "from": "src/llm/turnLoop.ts",
+      "to": "src/parser/blocks.ts"
+    },
+    {
+      "from": "src/llm/turnLoop.ts",
+      "to": "src/parser/propose.ts"
+    },
+    {
+      "from": "src/llm/turnLoop.ts",
+      "to": "src/parser/sanitize.ts"
+    },
+    {
+      "from": "src/llm/turnLoop.ts",
+      "to": "src/turn/TurnRunner.ts"
+    },
+    {
+      "from": "src/llm/turnLoop.ts",
+      "to": "src/turn/compiler.ts"
+    },
+    {
+      "from": "src/llm/turnLoop.ts",
+      "to": "src/turn/resolves.ts"
+    },
+    {
+      "from": "src/llm/turnLoop.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/llm/turnLoop.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
       "from": "src/main.ts",
       "to": "src/App.vue"
     },
@@ -880,6 +960,14 @@
     {
       "from": "src/parser/authorize.ts",
       "to": "src/parser/blocks.ts"
+    },
+    {
+      "from": "src/parser/propose.ts",
+      "to": "src/validation/dataSchemas.ts"
+    },
+    {
+      "from": "src/parser/propose.ts",
+      "to": "src/validation/tree.ts"
     },
     {
       "from": "src/parser/sanitize.ts",
@@ -962,6 +1050,26 @@
       "to": "src/stores/persist.ts"
     },
     {
+      "from": "src/turn/TurnRunner.ts",
+      "to": "src/turn/compiler.ts"
+    },
+    {
+      "from": "src/turn/TurnRunner.ts",
+      "to": "src/turn/compiler.ts"
+    },
+    {
+      "from": "src/turn/TurnRunner.ts",
+      "to": "src/validation/stableJson.ts"
+    },
+    {
+      "from": "src/turn/TurnRunner.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/turn/TurnRunner.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
       "from": "src/turn/compiler.ts",
       "to": "src/validation/effects.ts"
     },
@@ -999,26 +1107,6 @@
     },
     {
       "from": "src/turn/resolves.ts",
-      "to": "src/validation/tree.ts"
-    },
-    {
-      "from": "src/turn/TurnRunner.ts",
-      "to": "src/turn/compiler.ts"
-    },
-    {
-      "from": "src/turn/TurnRunner.ts",
-      "to": "src/turn/compiler.ts"
-    },
-    {
-      "from": "src/turn/TurnRunner.ts",
-      "to": "src/validation/stableJson.ts"
-    },
-    {
-      "from": "src/turn/TurnRunner.ts",
-      "to": "src/validation/tree.ts"
-    },
-    {
-      "from": "src/turn/TurnRunner.ts",
       "to": "src/validation/tree.ts"
     }
   ]

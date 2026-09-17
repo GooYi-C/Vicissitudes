@@ -22,7 +22,9 @@ const LAYER_EXEMPT = new Set([
   // LAYER-004
   'src/turn/compiler.ts', 'src/turn/TurnRunner.ts', 'src/turn/monthRunner.ts',
   // LAYER-005
-  'src/parser/blocks.ts', 'src/parser/authorize.ts', 'src/parser/sanitize.ts',
+  'src/parser/blocks.ts', 'src/parser/authorize.ts', 'src/parser/sanitize.ts', 'src/parser/propose.ts',
+  // LAYER-008
+  'src/llm/client.ts', 'src/llm/prompt.ts', 'src/llm/errors.ts', 'src/llm/turnLoop.ts',
 ])
 const LAYER_006_HUB = 'src/engine/types.ts'
 

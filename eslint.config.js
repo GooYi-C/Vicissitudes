@@ -18,7 +18,8 @@ import { LAYERS, OUTSIDE_PATHS } from './scripts/layers.mjs'
 
 // L-07 豁免面（§十六 L-07 豁免表，2026-09-15 登记，与文档仓豁免表双向登记）：
 // LAYER-003 L7 stores 内部组合；LAYER-004 L4 turn 管线两半（compiler/TurnRunner）；
-// LAYER-005 L6 parser 意图链三段（blocks/authorize/sanitize）。
+// LAYER-005 L6 parser 意图链三段（blocks/authorize/sanitize；2026-09-17 VS-01 拓面 propose.ts——提议与意图同链）。
+// LAYER-008（2026-09-17 拍板 B 登记）L6 llm 组合模块组：client/prompt/errors/turnLoop——LLM 适配与回合链。
 // 共同理由：均为「单一职责模块的内部组合」，非 L2 引擎模块运行时信息传递（L-02 立法本意）。
 // 豁免仅覆盖白名单文件；各层新增职责外文件互引仍被拦。失效条件见豁免表各行。
 const LAYER_EXEMPT = new Set([
@@ -29,7 +30,9 @@ const LAYER_EXEMPT = new Set([
   // LAYER-004
   'src/turn/compiler.ts', 'src/turn/TurnRunner.ts', 'src/turn/monthRunner.ts',
   // LAYER-005
-  'src/parser/blocks.ts', 'src/parser/authorize.ts', 'src/parser/sanitize.ts',
+  'src/parser/blocks.ts', 'src/parser/authorize.ts', 'src/parser/sanitize.ts', 'src/parser/propose.ts',
+  // LAYER-008
+  'src/llm/client.ts', 'src/llm/prompt.ts', 'src/llm/errors.ts', 'src/llm/turnLoop.ts',
 ])
 
 // LAYER-006（单向豁免，§十六 L-07 豁免表 2026-09-15 登记）：

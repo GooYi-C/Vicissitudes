@@ -129,9 +129,10 @@ check('U-2', !/domainVersions?|versionCounter/.test(savesSrc), 'SaveRecord 形�
 const LAYER_007_EXEMPTS = {
   'LAYER-003': ['db.ts', 'persist.ts', 'saveSchema.ts', 'saves.ts', 'settings.ts', 'meta.ts'], // + selectors/{index,runtime,types}.ts（豁免面见 eslint.config.js）
   'LAYER-004': ['compiler.ts', 'TurnRunner.ts', 'monthRunner.ts'],
-  'LAYER-005': ['blocks.ts', 'authorize.ts', 'sanitize.ts'],
+  'LAYER-005': ['blocks.ts', 'authorize.ts', 'sanitize.ts', 'propose.ts'],
+  'LAYER-008': ['client.ts', 'prompt.ts', 'errors.ts', 'turnLoop.ts'],
 }
-const EXEMPT_DIRS = { 'LAYER-003': 'stores', 'LAYER-004': 'turn', 'LAYER-005': 'parser' }
+const EXEMPT_DIRS = { 'LAYER-003': 'stores', 'LAYER-004': 'turn', 'LAYER-005': 'parser', 'LAYER-008': 'llm' }
 const missingMarks = []
 for (const [id, files] of Object.entries(LAYER_007_EXEMPTS)) {
   const dir = join(root, 'src', EXEMPT_DIRS[id])
@@ -145,7 +146,7 @@ for (const [id, files] of Object.entries(LAYER_007_EXEMPTS)) {
   if (outside.length > 0) check('LAYER-5', true, `${id} 豁免面外文件（${outside.join(', ')}）——互引仍被 lint/graph 拦截`)
 }
 check('LAYER-5', missingMarks.length === 0,
-  missingMarks.length === 0 ? 'L-07 三组豁免（003 stores/004 turn/005 parser）文件均带 EXEMPT 头注（双向登记）' : `缺 EXEMPT 注释：${missingMarks.join(', ')}`)
+  missingMarks.length === 0 ? 'L-07 四组豁免（003 stores/004 turn/005 parser/008 llm）文件均带 EXEMPT 头注（双向登记）' : `缺 EXEMPT 注释：${missingMarks.join(', ')}`)
 
 // ── UI-6 面板注册表一致性（SK-06 起）──────────────────────────────
 const panelsDir = join(root, 'src', 'components', 'panels')
