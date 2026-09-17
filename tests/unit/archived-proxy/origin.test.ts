@@ -1,5 +1,6 @@
+// 历史代理回归（归档）：只检验历史夹具，不作为浏览器直连/纯静态生产验收。
 import { describe, it, expect } from 'vitest'
-import { onRequest, ALLOWED_ORIGINS } from '../../../functions/_middleware'
+import { onRequest, ALLOWED_ORIGINS } from '../../fixtures/cf-proxy/_middleware'
 
 // LLM-11：middleware Origin 非白名单 → 403（不进端点）；CORS 头不回 *
 function makeReq(origin?: string, method = 'POST'): Request {

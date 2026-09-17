@@ -45,20 +45,21 @@ describe('VS-01 client：SSE 组装与请求形状', () => {
     expect(got.join('')).toBe('你好，同学。')
   })
 
-  it('key 只经 X-Vic-Upstream-Key 请求头；body 无 key（TEC-03/LL-10）', async () => {
+  it('key 只经服务商 Authorization 请求头；body 无 key（TEC-03/LL-10）', async () => {
     let seen: RequestInit | undefined
     const fx: FetchAs = async (_i, init) => { seen = init; return sseResponse(['ok']) }
     await callChatCompletion(args, fx)
     const headers = seen?.headers as Record<string, string>
-    expect(headers['x-vic-upstream-key']).toBe('sk-secret')
+    expect(headers.authorization).toBe('Bearer sk-secret')
+    expect(headers).not.toHaveProperty('x-vic-upstream-key')
     expect(String(seen?.body)).not.toContain('sk-secret')
   })
 
-  it('请求同源性：只请求本站 /api/chat（LL-10 不变量 1）', async () => {
+  it('请求直连性：只请求玩家配置的云服务商（LLM-37）', async () => {
     let url = ''
     const fx: FetchAs = async (input) => { url = String(input); return sseResponse(['x']) }
     await callChatCompletion(args, fx)
-    expect(url).toBe('/api/chat')
+    expect(url).toBe('https://api.example.com/chat/completions')
   })
 })
 
@@ -93,11 +94,11 @@ describe('VS-01 client：LL-19 错误分类与重试纪律', () => {
     expect(getCallStats()).toHaveLength(2)
   })
 
-  it('代理结构错误体 code 直通（LL-19 统一表消费）', async () => {
+  it('不能让服务商自报代理码改变 HTTP 鉴权语义', async () => {
     const fx: FetchAs = async () => jsonError('blocked-upstream', '端点不被允许', 403)
     const r = await callChatCompletion(args, fx)
     expect(r.ok).toBe(false)
-    if (!r.ok) expect(r.code).toBe('blocked-upstream')
+    if (!r.ok) expect(r.code).toBe('auth')
   })
 
   it('调用计数：每次请求一笔（本局累计，纯观测）', async () => {

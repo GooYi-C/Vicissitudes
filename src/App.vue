@@ -12,8 +12,8 @@ import { startGame, travel } from './gameCommands'
 import { writeSave, readSave, makeInitialSave, serializeSave } from './stores/saves'
 import { loadSaveRecord } from './stores/saveSchema'
 import { loadSettings, saveSettings, type Settings } from './stores/settings'
-import { buildChatMessages } from './llm/prompt'
-import { callChatCompletion, getCallStats } from './llm/client'
+import { buildChatMessages, buildStaticHead } from './llm/prompt'
+import { callChatCompletion, getCallStats, summarizeCallStats, fetchProviderModels, type CallStat } from './llm/client'
 import { LLM_ERROR_TABLE } from './llm/errors'
 import { runModelTurn } from './llm/turnLoop'
 
@@ -45,6 +45,24 @@ const SLOT = 'auto-current' // SK-07 门 5：当前档（刷新恢复用；自�
 // ── VS-01 设置区（LLM 配置；settings 是设备级——不进 SaveRecord/提示词快照/导出/日志，S-04）──
 const settings = ref<Settings | null>(null) // 默认值单点=settings.ts（SAV-4：组件侧不引用之）；loadSettings 回填
 const settingsNote = ref('')
+const saveNote = ref('')
+// 仅本页内存；不改变 Settings/SaveRecord 形状、不写入日志或持久化区。
+const includeUsage = ref(false) // 向不支持的端点强塞参数会失败，因此必须手动 opt-in
+const modelBusy = ref(false)
+const modelsBusy = ref(false)
+const modelChoices = ref<string[]>([])
+const modelsNote = ref('')
+const callStats = ref<readonly CallStat[]>(getCallStats())
+interface ObservedTurn {
+  ordinal: number
+  firstCall: number | null
+  lastCall: number | null
+  status: string
+  staticHeadHash: string
+  committed: boolean
+  metrics: ReturnType<typeof runModelTurn>['metrics'] | null
+}
+const observedTurns = ref<ObservedTurn[]>([])
 const llmReady = computed(() => {
   const u = settings.value?.upstream
   return !!u && !!u.baseUrl && !!u.model && !!u.apiKey
@@ -52,6 +70,7 @@ const llmReady = computed(() => {
 
 /** 存档（SK-07 门 5：过月后落档 —— 整份快照，S-01 不变量 1） */
 async function persist() {
+  saveNote.value = '保存中，请勿刷新或关闭页面'
   try {
     const record = makeInitialSave({
       slotId: SLOT,
@@ -62,8 +81,10 @@ async function persist() {
       updatedAt: tree.value.world.date, // 引擎侧禁 Date（B-02）：用游戏日期作 updated 标记
     })
     await writeSave({ ...record, meta: { ...record.meta, turnCount: turnCount.value } })
-  } catch (e) {
-    console.error('[vicissitudes] 存档失败：', e)
+    saveNote.value = `已保存 · ${record.meta.date}`
+  } catch {
+    saveNote.value = '保存失败，请勿刷新；本次进度尚未确认落档'
+    console.error('[vicissitudes] 存档失败')
   }
 }
 
@@ -92,13 +113,17 @@ onMounted(() => {
   })
 })
 
-function onStart(eraId: string, kind: string) {
-  const { variables } = startGame({ eraId, identityId: kind || 'student', date: '1921-07' })
-  tree.value = variables
-  versions.value = {}
-  story.value = [{ turn: 0, date: variables.world.date, text: '序章 · 盖印开局（免 API 模式，零 LLM 调用）' }]
-  started.value = true
-  void persist()
+async function onStart(eraId: string, kind: string) {
+  if (modelBusy.value || modelsBusy.value) return
+  modelBusy.value = true
+  try {
+    const { variables } = startGame({ eraId, identityId: kind || 'student', date: '1921-07' })
+    tree.value = variables
+    versions.value = {}
+    story.value = [{ turn: 0, date: variables.world.date, text: '序章 · 盖印开局（免 API 模式，零 LLM 调用）' }]
+    started.value = true
+    await persist()
+  } finally { modelBusy.value = false }
 }
 
 async function onSaveSettings() {
@@ -107,8 +132,23 @@ async function onSaveSettings() {
   settingsNote.value = '设置已保存（本机存储区；key 不入存档与任何 prompt）'
 }
 
+/** 模型列表由玩家显式触发；失败仍可手填，不自动回退任何代理。 */
+async function onLoadModels() {
+  if (!settings.value || modelBusy.value || modelsBusy.value) return
+  const { baseUrl, apiKey } = settings.value.upstream
+  modelsBusy.value = true
+  modelChoices.value = []
+  modelsNote.value = '正在直连服务商读取模型列表…'
+  try {
+    const result = await fetchProviderModels({ baseUrl, apiKey })
+    if (settings.value.upstream.baseUrl !== baseUrl || settings.value.upstream.apiKey !== apiKey) return
+    modelChoices.value = result.models
+    modelsNote.value = result.ok ? `已读取 ${result.models.length} 个模型；也可手填。` : `${result.message}；可以手填模型名。`
+  } finally { modelsBusy.value = false }
+}
+
 /** 过月：L3 调度收集 → L4 单次原子提交 → 按实际写入域 bump（B-10/U-02）→ 落档 */
-function advanceTurn(opts?: { silent?: boolean }) {
+async function advanceTurn(opts?: { silent?: boolean }) {
   const result = tickWorld(tree.value)
   if (!result.ok) return
   tree.value = result.state
@@ -120,64 +160,96 @@ function advanceTurn(opts?: { silent?: boolean }) {
       { turn: turnCount.value, date: result.state.world.date, text: '本月平静。（规则日叙 —— 零 LLM 调用）' },
     ]
   }
-  void persist()
+  await persist()
 }
 
 /** 玩家行动：API 配置齐备 → LLM 回合；否则 现行过月（零调用地板 —— client 计数恒 0） */
 async function onAction(text: string) {
-  if (!text.trim()) return
+  if (!text.trim() || modelBusy.value || modelsBusy.value) return
   if (!llmReady.value) {
-    if (text.includes('出趟远门')) void travel('1921-08', tree.value) // SK-06 骨架：固定目的地演示命令通道
-    advanceTurn()
+    modelBusy.value = true
+    try {
+      if (text.includes('出趟远门')) void travel('1921-08', tree.value)
+      await advanceTurn()
+    } finally { modelBusy.value = false }
     return
   }
-  // ── LLM 回合（VS-01）：prompt 组装 → SSE → 结构块 → 下半管道 → 单次原子提交 → 过月落档
-  const entry = { turn: turnCount.value + 1, date: tree.value.world.date, text: '' }
-  story.value = [...story.value.slice(-9), entry]
-  const rerender = () => { story.value = [...story.value] }
-  const s = settings.value
-  if (!s) return // llmReady 门禁下理论不可达；类型窄化在组合根完成
-  const messages = buildChatMessages(
-    { tree: tree.value, history: story.value, userText: text },
-    { promptBudget: s.promptBudget },
-  )
-  const u = s.upstream
-  const outcome = await callChatCompletion({
-    baseUrl: u.baseUrl, model: u.model, apiKey: u.apiKey,
-    messages,
-    onDelta: (d) => { entry.text += d; rerender() },
-  })
-  if (outcome.ok) {
-    const turn = runModelTurn(tree.value, outcome.text)
-    if (turn.ok) {
-      tree.value = turn.state
-      versions.value = { ...bumpDomains(versions.value, turn.writtenDomains) } as Record<string, number>
+  modelBusy.value = true
+  const firstCall = getCallStats().length + 1
+  try {
+    // ── LLM 回合（VS-01）：prompt 组装 → SSE → 结构块 → 下半管道 → 单次原子提交 → 过月落档
+    const entry = { turn: turnCount.value + 1, date: tree.value.world.date, text: '' }
+    story.value = [...story.value.slice(-9), entry]
+    const rerender = () => { story.value = [...story.value] }
+    const s = settings.value
+    if (!s) return // llmReady 门禁下理论不可达；类型窄化在组合根完成
+    const staticHeadHash = buildStaticHead({ promptBudget: s.promptBudget }).hash
+    const messages = buildChatMessages(
+      { tree: tree.value, history: story.value, userText: text },
+      { promptBudget: s.promptBudget },
+    )
+    const u = s.upstream
+    const outcome = await callChatCompletion({
+      baseUrl: u.baseUrl, model: u.model, apiKey: u.apiKey,
+      messages, includeUsage: includeUsage.value,
+      onDelta: (d) => { entry.text += d; rerender() },
+    })
+    let turnResult: ReturnType<typeof runModelTurn> | null = null
+    if (outcome.ok) {
+      const turn = runModelTurn(tree.value, outcome.text)
+      turnResult = turn
+      if (turn.ok) {
+        tree.value = turn.state
+        versions.value = { ...bumpDomains(versions.value, turn.writtenDomains) } as Record<string, number>
+      }
+      // 叙事以剥块后的正文为准（与流式累积同文覆盖稳态）；注记可观测（DebugPanel 未建位——行尾计数）
+      entry.text = turn.narrative || entry.text
+      if (turn.diagnostics.length) entry.text += `\n（回合注记 ${turn.diagnostics.length} 条——叙事照常，越界已剥除）`
+      rerender()
+    } else if (outcome.code === 'stream-broken' && outcome.partialText) {
+      // LL-19 stream-broken：已收结构块照常处理（叙事正文用已收部分 + 中断注记）
+      const turn = runModelTurn(tree.value, outcome.partialText)
+      turnResult = turn
+      if (turn.ok) {
+        tree.value = turn.state
+        versions.value = { ...bumpDomains(versions.value, turn.writtenDomains) } as Record<string, number>
+      }
+      entry.text = `${turn.narrative}\n（回复中断，已收到部分已照常处理 —— stream-broken）`
+      rerender()
+    } else {
+      // LL-19-4：模型侧零额外机制效果；月推进与零调用规则路径一致。
+      entry.text = `${LLM_ERROR_TABLE[outcome.code].playerMessage || '调用失败'}（${outcome.code}）；本月按规则路径继续。`
+      rerender()
     }
-    // 叙事以剥块后的正文为准（与流式累积同文覆盖稳态）；注记可观测（DebugPanel 未建位——行尾计数）
-    entry.text = turn.narrative || entry.text
-    if (turn.diagnostics.length) entry.text += `\n（回合注记 ${turn.diagnostics.length} 条——叙事照常，越界已剥除）`
-    rerender()
-  } else if (outcome.code === 'stream-broken' && outcome.partialText) {
-    // LL-19 stream-broken：已收结构块照常处理（叙事正文用已收部分 + 中断注记）
-    const turn = runModelTurn(tree.value, outcome.partialText)
-    if (turn.ok) {
-      tree.value = turn.state
-      versions.value = { ...bumpDomains(versions.value, turn.writtenDomains) } as Record<string, number>
-    }
-    entry.text = `${turn.narrative}\n（回复中断，已收到部分已照常处理 —— stream-broken）
-`
-    rerender()
-  } else {
-    // LL-19 降级：错误行可见，世界零变更（月推进照常——降级 ≠ 惩罚）
-    entry.text = `${LLM_ERROR_TABLE[outcome.code].playerMessage || '调用失败'}（${outcome.code}）；本月按规则路径继续。`
-    rerender()
+    observedTurns.value = [...observedTurns.value, {
+      ordinal: observedTurns.value.length + 1,
+      firstCall: getCallStats().length >= firstCall ? firstCall : null,
+      lastCall: getCallStats().length >= firstCall ? getCallStats().length : null,
+      status: outcome.ok ? 'ok' : outcome.code,
+      staticHeadHash,
+      committed: turnResult?.ok ?? false,
+      metrics: turnResult?.metrics ? { ...turnResult.metrics } : null,
+    }]
+    await advanceTurn({ silent: true })
+  } finally {
+    callStats.value = getCallStats()
+    modelBusy.value = false
   }
-  advanceTurn({ silent: true })
 }
 
 const stateForPanels = computed(() => tree.value)
 const vForPanels = computed(() => versions.value)
-const callCounter = computed(() => getCallStats().length)
+const callCounter = computed(() => callStats.value.length)
+const usageSummary = computed(() => summarizeCallStats(callStats.value))
+const evidenceJson = computed(() => JSON.stringify({
+  schema: 'vs01-observation-v2',
+  transport: 'browser-direct',
+  scope: 'page-session',
+  summary: usageSummary.value,
+  cost: { status: 'unmeasured', note: '需服务商计价/账单核对；字符数和请求数不是费用' },
+  calls: callStats.value,
+  turns: observedTurns.value,
+}, null, 2))
 </script>
 
 <template>
@@ -201,15 +273,22 @@ const callCounter = computed(() => getCallStats().length)
             class="vic-settings"
           >
             <summary>
-              设置（API）·{{ llmReady ? '已配置 → LLM 回合' : '未配置 → 确定性模式（零调用）' }}
+              设置（API）·{{ llmReady ? '已填写 → 浏览器直连（需 CORS）' : '未配置 → 确定性模式（零调用）' }}
             </summary>
+            <p
+              class="vic-settings__note"
+              data-testid="direct-notice"
+            >
+              模型请求由浏览器直连你填写的 HTTPS 服务商，CF 仅提供静态页面。
+              服务商需支持 CORS；失败不自动转 CF 或其他代理。baseUrl 请包含实际版本路径，不自动补 /v1。
+            </p>
             <div class="vic-settings__grid">
               <label>
                 上游端点 baseUrl
                 <input
                   v-model="settings.upstream.baseUrl"
                   type="text"
-                  placeholder="https://api.example.com"
+                  placeholder="https://api.example.com/v1"
                   autocomplete="off"
                 >
               </label>
@@ -217,13 +296,14 @@ const callCounter = computed(() => getCallStats().length)
                 模型 model
                 <input
                   v-model="settings.upstream.model"
+                  list="vic-provider-models"
                   type="text"
                   placeholder="model-name"
                   autocomplete="off"
                 >
               </label>
               <label>
-                密钥 apiKey（只存本机；不入存档/prompt/日志）
+                密钥 apiKey（直接发给你填写的服务商；不经本站 CF 代理）
                 <input
                   v-model="settings.upstream.apiKey"
                   type="password"
@@ -243,16 +323,83 @@ const callCounter = computed(() => getCallStats().length)
             >
               {{ settingsNote }}
             </p>
-            <p class="vic-settings__note">
-              本局 LLM 调用：{{ callCounter }} 次（纯观测 LL-17；观测数据不进存档）
+            <button
+              type="button"
+              data-testid="load-models"
+              :disabled="modelBusy || modelsBusy || !settings.upstream.baseUrl.trim() || !settings.upstream.apiKey.trim()"
+              @click="onLoadModels"
+            >
+              {{ modelsBusy ? '读取中…' : '读取模型列表（直连）' }}
+            </button>
+            <datalist id="vic-provider-models">
+              <option
+                v-for="id in modelChoices"
+                :key="id"
+                :value="id"
+              />
+            </datalist>
+            <p
+              v-if="modelsNote"
+              class="vic-settings__note"
+              data-testid="models-note"
+            >
+              {{ modelsNote }}
             </p>
+            <label class="vic-usage-toggle">
+              <input
+                v-model="includeUsage"
+                type="checkbox"
+                :disabled="modelBusy"
+              >
+              请求上游 usage（仅明确支持 stream_options 的端点；本页有效，默认关闭）
+            </label>
+            <p
+              class="vic-settings__note"
+              data-testid="call-counter"
+            >
+              本页直连生成请求：{{ callCounter }} 次（含重试；不含模型列表/浏览器预检，不等于服务商计费次数）
+            </p>
+            <p
+              class="vic-settings__note"
+              data-testid="usage-summary"
+            >
+              完整 usage：{{ usageSummary.measuredCalls }}/{{ callCounter }} 次；
+              输入 token：{{ usageSummary.promptTokens ?? '未测/不完整' }}；
+              输出 token：{{ usageSummary.completionTokens ?? '未测/不完整' }}；
+              上游提示词缓存 token 占比：{{ usageSummary.cacheTokenRatio === null ? '未测/不完整' : (usageSummary.cacheTokenRatio * 100).toFixed(2) + '%' }}。
+            </p>
+            <p class="vic-settings__note">
+              字符计数（非 token）：输入 {{ usageSummary.promptChars }} / 输出 {{ usageSummary.completionChars }}。
+              费用未测，需服务商定价/账单；静态头哈希只证明稳定性，不证明缓存命中。
+            </p>
+            <details class="vic-settings__note">
+              <summary>验收观测 JSON（可选中复制；刷新清空，不含 key、端点、提示词或叙事）</summary>
+              <p>turns.metrics 沿用结构块下链/提议过闸计数；不是自然语言意图遵循率。committed=false 不算成功落账。</p>
+              <textarea
+                class="vic-observation"
+                aria-label="验收观测 JSON"
+                :value="evidenceJson"
+                rows="10"
+                readonly
+                spellcheck="false"
+              />
+            </details>
           </details>
+          <p
+            v-if="saveNote"
+            class="vic-settings__note"
+            role="status"
+            data-testid="save-status"
+          >
+            {{ saveNote }}
+          </p>
           <StoryView
             :entries="story"
             digest=""
           />
           <ChoiceInput
             :llm-ready="llmReady"
+            :busy="modelBusy || modelsBusy"
             @submit="onAction"
           />
         </div>
@@ -357,6 +504,8 @@ const callCounter = computed(() => getCallStats().length)
   flex-direction: column;
   gap: 0.2rem;
 }
+.vic-usage-toggle { display: block; margin-top: 0.5rem; font-size: 0.8rem; }
+.vic-observation { width: 100%; box-sizing: border-box; font-family: monospace; font-size: 0.75rem; }
 .vic-settings__note {
   margin: 0.3rem 0 0;
   color: #6b6355;

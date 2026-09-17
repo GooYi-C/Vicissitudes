@@ -1,5 +1,6 @@
+// 历史代理回归（归档）：只检验历史夹具，不作为浏览器直连/纯静态生产验收。
 import { describe, it, expect } from 'vitest'
-import { onRequestPost as chatPost } from '../../../functions/api/chat'
+import { onRequestPost as chatPost } from '../../fixtures/cf-proxy/api/chat'
 
 // LLM-10：流中断语义 —— 已收结构块照常处理，世界不因中断回滚（此处验代理侧：
 // 中断标记透传给客户端，客户端解析器按 LL-02 不变量 1 处理已收块）。

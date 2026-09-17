@@ -5,6 +5,7 @@
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join, relative, sep } from 'node:path'
 import { SRC_ROOT_DIRS, SRC_ROOT_FILES } from './layers.mjs'
+import { staticDeployIssues } from './check-static-deploy.mjs'
 
 const root = join(import.meta.dirname, '..')
 const fail = []
@@ -175,6 +176,9 @@ const maplibreHits = srcFiles.filter((f) => /maplibre/i.test(readFileSync(f, 'ut
 check('MOB-5', maplibreHits.length === 0, maplibreHits.length === 0 ? '全仓无 maplibre 引用（地图运行时不进首屏；地图位挂起）' : `maplibre 引用：${maplibreFiles(maplibreHits)}`)
 
 function maplibreFiles(hits) { return hits.map((f) => relative(root, f)).join(', ') }
+
+const deployIssues = staticDeployIssues(root)
+check('LLM-40', deployIssues.length === 0, deployIssues.length ? deployIssues.join('; ') : '纯静态部署：无 CF functions/Worker/API 中转入口')
 
 // ── 汇总 ──────────────────────────────────────────────────────────
 console.log('── 静态断言（TEC-01 / TEC-02 / TEC-05 / L-04）──')

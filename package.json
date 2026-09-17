@@ -16,7 +16,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/check-static-deploy.mjs --built",
     "typecheck": "vue-tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
@@ -28,7 +28,9 @@
     "gate:mut": "node scripts/mut-check.mjs",
     "gate:graph": "node scripts/graph-check.mjs",
     "gate": "pnpm typecheck && pnpm lint && pnpm test && pnpm test:data && pnpm gate:static",
-    "deploy": "wrangler pages deploy dist"
+    "deploy": "pnpm build && node scripts/check-static-deploy.mjs --built && wrangler pages deploy dist",
+    "gate:static-deploy": "node scripts/check-static-deploy.mjs",
+    "test:browser-smoke": "node scripts/browser-smoke.mjs"
   },
   "dependencies": {
     "pinia": "4.0.3",

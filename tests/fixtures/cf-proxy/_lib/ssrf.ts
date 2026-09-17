@@ -1,3 +1,4 @@
+// 历史 CF 代理测试夹具：不属于部署入口，不代表现网能力或安全验收。
 // functions/_lib/ssrf.ts — 地址判定（§二十 LL-10 SSRF 防护五规则）
 // 纯函数，无游戏逻辑（TEC-03 不变量 2）；被 api/chat.ts 消费。
 // 规则 1：仅 https；http 仅允许 localhost/127.0.0.1（本机模型，初值）

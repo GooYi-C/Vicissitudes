@@ -339,6 +339,62 @@
           "mode": "mock-llm",
           "text": "回合链四计数观测落地（blocksTotal/blocksApplied/proposeSeen/proposeUsable 随 metrics 返回）",
           "rel": "LL-12、LL-15；VS-01 验收四数字口径"
+        },
+        {
+          "id": "LLM-34",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "usage 实测与字符计数分离；非法/缺失/未终结为未测，缓存只取上游报告且完整样本按 token 加权，零分母不造数",
+          "rel": "LL-12、LL-17；VS-01 计量纠偏"
+        },
+        {
+          "id": "LLM-35",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "usage 请求仅显式 opt-in 端到端透传；默认请求不变，拒绝参数不额外重发，消息/出口/key 通道不变",
+          "rel": "LL-10、LL-17；VS-01 计量纠偏"
+        },
+        {
+          "id": "LLM-36",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "设置区观测随回合刷新且阻止未完成请求的重复提交；JSON 白名单不含凭据/端点/提示词/叙事，观测不进存档，免 API 仍零请求",
+          "rel": "LL-17、BIL-7、S-04；VS-01 计量纠偏"
+        },
+        {
+          "id": "LLM-37",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "生成仅直连玩家 HTTPS 端点；URL与本应用origin前置校验，Bearer只走目标请求头，cors/omit/error/no-referrer，body不含CF中转元数据",
+          "rel": "LL-10、TEC-03；取代 LLM-22/LLM-35 中生产代理出口/请求形状口径"
+        },
+        {
+          "id": "LLM-38",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "网络/CORS/TLS/不透明响应/超时/跳转不自动回退代理或多次生成；无效配置零网络，原始错误/凭据不泄漏，HTTP4xx不因自报码变可重试",
+          "rel": "LL-19、LL-17；直连侧承接 LLM-12/30 隐私与重试不变量"
+        },
+        {
+          "id": "LLM-39",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "模型列表仅用户显式触发并直连同服务商models；输出只含有界id，失败可手填，不自动生成且不计生成调用次数",
+          "rel": "LL-11；取代生产模型列表代理口径"
+        },
+        {
+          "id": "LLM-40",
+          "tier": "unit",
+          "mode": "static",
+          "text": "纯静态部署无functions/Worker/旧API重定向入口；build/deploy和静态门均拦截入口复活；历史代理夹具不部署且不冒充生产验收",
+          "rel": "TEC-03、TEC-04；旧 LLM-9/11/21 的服务端代理断言仅历史归档，新增纯静态生产边界"
+        },
+        {
+          "id": "LLM-41",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "开局及回合的存档事务完成后才解锁下一行动；慢写入时重复操作不导致并发回合或额外模型请求，刷新不把页面已推进当作已落档",
+          "rel": "S-01、S-02、LL-10；VS-01真实浏览器免API冒烟发现保存时序缺口"
         }
       ],
       "notes": [

@@ -1,5 +1,6 @@
+// 历史代理回归（归档）：只检验历史夹具，不作为浏览器直连/纯静态生产验收。
 import { describe, it, expect } from 'vitest'
-import { onRequestPost as modelsPost } from '../../../functions/api/models'
+import { onRequestPost as modelsPost } from '../../fixtures/cf-proxy/api/models'
 
 // LL-11 不变量 4：上游不支持该端点 → 空列表 + 分类码（降级为手填模型名，不是错误态）
 function makeReq(baseUrl: string, key = 'sk-SECRET-KEY'): Request {

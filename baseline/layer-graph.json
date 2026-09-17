@@ -870,6 +870,10 @@
       "to": "src/llm/prompt.ts"
     },
     {
+      "from": "src/llm/client.ts",
+      "to": "src/validation/apiEndpoint.ts"
+    },
+    {
       "from": "src/llm/prompt.ts",
       "to": "src/data/commodities.ts"
     },

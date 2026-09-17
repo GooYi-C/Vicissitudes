@@ -1,3 +1,4 @@
+// 历史 CF 代理测试夹具：不属于部署入口，不代表现网能力或安全验收。
 // functions/api/chat.ts — POST /api/chat（§二十 LL-10）
 // OpenAI 兼容代理：SSRF 防护 ＋ SSE 流式透传 ＋ key 服务端零留存。
 // 本函数不含任何游戏逻辑（TEC-03 不变量 2）；不回传上游原始错误体（LL-10 不变量 5）。
@@ -32,6 +33,7 @@ interface ChatRequest {
   stream: true
   temperature?: number
   maxTokens?: number
+  includeUsage?: boolean // 仅显式 true 时请求上游 usage，旧请求默认不变
 }
 
 interface Env {
@@ -72,6 +74,7 @@ async function buildUpstreamRequest(body: ChatRequest, apiKey: string): Promise<
   }
   if (body.temperature !== undefined) payload.temperature = body.temperature
   if (body.maxTokens !== undefined) payload.max_tokens = body.maxTokens
+  if (body.includeUsage === true) payload.stream_options = { include_usage: true }
 
   return {
     url,
@@ -104,6 +107,10 @@ export const onRequestPost = async (ctx: { request: Request; env?: Env }): Promi
   }
   if (body.stream !== true) {
     return jsonError(ErrorCode.badRequest, '本代理只支持 stream: true', 400)
+  }
+
+  if (body.includeUsage !== undefined && typeof body.includeUsage !== 'boolean') {
+    return jsonError(ErrorCode.badRequest, 'includeUsage 必须为 boolean', 400)
   }
 
   const built = await buildUpstreamRequest(body, apiKey)

@@ -1,3 +1,4 @@
+// 历史 CF 代理测试夹具：不属于部署入口，不代表现网能力或安全验收。
 // functions/_middleware.ts — 所有 /api/* 的必经前置（§二十 LL-11）
 // Origin 校验 ＋ CORS 头 ＋ Vary: Origin。
 // 不变量 1：端点自身不重复做 Origin 校验（防双份判定漂移）。

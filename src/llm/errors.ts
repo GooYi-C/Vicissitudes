@@ -1,5 +1,5 @@
 // EXEMPT:LAYER-008
-// src/llm/errors.ts — LL-19 错误与降级语义统一表（客户端侧定义处；functions/ 代理侧同表）
+// src/llm/errors.ts — LL-19 错误与降级语义统一表（浏览器直连；旧 CF 代理仅保存在测试归档）
 // 分类码封闭枚举——不设 other 桶（LL-19 不变量 1）；新增场景必须先改 §二十 LL-19 表。
 // 每类写明「世界影响」；降级不产生机制效果：模型失败 ≠ 游戏惩罚（LL-19 不变量 3/4）。
 // 确定性要求：同响应 → 同分类（纯函数；不依赖时间、不依赖调用序）。
@@ -8,9 +8,11 @@ export type LlmErrorCode =
   | 'no-provider'      // 未配置 API（零调用地板；不发请求）
   | 'auth'             // 401/403：密钥无效或被拒（本回合不重试）
   | 'rate'             // 429 限流（不自动重试——防加倍计费）
+  | 'bad-request'      // 参数错误/usage 不支持：不因代理 502 包装而重复请求（LL-19 补行）
   | 'upstream'         // 上游 5xx（连接层重试 ≤1 次）
   | 'timeout'          // 首字节 30s（不重试，走规则路径）
   | 'stream-broken'    // 流中断（不重试；已收结构块照常处理 —— LL-02 不变量 1）
+  | 'network-or-cors'  // 浏览器不能区分 DNS/TLS/CORS 拒绝；不重试、不转 CF
   | 'blocked-upstream' // SSRF/非 https（不发请求）
   | 'bad-block'        // 结构块坏/未知标签（丢该块 + diagnostic）
   | 'proposal-rejected'// 提议非法（超幅/越界/超 ops 整块丢弃）
@@ -30,10 +32,12 @@ export const LLM_ERROR_TABLE: Readonly<Record<LlmErrorCode, LlmErrorSpec>> = Obj
   'no-provider': { code: 'no-provider', playerMessage: '当前为确定性模式（未配置 API）', worldImpact: 'none' },
   auth: { code: 'auth', playerMessage: '密钥无效或被拒，请到设置检查配置', worldImpact: 'none' },
   rate: { code: 'rate', playerMessage: '上游限流，请稍后再试', worldImpact: 'none' },
+  'bad-request': { code: 'bad-request', playerMessage: '请求参数不被支持，请检查端点、模型和 usage 开关', worldImpact: 'none' },
   upstream: { code: 'upstream', playerMessage: '上游故障，已按规则路径继续', worldImpact: 'none' },
   timeout: { code: 'timeout', playerMessage: '回复超时，已按规则路径继续', worldImpact: 'none' },
   'stream-broken': { code: 'stream-broken', playerMessage: '回复中断，已收到部分照常处理', worldImpact: 'partial-received' },
-  'blocked-upstream': { code: 'blocked-upstream', playerMessage: '端点不被允许', worldImpact: 'none' },
+  'blocked-upstream': { code: 'blocked-upstream', playerMessage: '云 API 需公开 HTTPS 域名，不能使用本应用、内网地址或含凭据/查询串的 URL', worldImpact: 'none' },
+  'network-or-cors': { code: 'network-or-cors', playerMessage: '无法直连服务商：请检查网络、HTTPS 与 CORS 支持；不会转由 CF 代理', worldImpact: 'none' },
   'bad-block': { code: 'bad-block', playerMessage: '', worldImpact: 'none' },
   'proposal-rejected': { code: 'proposal-rejected', playerMessage: '', worldImpact: 'none' },
   rejected: { code: 'rejected', playerMessage: '指令被拒绝', worldImpact: 'none' },
@@ -49,13 +53,15 @@ export const LLM_ERROR_CODES: readonly LlmErrorCode[] = Object.freeze(Object.key
 export function classifyHttpFailure(status: number): LlmErrorCode {
   if (status === 401 || status === 403) return 'auth'
   if (status === 429) return 'rate'
+  if (status === 400 || status === 422) return 'bad-request'
+  if (status === 408 || status === 504) return 'timeout'
   if (status >= 500) return 'upstream'
   return 'rejected' // 400/4xx 其它：走统一拒绝面（不回传原始上游 body —— LL-10 不变量 5）
 }
 
-/** 代理结构化错误体的 code 直通（代理已按 LL-19 分类；客户端只消费不自创） */
-export function normalizeProxyCode(code: unknown): LlmErrorCode | null {
-  return typeof code === 'string' && (LLM_ERROR_CODES as readonly string[]).includes(code)
-    ? (code as LlmErrorCode)
-    : null
+/** 只允许可信 HTTP 故障被上游兼容码收窄为不可重试错误，绝不把 4xx 升级成可重试 5xx。 */
+export function classifyUpstreamFailure(status: number, bodyCode?: unknown): LlmErrorCode {
+  const code = classifyHttpFailure(status)
+  if (code === 'upstream' && (bodyCode === 'auth' || bodyCode === 'rate' || bodyCode === 'bad-request' || bodyCode === 'timeout')) return bodyCode
+  return code
 }

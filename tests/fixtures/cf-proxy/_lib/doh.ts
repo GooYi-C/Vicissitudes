@@ -1,3 +1,4 @@
+// 历史 CF 代理测试夹具：不属于部署入口，不代表现网能力或安全验收。
 // functions/_lib/doh.ts — DoH 解析链（§二十 LL-11）
 // 三解析器顺序尝试：dns.google → cloudflare-dns.com → 系统 DNS 兜底。
 // 短 TTL 缓存（60s 初值）；全部失败 → 系统 DNS 兜底 ＋ 注记（降级，不是拒绝请求）。

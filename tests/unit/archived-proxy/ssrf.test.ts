@@ -1,5 +1,6 @@
+// 历史代理回归（归档）：只检验历史夹具，不作为浏览器直连/纯静态生产验收。
 import { describe, it, expect } from 'vitest'
-import { checkUrl, checkResolvedIp, isBlockedIPv4, isBlockedIPv6 } from '../../../functions/_lib/ssrf'
+import { checkUrl, checkResolvedIp, isBlockedIPv4, isBlockedIPv6 } from '../../fixtures/cf-proxy/_lib/ssrf'
 
 // LLM-9：代理 SSRF 白名单样本全灭（私网/回环/元数据 169.254.169.254/重定向/非 https/file:）
 describe('LL-10 SSRF 判定表（LLM-9 样本全灭）', () => {
