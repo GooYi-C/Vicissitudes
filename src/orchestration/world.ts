@@ -12,18 +12,9 @@ import { TreeSchema } from '../validation/tree'
 export { monthIndexFrom, dateFromMonthIndex, advanceMonth, EPOCH_YEAR, EPOCH_MONTH } from '../validation/calendar'
 
 // authority 根的只读投影（查询函数；写入走 L4 编译通道）
-// activeOn（claim 层按当前日期查询投影；L0-04 升格：城市控制者不设时代默认字段，唯一事实源 = claim 层）
-export function activeController(
-  tree: Pick<Tree, '_authority'>,
-  date: string,
-): string | null {
-  const iso = date.length === 7 ? `${date}-01` : date
-  let active: string | null = null
-  for (const claim of tree._authority.territoryControl.claims) {
-    if (claim.interval.from <= iso && iso < claim.interval.to) active = claim.controller
-  }
-  return active // 空档 → null（与「无主」不可区分 —— 由合并器四守卫防，D-08）
-}
+// activeController 本体住 L1 tree.ts（L2 引擎消费的纯投影 —— L-05 归属；SK-05 层间
+// 修正 R1 复核：fiscal 需消费 → 本体下沉 L1，此处 re-export 保持既有引用面）
+export { activeController } from '../validation/tree'
 
 // 深冻结（D-06 同款纪律：运行期对树的写入即抛错）
 export function deepFreeze<T>(obj: T): Readonly<T> {

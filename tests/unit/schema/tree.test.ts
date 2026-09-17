@@ -31,7 +31,7 @@ describe('SK-03 变量树形状', () => {
 
   it('authority 三根就位（territoryControl / pendingSituations / intelligenceObservations）', () => {
     expect(goodTree._authority.territoryControl.claims).toEqual([])
-    expect(goodTree._authority.pendingSituations.queue).toEqual([])
+    expect(goodTree._authority.pendingSituations.queue).toEqual({}) // R2：record 键 = situation key（B-09-2 精确命中）
     expect(goodTree._authority.intelligenceObservations.observations).toEqual([])
   })
 

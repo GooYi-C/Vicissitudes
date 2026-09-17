@@ -64,8 +64,12 @@ export function validateRegistry(sim: readonly EngineModule[], aft: readonly Eng
   }
 
   // 3) 读序纪律：不得读同相位中排在自己之后的模块的写域
-  //    例外：M-04 链成员互读合法（链序显式登记了「谁看见谁」—— 链内前位读后位写域
+  //    例外 A：M-04 链成员互读合法（链序显式登记了「谁看见谁」—— 链内前位读后位写域
   //    语义为「读到上一月该写者的产出」，这正是链存在的目的）
+  //    例外 B：非链读者读链域 =「读上月终态」（B-03 不变量 3 同款语义：月账口径）。
+  //    依据：M-02-3 的目的 = 防读「本轮中间态」；链域（map/territoryControl/memory.items）
+  //    的终态在月末才成立，任何读它的模块读的必然是上月终态 —— 非中间态，无竞争面。
+  //    R1 首用：market/finance 读 map/*（读上月六维）、fiscal 读 territoryControl（读上月势力）。
   for (const [phaseLabel, mods] of [['simulation', sim], ['aftermath', aft]] as const) {
     for (let i = 0; i < mods.length; i++) {
       const m = mods[i]
@@ -77,7 +81,8 @@ export function validateRegistry(sim: readonly EngineModule[], aft: readonly Eng
           const later = mods[j]
           if (later.writes.some((w) => domainPrefixMatch(w, r))) {
             const laterInChain = chain?.includes(later.id) ?? false
-            if (inChain && laterInChain) continue // 链内互读：合法（M-04 例外）
+            if (inChain && laterInChain) continue // 例外 A：链内互读
+            if (chain) continue // 例外 B：链域读者 = 读上月终态（链序即声明）
             v.push(`${phaseLabel} 相位读序违规：${m.id}（第 ${i + 1} 位）读了后位模块 ${later.id}（第 ${j + 1} 位）的写域 ${r}（M-02-3）`)
           }
         }
@@ -113,12 +118,19 @@ function domainKey(d: string): string {
 
 // ── TickContext 构造（B-01/B-02）──────────────────────────────────
 
+// B-03：market 产出的结构化发布载荷（market.collect 返回单条 marketPublish 效果；
+// 编排器解析其 args 作为通道值 —— 唯一发布路径，不从 state 读「最近市场」）
+export interface MarketQuote {
+  readonly price: number
+  readonly trend: number
+}
+
 export function makeTickContext(params: {
   moduleId: string // rng 按 (模块id, monthIndex, salt) 派生 —— 每模块独立
   date: string
   monthIndex: number
   state: Readonly<Record<string, unknown>>
-  market: Readonly<Record<string, { price: number; trend: number }>>
+  market: Readonly<Record<string, MarketQuote>>
   diagnostics: Diagnostic[]
 }): TickContext {
   const { moduleId, date, monthIndex, state, market, diagnostics } = params
@@ -145,13 +157,13 @@ export function runMonth(params: {
   date: string
   monthIndex: number
   isTerminalMonth: boolean // full 管线月（M-05：full 仅终月跑）
-  market?: Readonly<Record<string, { price: number; trend: number }>>
+  market?: Readonly<Record<string, MarketQuote>>
 }): MonthRunResult {
   const { state, date, monthIndex, isTerminalMonth } = params
   const diagnostics: Diagnostic[] = []
   const effects: DomainEffect[] = []
   const callLog: string[] = []
-  let market = params.market ?? {}
+  let market: Readonly<Record<string, MarketQuote>> = params.market ?? {}
 
   const runPhase = (mods: readonly EngineModule[], phaseLabel: string) => {
     for (const m of mods) {
@@ -161,12 +173,14 @@ export function runMonth(params: {
       const produced = m.collect(state, ctx)
       callLog.push(`${phaseLabel}:${m.id}`)
       effects.push(...produced)
-      // B-03：market 产出唯一发布 —— market 模块跑完后编排器把它的产出发布进通道。
-      // 骨架期 market 产出零效果；R1 接通 MarketResult 后此处读其结构化产出。
+      // B-03：market 唯一发布 —— market 模块产出 marketPublish 效果（结构化 MarketResult），
+      // 编排器解析后发布进通道；这是唯一发布点（BUS-2：无第二获取路径）。
       if (m.id === 'market') {
-        const mkt = (state as { economy?: { commodities?: Record<string, { price: number; trend: number }> } })
-          .economy?.commodities
-        if (mkt) market = mkt
+        const pub = produced.find((e) => e.op === 'marketPublish')
+        const quotes = pub?.args?.quotes
+        if (pub && quotes && typeof quotes === 'object') {
+          market = Object.freeze({ ...(quotes as Record<string, MarketQuote>) })
+        }
       }
     }
   }

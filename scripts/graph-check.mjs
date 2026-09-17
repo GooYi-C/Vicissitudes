@@ -68,6 +68,9 @@ edges.sort((a, b) => (a.from === b.from ? (a.to < b.to ? -1 : 1) : a.from < b.fr
 
 // 层向合法性（L-01/L-02）：图上任何跨层/同层违规都是「非预期边」
 const illegal = []
+// LAYER-006 库出口单向豁免（M-11，2026-09-15 R1 登记；与 eslint.config.js LAYER_006_LIB_EXITS 同源）：
+// settlement → trade.routeEconomics（口径出口：调用方唯一，§9.6 口径一致的结构保证）
+const LAYER_006_LIB_EXITS = new Set(['src/engine/settlement.ts→src/engine/trade.ts'])
 for (const e of edges) {
   const fromLayer = layerOf(e.from)
   const toLayer = layerOf(e.to)
@@ -78,6 +81,7 @@ for (const e of edges) {
     // LAYER-006：engine 模块 → types.ts（接口处）；registry.ts → 模块（聚合 hub，M-06）
     if (e.to === LAYER_006_HUB) continue
     if (e.from === 'src/engine/registry.ts') continue
+    if (LAYER_006_LIB_EXITS.has(`${e.from}→${e.to}`)) continue
     illegal.push(`L-02 同层：${e.from} → ${e.to}`)
   }
   // LAYER-007：L0 数据 → L1 dataSchemas（建表先建 schema）单向豁免

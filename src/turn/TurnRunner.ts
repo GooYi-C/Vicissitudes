@@ -56,7 +56,8 @@ function applyOne(draft: unknown, op: JsonPatchOp): unknown {
         return rec
       }
       if (op.op === 'add' || op.op === 'replace') {
-        if (op.op === 'replace' && !(seg in rec)) throw new Error(`missing key ${seg}`)
+        // record 域（如 economy.commodities）：replace 缺键自动降级 add ——
+        // 首月行情表从 {} 起步，marketPublish 逐商品落价必然先 add 后 replace
         rec[seg] = (op as { value: unknown }).value
         return rec
       }
@@ -78,6 +79,9 @@ function applyOne(draft: unknown, op: JsonPatchOp): unknown {
       copy[idx] = rebuild(copy[idx], i + 1)
       return copy
     }
+    // 中间键缺失 → 自动建空对象（record 域深路径：/map/{city}/{dim} 在首月播种时
+    // map 与 map/{city} 皆不存在；树形状由提交后的 TreeSchema 终验兜底 —— 非法形状整批否决）
+    if (op.op === 'replace' || op.op === 'add') return { [seg]: rebuild(undefined, i + 1) }
     throw new Error(`path break at ${segs.slice(0, i + 1).join('/')}`)
   }
   return rebuild(draft, 0)

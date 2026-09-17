@@ -36,7 +36,13 @@ const LAYER_EXEMPT = new Set([
 // engine 模块 → engine/types.ts（EngineModule/TickContext 接口定义处 —— M-01/L-05 明示意）；
 // engine/registry.ts 为聚合 hub（M-06 单一权威数组 —— 注册表必然 import 全部模块）。
 // 模块↔模块互引仍禁；types/registry → 模块的反向依赖仅 registry 合法（聚合本体）。
+// R1 追加（2026-09-15）：settlement → trade 单向豁免 —— trade.ts 的 routeEconomics
+// 是 M-11 库层条目（口径出口：L1 公式 + L0 数据的绑定，纯函数、无状态、不注册），
+// settlement 为唯一调用方（§9.6「消费 ctx.market 与 trade 口径一致」的结构保证）。
+// 模块间「信息」仍只经 TickContext 与状态树 —— 本豁免只放行口径函数，不放行状态读取。
 const LAYER_006_HUBS = new Set(['src/engine/types.ts', 'src/engine/registry.ts'])
+// 库出口单向豁免对（from → to：from 是调用方模块，to 是库出口宿主文件）
+const LAYER_006_LIB_EXITS = new Set(['src/engine/settlement.ts→src/engine/trade.ts'])
 
 // LAYER-007（单向豁免，§十六 L-07 豁免表 2026-09-15 登记）：
 // L0 数据文件 → L1 dataSchemas.ts（D-04「建表先建 schema」—— 数据 import 自己的 schema 自校验）
@@ -63,6 +69,8 @@ function layerZones() {
             // registry → 模块（聚合本体 —— M-06 单一权威数组必然 import 全部模块）
             if (LAYER_006_HUBS.has(f)) continue
             if (t === 'src/engine/registry.ts') continue
+            // LAYER-006 库出口单向豁免（M-11）：调用方模块 → 库出口宿主（如 settlement → trade.routeEconomics）
+            if (LAYER_006_LIB_EXITS.has(`${t}→${f}`)) continue
             push(t, f, `L-02 同层零 import（§十六）：${t} ↔ ${f} 之间信息只能经 TickContext 与状态树传递`)
           }
         }

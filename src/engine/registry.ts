@@ -63,6 +63,7 @@ export const M03_WRITER_CHAINS: Record<string, readonly string[]> = {
   '_authority.territoryControl': ['history', 'factions', 'OccupationCommand'], // 链①
   'map': ['fiscal', 'worldtick', 'crisis'], // 链②（六维）
   'memory.items': ['memory', 'resolve', 'TurnRunner.extractor'], // 链③（保底先于补写）
+  'timeline': ['history'], // R3：游标单写者（history 独占 —— HistoryIntervene 命令皮肉期接链）
 }
 
 export function writerChainOf(domain: string): readonly string[] | undefined {

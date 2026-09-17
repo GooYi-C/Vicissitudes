@@ -8,9 +8,9 @@ import type { DomainEffect } from '../validation/effects'
 // 货币锚点（附录 E 数值事实源；标定五步的第一步 —— 初值，附复核点）
 // monthIndex 口径：1921-01=0（EPOCH）→ 1939-01=216、1942-01=252、1949-12=348
 const CURRENCY_ANCHORS: readonly { from: number; to: number; currency: string }[] = [
-  { from: 0, to: 215, currency: 'yinyuan' }, // 1921-01 ~ 1938-12 银元
+  { from: 0, to: 215, currency: 'yinyuan' }, // 1921-01 ~ 1938-12 银元（monthIndex 215 = 1938-12）
   { from: 216, to: 251, currency: 'fabi' }, // 1939-01 ~ 1941-12 法币（战时）
-  { from: 252, to: 348, currency: 'jinquanyuan' }, // 1942-01 ~ 1949-12 金圆券末期
+  { from: 252, to: 347, currency: 'jinquanyuan' }, // 1942-01 ~ 1949-12 金圆券末期（347 = 1949-12；348 越界回退）
 ]
 
 function currencyFor(monthIndex: number): string {

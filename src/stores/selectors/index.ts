@@ -23,13 +23,13 @@ export const careerSummary = createSelector('career-summary', ['career', 'world.
   }
 })
 
-// WorldPanel：世界态势 + 待决处境（_authority 域）
+// WorldPanel：世界态势 + 待决处境（_authority 域；queue record 键 = situation key）
 export const worldSituations = createSelector(
   'world-situations',
   ['_authority.pendingSituations'],
   (state: Readonly<Tree>) => {
     const queue = state._authority.pendingSituations.queue
-    return queue.map((s) => ({ key: s.key, templateId: s.templateId, arrivesAt: s.arrivedAt }))
+    return Object.values(queue).map((s) => ({ key: s.key, templateId: s.templateId, arrivesAt: s.arrivedAt }))
   },
 )
 

@@ -51,11 +51,11 @@ describe('M-06/M-12 管线注册表', () => {
     expect(full.sort()).toEqual(['consistency', 'crisis', 'intelligence', 'labor'])
   })
 
-  it('L2 文件数 = 模块数 + 2（types/registry/rng 为层内基建，非模块位）', async () => {
+  it('L2 文件数 = 模块数 + 4（types/registry/rng/adjacency 为层内基建，非模块位）', async () => {
     const { readdirSync } = await import('node:fs')
     const files = readdirSync('src/engine').filter((f) => f.endsWith('.ts') && !f.endsWith('.d.ts'))
-    // 16 模块 + types + registry + rng = 19（L-05/M-07 的模块位口径见 SK-06 面板期快照）
-    expect(files.length).toBe(19)
+    // 16 模块 + types + registry + rng + adjacency(M-11 库) = 20（adjacency 库不注册不参与管线，R3 登记）（L-05/M-07 的模块位口径见 SK-06 面板期快照）
+    expect(files.length).toBe(20)
   })
 })
 

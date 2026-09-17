@@ -31,7 +31,7 @@ export interface TickContext {
   readonly date: string // 当月快照 YYYY-MM（canonical 只读投影）
   readonly monthIndex: number // 全局月序（rng 派生与审计共用）
   readonly rng: (salt: string) => Rng // 按 (模块id, monthIndex, salt) 派生（B-02）
-  readonly market: Readonly<Record<string, { price: number; trend: number }>> // B-03 唯一发布路径
+  readonly market: Readonly<Record<string, { readonly price: number; readonly trend: number }>> // B-03 唯一发布路径
   readonly diagnostics: Diagnostic[]
   readonly state: Readonly<Record<string, unknown>> // 只读视图（已提交 ops 后最新态）
 }

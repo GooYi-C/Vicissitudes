@@ -15,14 +15,6 @@
     },
     {
       "from": "src/App.vue",
-      "to": "src/components/StatusBar.vue"
-    },
-    {
-      "from": "src/App.vue",
-      "to": "src/components/StoryView.vue"
-    },
-    {
-      "from": "src/App.vue",
       "to": "src/components/panels/CareerPanel.vue"
     },
     {
@@ -67,7 +59,23 @@
     },
     {
       "from": "src/App.vue",
+      "to": "src/components/StatusBar.vue"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/components/StoryView.vue"
+    },
+    {
+      "from": "src/App.vue",
       "to": "src/gameCommands/index.ts"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/stores/saves.ts"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/stores/saveSchema.ts"
     },
     {
       "from": "src/App.vue",
@@ -426,6 +434,14 @@
       "to": "src/validation/dataSchemas.ts"
     },
     {
+      "from": "src/engine/adjacency.ts",
+      "to": "src/data/cities.ts"
+    },
+    {
+      "from": "src/engine/adjacency.ts",
+      "to": "src/data/transport.ts"
+    },
+    {
       "from": "src/engine/consistency.ts",
       "to": "src/engine/types.ts"
     },
@@ -443,19 +459,59 @@
     },
     {
       "from": "src/engine/events.ts",
+      "to": "src/data/events.ts"
+    },
+    {
+      "from": "src/engine/events.ts",
+      "to": "src/data/situationTemplates.ts"
+    },
+    {
+      "from": "src/engine/events.ts",
+      "to": "src/data/timeline.ts"
+    },
+    {
+      "from": "src/engine/events.ts",
       "to": "src/engine/types.ts"
+    },
+    {
+      "from": "src/engine/events.ts",
+      "to": "src/validation/dataSchemas.ts"
     },
     {
       "from": "src/engine/events.ts",
       "to": "src/validation/effects.ts"
     },
     {
+      "from": "src/engine/events.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/engine/factions.ts",
+      "to": "src/data/cities.ts"
+    },
+    {
+      "from": "src/engine/factions.ts",
+      "to": "src/data/loader.ts"
+    },
+    {
+      "from": "src/engine/factions.ts",
+      "to": "src/data/transport.ts"
+    },
+    {
       "from": "src/engine/factions.ts",
       "to": "src/engine/types.ts"
     },
     {
       "from": "src/engine/factions.ts",
       "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/factions.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/engine/finance.ts",
+      "to": "src/data/cities.ts"
     },
     {
       "from": "src/engine/finance.ts",
@@ -466,6 +522,14 @@
       "to": "src/validation/effects.ts"
     },
     {
+      "from": "src/engine/finance.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/engine/fiscal.ts",
+      "to": "src/data/cities.ts"
+    },
+    {
       "from": "src/engine/fiscal.ts",
       "to": "src/engine/types.ts"
     },
@@ -474,12 +538,32 @@
       "to": "src/validation/effects.ts"
     },
     {
+      "from": "src/engine/fiscal.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/engine/fiscal.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
       "from": "src/engine/goals.ts",
       "to": "src/engine/types.ts"
     },
     {
       "from": "src/engine/goals.ts",
+      "to": "src/validation/calendar.ts"
+    },
+    {
+      "from": "src/engine/goals.ts",
       "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/goals.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/engine/history.ts",
+      "to": "src/data/loader.ts"
     },
     {
       "from": "src/engine/history.ts",
@@ -487,7 +571,15 @@
     },
     {
       "from": "src/engine/history.ts",
+      "to": "src/validation/calendar.ts"
+    },
+    {
+      "from": "src/engine/history.ts",
       "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/history.ts",
+      "to": "src/validation/tree.ts"
     },
     {
       "from": "src/engine/intelligence.ts",
@@ -507,6 +599,14 @@
     },
     {
       "from": "src/engine/market.ts",
+      "to": "src/data/cities.ts"
+    },
+    {
+      "from": "src/engine/market.ts",
+      "to": "src/data/commodities.ts"
+    },
+    {
+      "from": "src/engine/market.ts",
       "to": "src/engine/types.ts"
     },
     {
@@ -514,12 +614,20 @@
       "to": "src/validation/effects.ts"
     },
     {
+      "from": "src/engine/market.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
       "from": "src/engine/memory.ts",
       "to": "src/engine/types.ts"
     },
     {
       "from": "src/engine/memory.ts",
       "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/memory.ts",
+      "to": "src/validation/tree.ts"
     },
     {
       "from": "src/engine/registry.ts",
@@ -595,11 +703,19 @@
     },
     {
       "from": "src/engine/settlement.ts",
+      "to": "src/engine/trade.ts"
+    },
+    {
+      "from": "src/engine/settlement.ts",
       "to": "src/engine/types.ts"
     },
     {
       "from": "src/engine/settlement.ts",
       "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/settlement.ts",
+      "to": "src/validation/tree.ts"
     },
     {
       "from": "src/engine/temporal.ts",
@@ -615,11 +731,27 @@
     },
     {
       "from": "src/engine/trade.ts",
+      "to": "src/data/cities.ts"
+    },
+    {
+      "from": "src/engine/trade.ts",
+      "to": "src/data/transport.ts"
+    },
+    {
+      "from": "src/engine/trade.ts",
       "to": "src/engine/types.ts"
     },
     {
       "from": "src/engine/trade.ts",
+      "to": "src/validation/econMath.ts"
+    },
+    {
+      "from": "src/engine/trade.ts",
       "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/trade.ts",
+      "to": "src/validation/tree.ts"
     },
     {
       "from": "src/engine/types.ts",
@@ -627,11 +759,19 @@
     },
     {
       "from": "src/engine/worldtick.ts",
+      "to": "src/data/cities.ts"
+    },
+    {
+      "from": "src/engine/worldtick.ts",
       "to": "src/engine/types.ts"
     },
     {
       "from": "src/engine/worldtick.ts",
       "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/worldtick.ts",
+      "to": "src/validation/tree.ts"
     },
     {
       "from": "src/gameCommands/index.ts",
@@ -651,6 +791,38 @@
     },
     {
       "from": "src/gameCommands/index.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/gameCommands/occupation.ts",
+      "to": "src/data/cities.ts"
+    },
+    {
+      "from": "src/gameCommands/occupation.ts",
+      "to": "src/engine/adjacency.ts"
+    },
+    {
+      "from": "src/gameCommands/occupation.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/gameCommands/occupation.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/gameCommands/scout.ts",
+      "to": "src/data/cities.ts"
+    },
+    {
+      "from": "src/gameCommands/scout.ts",
+      "to": "src/engine/adjacency.ts"
+    },
+    {
+      "from": "src/gameCommands/scout.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/gameCommands/scout.ts",
       "to": "src/validation/tree.ts"
     },
     {
@@ -686,6 +858,10 @@
       "to": "src/validation/tree.ts"
     },
     {
+      "from": "src/orchestration/world.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
       "from": "src/parser/authorize.ts",
       "to": "src/parser/blocks.ts"
     },
@@ -706,16 +882,16 @@
       "to": "src/validation/stableJson.ts"
     },
     {
-      "from": "src/stores/saveSchema.ts",
-      "to": "src/validation/tree.ts"
-    },
-    {
       "from": "src/stores/saves.ts",
       "to": "src/stores/persist.ts"
     },
     {
       "from": "src/stores/saves.ts",
       "to": "src/stores/saveSchema.ts"
+    },
+    {
+      "from": "src/stores/saveSchema.ts",
+      "to": "src/validation/tree.ts"
     },
     {
       "from": "src/stores/selectors/index.ts",
@@ -770,26 +946,6 @@
       "to": "src/stores/persist.ts"
     },
     {
-      "from": "src/turn/TurnRunner.ts",
-      "to": "src/turn/compiler.ts"
-    },
-    {
-      "from": "src/turn/TurnRunner.ts",
-      "to": "src/turn/compiler.ts"
-    },
-    {
-      "from": "src/turn/TurnRunner.ts",
-      "to": "src/validation/stableJson.ts"
-    },
-    {
-      "from": "src/turn/TurnRunner.ts",
-      "to": "src/validation/tree.ts"
-    },
-    {
-      "from": "src/turn/TurnRunner.ts",
-      "to": "src/validation/tree.ts"
-    },
-    {
       "from": "src/turn/compiler.ts",
       "to": "src/validation/effects.ts"
     },
@@ -819,6 +975,34 @@
     },
     {
       "from": "src/turn/monthRunner.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/turn/resolves.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/turn/resolves.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/turn/TurnRunner.ts",
+      "to": "src/turn/compiler.ts"
+    },
+    {
+      "from": "src/turn/TurnRunner.ts",
+      "to": "src/turn/compiler.ts"
+    },
+    {
+      "from": "src/turn/TurnRunner.ts",
+      "to": "src/validation/stableJson.ts"
+    },
+    {
+      "from": "src/turn/TurnRunner.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/turn/TurnRunner.ts",
       "to": "src/validation/tree.ts"
     }
   ]
