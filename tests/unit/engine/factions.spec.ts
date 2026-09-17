@@ -109,7 +109,7 @@ describe('R3-2 factions 势力决策', () => {
 })
 
 function await_modRunner() {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
+   
   return { tickWorld: mw }
 }
 import { tickWorld as mw } from '../../../src/turn/monthRunner'

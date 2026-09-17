@@ -94,6 +94,16 @@ check('TEC-5', bannedHits.length === 0, bannedHits.length === 0 ? '源码禁用�
 
 // ── SK-00 阶段性目录断言：tests/ 与 baseline/ 就位 ─────────────────
 check('TEC-2', existsSync(join(root, 'baseline', 'assertions.json')), 'baseline/assertions.json 副本在位（文档仓为权威）')
+// G-8（2026-09-17 拍板行）：副本同源升级为内容级——文档仓可达时逐字节比对；
+// 不可达（如 CI 单仓检出）退回存在性检查。防 VS-01 期间「副本被改写未察觉」复发。
+{
+  const authoritative = join(root, '..', 'rebuild-v2.0', 'baseline', 'assertions.json')
+  if (existsSync(authoritative)) {
+    const a = readFileSync(authoritative, 'utf8')
+    const b = readFileSync(join(root, 'baseline', 'assertions.json'), 'utf8')
+    check('TEC-2', a === b, a === b ? 'baseline/assertions.json 与文档仓权威账本逐字节同源（G-8 内容级校验）' : `baseline/assertions.json 与文档仓权威账本不同源（权威 ${a.length} 字符 / 副本 ${b.length} 字符）——跑 ledger --merge 后重新复制副本`)
+  }
+}
 
 // ── S-02 / S-04 / U-02 侧静态断言（SK-02 起）────────────────────────
 // IO 唯一入口：indexedDB / localStorage 只允许出现在 src/stores/（L0–L6 零 IO）

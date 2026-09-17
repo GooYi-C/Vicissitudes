@@ -196,27 +196,56 @@ const callCounter = computed(() => getCallStats().length)
       />
       <template v-else>
         <div class="vic-storycol">
-          <details v-if="settings" class="vic-settings">
+          <details
+            v-if="settings"
+            class="vic-settings"
+          >
             <summary>
               设置（API）·{{ llmReady ? '已配置 → LLM 回合' : '未配置 → 确定性模式（零调用）' }}
             </summary>
             <div class="vic-settings__grid">
               <label>
                 上游端点 baseUrl
-                <input v-model="settings.upstream.baseUrl" type="text" placeholder="https://api.example.com" autocomplete="off">
+                <input
+                  v-model="settings.upstream.baseUrl"
+                  type="text"
+                  placeholder="https://api.example.com"
+                  autocomplete="off"
+                >
               </label>
               <label>
                 模型 model
-                <input v-model="settings.upstream.model" type="text" placeholder="model-name" autocomplete="off">
+                <input
+                  v-model="settings.upstream.model"
+                  type="text"
+                  placeholder="model-name"
+                  autocomplete="off"
+                >
               </label>
               <label>
                 密钥 apiKey（只存本机；不入存档/prompt/日志）
-                <input v-model="settings.upstream.apiKey" type="password" autocomplete="off">
+                <input
+                  v-model="settings.upstream.apiKey"
+                  type="password"
+                  autocomplete="off"
+                >
               </label>
-              <button type="button" @click="onSaveSettings">保存设置</button>
+              <button
+                type="button"
+                @click="onSaveSettings"
+              >
+                保存设置
+              </button>
             </div>
-            <p v-if="settingsNote" class="vic-settings__note">{{ settingsNote }}</p>
-            <p class="vic-settings__note">本局 LLM 调用：{{ callCounter }} 次（纯观测 LL-17；观测数据不进存档）</p>
+            <p
+              v-if="settingsNote"
+              class="vic-settings__note"
+            >
+              {{ settingsNote }}
+            </p>
+            <p class="vic-settings__note">
+              本局 LLM 调用：{{ callCounter }} 次（纯观测 LL-17；观测数据不进存档）
+            </p>
           </details>
           <StoryView
             :entries="story"
