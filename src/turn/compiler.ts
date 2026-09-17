@@ -227,6 +227,27 @@ export function compile(effects: readonly DomainEffect[], state: Readonly<Tree>)
         ops.push({ op: 'replace', path: '/memory/order', value: order })
         break
       }
+      case 'laborPost': {
+        // R4：劳动力投影落账（幂等纯投影——全量替换；_computed 是引擎独占域不进 sanitize）
+        const labor = eff.args.labor
+        if (!labor || typeof labor !== 'object') throw new CompileError('laborPost: labor 必须为对象')
+        ops.push({ op: 'replace', path: '/_computed/labor', value: labor })
+        break
+      }
+      case 'relationsPost': {
+        // R4：人脉档落账（交叉一致维护——全量替换）
+        const persons = eff.args.persons
+        if (!persons || typeof persons !== 'object') throw new CompileError('relationsPost: persons 必须为对象')
+        ops.push({ op: 'replace', path: '/relations/persons', value: persons })
+        break
+      }
+      case 'crisisPost': {
+        // R4：危机台账落账（只落账不触发——触发经 crisisToPendingSituation 适配载荷走 B-07）
+        const records = eff.args.records
+        if (!records || typeof records !== 'object') throw new CompileError('crisisPost: records 必须为对象')
+        ops.push({ op: 'replace', path: '/crisis/records', value: records })
+        break
+      }
       default: {
         // 穷尽性检查：未知 op 抛错（不静默跳过 —— B-07 错误语义）
         const exhausted: never = eff.op

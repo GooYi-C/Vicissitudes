@@ -14,7 +14,9 @@
 //   依据：E-0.1 单局 60–120 月 —— 重要记忆（≥7）活过一局，琐事（≤3）半年淡忘；
 //   复核点：§7.8-1 规则召回非空 + 老档翻阅体验
 // - 衰减步长 1/月（连续线性 —— 离散树差分好断言）；pinned/archived 豁免
-// - 归档线 0（importance 归零即归档；不删除 —— RelationsPanel 反查与旧账点名依赖存在性）
+// - 归档线 0（importance 归零即归档；不删除 —— RelationsPanel 反查与旧账点名依赖存在性）。
+//   形状闸：MemoryItemTreeSchema.importance ∈ [1, 9]——「到线即归档」语义不变，但入树值以 1 为底
+//   （archived 标志承担终态身份），否则 Commit 后校验 zod 红灯、整批原子回滚、世界卡死。
 
 import type { EngineModule, TickContext } from './types'
 import type { DomainEffect } from '../validation/effects'
@@ -30,8 +32,9 @@ function decayed(item: MemoryItemTree, monthIndex: number): MemoryItemTree {
   if (age === 0 || halfLife === 0) return item
   // 线性近似半衰：每过 halfLife 月降 importance 的一半（向上取整 —— 琐事先淡）
   const loss = Math.ceil((age / halfLife) * (item.importance / 2)) * DECAY_PER_MONTH / Math.max(1, Math.ceil(age / halfLife))
-  const importance = Math.max(0, item.importance - Math.max(1, Math.floor(loss)))
-  return { ...item, importance, archived: importance <= 0 }
+  const raw = item.importance - Math.max(1, Math.floor(loss))
+  // 归档线 0 是语义线；入树值以 1 为底（形状闸：importance ≥ 1，否则 Commit 后校验红灯、整批原子回滚）
+  return raw <= 0 ? { ...item, importance: 1, archived: true } : { ...item, importance: raw, archived: false }
 }
 
 export const memory: EngineModule = {

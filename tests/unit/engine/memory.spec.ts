@@ -80,7 +80,7 @@ describe('R2-3 memory 管家', () => {
     const effects = memory.collect(tree as never, ctxFor(24) as never)
     const next = effects[0].args.items as Record<string, MemoryItemTree>
     expect(next.dying.archived).toBe(true)
-    expect(next.dying.importance).toBe(0)
+    expect(next.dying.importance).toBe(1) // 形状闸：0 是语义归档线，入树值以 1 为底（避免 Commit 后 zod 红灯）
     expect(next.dying.content).toBe('你到了上海。') // content 不灭（append-only 同源）
   })
 

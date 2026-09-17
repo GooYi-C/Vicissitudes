@@ -15,6 +15,14 @@
     },
     {
       "from": "src/App.vue",
+      "to": "src/components/StatusBar.vue"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/components/StoryView.vue"
+    },
+    {
+      "from": "src/App.vue",
       "to": "src/components/panels/CareerPanel.vue"
     },
     {
@@ -59,23 +67,15 @@
     },
     {
       "from": "src/App.vue",
-      "to": "src/components/StatusBar.vue"
-    },
-    {
-      "from": "src/App.vue",
-      "to": "src/components/StoryView.vue"
-    },
-    {
-      "from": "src/App.vue",
       "to": "src/gameCommands/index.ts"
     },
     {
       "from": "src/App.vue",
-      "to": "src/stores/saves.ts"
+      "to": "src/stores/saveSchema.ts"
     },
     {
       "from": "src/App.vue",
-      "to": "src/stores/saveSchema.ts"
+      "to": "src/stores/saves.ts"
     },
     {
       "from": "src/App.vue",
@@ -450,12 +450,20 @@
       "to": "src/validation/effects.ts"
     },
     {
+      "from": "src/engine/consistency.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
       "from": "src/engine/crisis.ts",
       "to": "src/engine/types.ts"
     },
     {
       "from": "src/engine/crisis.ts",
       "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/crisis.ts",
+      "to": "src/validation/tree.ts"
     },
     {
       "from": "src/engine/events.ts",
@@ -590,12 +598,20 @@
       "to": "src/validation/effects.ts"
     },
     {
+      "from": "src/engine/intelligence.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
       "from": "src/engine/labor.ts",
       "to": "src/engine/types.ts"
     },
     {
       "from": "src/engine/labor.ts",
       "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/engine/labor.ts",
+      "to": "src/validation/tree.ts"
     },
     {
       "from": "src/engine/market.ts",
@@ -882,16 +898,16 @@
       "to": "src/validation/stableJson.ts"
     },
     {
+      "from": "src/stores/saveSchema.ts",
+      "to": "src/validation/tree.ts"
+    },
+    {
       "from": "src/stores/saves.ts",
       "to": "src/stores/persist.ts"
     },
     {
       "from": "src/stores/saves.ts",
       "to": "src/stores/saveSchema.ts"
-    },
-    {
-      "from": "src/stores/saveSchema.ts",
-      "to": "src/validation/tree.ts"
     },
     {
       "from": "src/stores/selectors/index.ts",

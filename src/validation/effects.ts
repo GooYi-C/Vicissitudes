@@ -31,13 +31,17 @@ export type DomainOp =
   | 'warPost' // war/ 域台账落账（siegeWarnings/contested —— 撤离窗口数据源）
   | 'timelinePost' // history 游标推进（lastCursor —— 半开区间查询的左端）
   | 'intelPost' // 情报观察表落账（Scout 命令写入 / intelligence 模块衰减 —— 双写者各管一半）
+  // ── R4 收尾环新增（full cadence 四件；全部引擎侧效果，不经 sanitize）──
+  | 'laborPost' // 劳动力投影落账 _computed/labor（labor 独占；幂等纯投影）
+  | 'relationsPost' // 人脉档落账 relations/persons（consistency 独占；交叉一致维护）
+  | 'crisisPost' // 危机台账落账 crisis/records（crisis 独占；只落账——触发经适配载荷入处境池）
 
 // 受限指令集封闭枚举（值形态 —— 测试与 sanitize 白名单侧可枚举）
 export const DOMAIN_OPS: readonly DomainOp[] = [
   'cityEffect', 'setCurrency', 'advanceDate', 'memoryWrite',
   'situationEnqueue', 'situationDequeue', 'claimTerritory', 'modifyPlayer',
   'marketPublish', 'routeSet', 'settlementPost', 'financePost', 'fiscalPost', 'setSeasonal', 'citySeed',
-  'eventsPost', 'goalsPost', 'memoryMaintain', 'forcesPost', 'warPost', 'timelinePost', 'intelPost',
+  'eventsPost', 'goalsPost', 'memoryMaintain', 'forcesPost', 'warPost', 'timelinePost', 'intelPost', 'laborPost', 'relationsPost', 'crisisPost',
 ] as const
 
 export interface DomainEffect {

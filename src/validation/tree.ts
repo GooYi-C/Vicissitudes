@@ -262,6 +262,50 @@ export const TimelineCursorSchema = z.object({
 })
 export type TimelineCursor = z.infer<typeof TimelineCursorSchema>
 
+// ── R4 收尾环域（2026-09-17 随环落账；域级 .default 兜底——旧档缺域 → 补默认可载）────
+// labor 劳动力投影（幂等纯投影：同输入重算同果；full 仅终月写入）
+export const LaborCitySchema = z.object({
+  manpower: z.number().int().min(0), // 可动员劳力（人口维 × MANPOWER_FACTOR，系数见 labor 头注）
+  asOfMonth: GameYearMonthSchema,
+})
+export type LaborCity = z.infer<typeof LaborCitySchema>
+export const ComputedLaborSchema = z.object({
+  labor: z.record(z.string(), LaborCitySchema).default({}),
+})
+export type ComputedLabor = z.infer<typeof ComputedLaborSchema>
+
+// relations 人脉档（consistency 独占；交叉一致：memory.people 引用必注册——无悬空引用 R4-3）
+export const RelationPersonSchema = z.object({
+  id: z.string().min(1),
+  status: z.enum(['alive', 'dead', 'arrested']).default('alive'),
+  tier: z.number().int().min(0).max(5).default(0), // 人脉层级（0–5；死亡/被捕传播落 0）
+  propagated: z.boolean().default(false), // 传播收敛标记（一次到位——幂等防线）
+})
+export type RelationPerson = z.infer<typeof RelationPersonSchema>
+export const RelationsSchema = z.object({
+  persons: z.record(z.string(), RelationPersonSchema).default({}),
+})
+export type Relations = z.infer<typeof RelationsSchema>
+
+// crisis 危机台账（crisis 独占；只检测不改写它域——触发经适配载荷入处境池 R4-4）
+export const CrisisKindEnum = z.enum(['bankruptcy', 'mutiny', 'lost-city', 'death']) // 破产/哗变/失城/死亡
+export type CrisisKind = z.infer<typeof CrisisKindEnum>
+export const CrisisRecordSchema = z.object({
+  id: z.string().min(1), // crisis-{kind}-{monthIndex}（同 kind 单档——幂等口径）
+  kind: CrisisKindEnum,
+  severity: z.number().int().min(1).max(3),
+  monthIndex: z.number().int().min(0),
+  month: GameYearMonthSchema,
+  cityId: z.string().optional(),
+  detail: z.string().min(1),
+})
+export type CrisisRecord = z.infer<typeof CrisisRecordSchema>
+export const CrisisLedgerSchema = z.object({
+  records: z.record(z.string(), CrisisRecordSchema).default({}),
+})
+export type CrisisLedger = z.infer<typeof CrisisLedgerSchema>
+
+
 // ── 变量树主体（SK-03 定案形状；后续批次按模块写域逐域扩充）──────────
 export const TreeSchema = z.object({
   world: z.object({
@@ -295,6 +339,10 @@ export const TreeSchema = z.object({
   forces: ForcesSchema, // 势力兵力（factions 独占；与 career.forces 分域）
   war: WarSchema, // 预警/围城台账（factions 独占）
   timeline: TimelineCursorSchema, // history 游标（lastCursor —— 半开区间查询的左端）
+  // R4 收尾环（2026-09-17 随环落账；域级 .default = 旧档缺域补默认可载）
+  crisis: CrisisLedgerSchema.default({ records: {} }), // 危机台账（crisis 独占）
+  relations: RelationsSchema.default({ persons: {} }), // 人脉档（consistency 独占）
+  _computed: ComputedLaborSchema.default({ labor: {} }), // 引擎纯投影域（labor 独占；不占 authority 根）
 })
 
 export type Tree = z.infer<typeof TreeSchema>
@@ -327,7 +375,11 @@ export function initialTree(eraId: string, date: GameDate): Tree {
     // 史实锚定校准（E-3.1 复核点）随五时代联测调）
     forces: { strength: { zhili: 300, fengxi: 300, zhiyuan: 300, guomin: 300, ri: 400 } },
     war: { siegeWarnings: {}, contested: {} },
-    timeline: { lastCursor: `${date}-01` }, // 游标 = 开局日（首月查询 (开局日, 次月]）
+    timeline: { lastCursor: `${date}-01` },
+    // R4：三域开局为空（labor 投影随首个终月；relations 随记忆引用注册；crisis 无记录即无危机）
+    crisis: { records: {} },
+    relations: { persons: {} },
+    _computed: { labor: {} }, // 游标 = 开局日（首月查询 (开局日, 次月]）
   })
 }
 
@@ -356,6 +408,9 @@ export type ReadonlyTree = {
   readonly forces: Readonly<Forces>
   readonly war: Readonly<War>
   readonly timeline: Readonly<TimelineCursor>
+  readonly crisis: Readonly<CrisisLedger>
+  readonly relations: Readonly<Relations>
+  readonly _computed: Readonly<ComputedLabor>
 }
 
 // activeOn（claim 层按当前日期查询投影；L0-04 升格：城市控制者不设时代默认字段，
