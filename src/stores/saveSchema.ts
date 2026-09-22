@@ -104,6 +104,10 @@ export const SaveRecordSchema = z.object({
   meta: z.object({
     date: z.string(),
     turnCount: z.number().int().min(0),
+    // 出身 id：运行树 identity.id 的存档侧投影（树是权威，meta 只是存档列表显示面）。
+    // 保持非空（S-01 原口径）：新局必定有树内 identity；旧档刷新后回写由 App.saveIdentityId
+    // 从身份表取该时代首行兜底，不写空串。任选一行兜底而非留空 = 不猜「玩家是谁」，
+    // 只是让这个显示字段不失真为非空 —— 真实出身仍以树内 identity 为准。
     identityId: z.string().min(1),
     eraId: z.string().min(1),
     status: z.enum(['playing', 'finished']),

@@ -76,8 +76,17 @@ export const openingEras = createSelector('opening-eras', ['era'], () =>
   eras.map((e) => ({ id: e.id, name: e.name, fromYear: e.fromYear, toYear: e.toYear, startMonth: e.startMonth, startDate: eraStartDate(e) })),
 )
 
+// OpeningDossier：所选时代的出身列表（id/kind/开局城/开局现银/是否开局控城）。
+// cityName 由 L0 城市表解析 —— 视图层不得再拿 cityId 猜中文名。
 export const openingIdentities = createSelector('opening-identities', ['era'], (state: Readonly<Tree>) =>
-  identities.filter((i) => i.eraId === state.era.eraId).map((i) => ({ id: i.id, kind: i.kind, startMoney: i.startMoney })),
+  identities.filter((i) => i.eraId === state.era.eraId).map((i) => ({
+    id: i.id,
+    kind: i.kind,
+    startMoney: i.startMoney,
+    startCity: i.startCity,
+    cityName: cities.find((c) => c.id === i.startCity)?.name ?? i.startCity,
+    startsWithControl: i.startsWithControl,
+  })),
 )
 
 // GoalsPanel / HistoryPanel / MemoryPanel / PressPanel / MapPanel（挂起）骨架读通道

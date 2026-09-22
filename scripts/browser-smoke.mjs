@@ -68,7 +68,17 @@ const driver = `<script>
         if(new Set(eraStartDates.map(r=>r.date)).size!==5)throw new Error('五时代开局日存在重复：'+JSON.stringify(eraStartDates));
         sessionStorage.setItem('vic-era-start-dates',JSON.stringify(eraStartDates));
         const buttons=eraButtons;
-        (buttons.find(b=>/军阀|北洋/.test(b.textContent)) || buttons[2]).click();
+        // 开局设定两步：先选时代（出出身列表），再选出身，最后盖印开局。
+        const eraPick=buttons.find(b=>/军阀|北洋/.test(b.textContent)) || buttons[2];
+        eraPick.click();
+        await until(()=>document.querySelectorAll('.vic-opening__identity').length===8,'eight identity buttons');
+        const identityPick=document.querySelector('.vic-opening__identity');
+        const opening={era:'1921-07',identityId:identityPick.getAttribute('data-identity-id')||'',startCity:identityPick.getAttribute('data-start-city')||'',startsWithControl:identityPick.querySelector('.vic-opening__ctrl')?.getAttribute('data-starts-with-control')||''};
+        if(!opening.identityId)throw new Error('开局出身未渲染 data-identity-id');
+        sessionStorage.setItem('vic-opening',JSON.stringify(opening));
+        identityPick.click();
+        await until(()=>document.querySelector('.vic-opening__go'),'start button');
+        document.querySelector('.vic-opening__go').click();
         await until(()=>document.querySelector('textarea[aria-label="验收观测 JSON"]'),'settings and observations');
         if(document.querySelector('.vic-statusbar span').textContent.trim()!=='1921-07')throw new Error('Unexpected initial date');
         for(let i=0;i<12;i++) {
@@ -93,7 +103,9 @@ const driver = `<script>
         if(attempts.length||observation.summary.calls!==0||errors.length)throw new Error('Unexpected request/runtime error after reload');
         const eraStartDates=JSON.parse(sessionStorage.getItem('vic-era-start-dates')||'[]');
         if(eraStartDates.length!==5)throw new Error('五时代开局日探针结果缺失：'+JSON.stringify(eraStartDates));
-        result({status:'pass',automatic:true,liveProvider:false,openingEras:5,eraStartDates,months:12,restoredDate:'1922-07',generationCalls:0,blockedModelFetches:attempts.length,transport:observation.transport});
+        const opening=JSON.parse(sessionStorage.getItem('vic-opening')||'{}');
+        if(!opening.identityId||!opening.startCity)throw new Error('开局设定探针结果缺失：'+JSON.stringify(opening));
+        result({status:'pass',automatic:true,liveProvider:false,openingEras:5,eraStartDates,opening,months:12,restoredDate:'1922-07',generationCalls:0,blockedModelFetches:attempts.length,transport:observation.transport});
       }
     } catch(error) { result({status:'fail',message:String(error.message),errors,bodySample:document.body.innerText.slice(0,1800),blockedModelFetches:attempts.length}); }
   });

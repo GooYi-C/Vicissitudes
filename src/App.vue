@@ -15,6 +15,8 @@ import { startGame } from './gameCommands'
 // 开局日由时代表派生（REBUILD.md:326「从哪个时代开局，世界就从哪年哪月开始推演」）；
 // 本文件不再写死 '1921-07'。eraStartDateById 对未知 era id 抛错（宁可报错不猜测）。
 import { eraStartDateById } from './data/eras'
+// 存档 meta 的 identityId 兜底需要「时代 → 身份表首行」的对应（旧档无树内 identity 时）。
+import { identities } from './data/identities'
 import { writeSave, readSave, makeInitialSave, serializeSave, writeAutoSave, listAutoSaves } from './stores/saves'
 import { loadSaveRecord } from './stores/saveSchema'
 import { loadSettings, saveSettings, type Settings } from './stores/settings'
@@ -83,6 +85,14 @@ const llmReady = computed(() => {
   return !!u && !!u.baseUrl && !!u.model && !!u.apiKey
 })
 
+/** 开局出身 id（存档 meta 用）：树内 identity 是唯一事实源（startGame 一次写入）。
+ *  旧档没有 identity 域时退化为「该时代身份表首行」—— meta.identityId 只是存档列表的
+ *  显示面且保持非空（S-01 原口径），真实出身仍以树内 identity 为准；不猜玩家是谁。 */
+function saveIdentityId(state: Readonly<Tree>): string {
+  if (state.identity) return state.identity.id
+  return identities.find((i) => i.eraId === state.era.eraId)?.id ?? identities[0]!.id
+}
+
 /** 存档（SK-07 门 5：过月后落档 —— 整份快照，S-01 不变量 1） */
 async function persist() {
   saveNote.value = '保存中，请勿刷新或关闭页面'
@@ -90,7 +100,7 @@ async function persist() {
     const record = makeInitialSave({
       slotId: SLOT,
       eraId: tree.value.era.eraId,
-      identityId: 'student',
+      identityId: saveIdentityId(tree.value),
       date: tree.value.world.date,
       variables: JSON.parse(JSON.stringify(tree.value)), // 剥 Vue Proxy（存档投影纯数据）
       updatedAt: tree.value.world.date, // 引擎侧禁 Date（B-02）：用游戏日期作 updated 标记
@@ -164,7 +174,7 @@ async function snapshotMonthStart(pre: Readonly<Tree>) {
   const record = makeInitialSave({
     slotId: `auto-${month}`,
     eraId: pre.era.eraId,
-    identityId: 'student',
+    identityId: saveIdentityId(pre),
     date: month,
     variables: JSON.parse(JSON.stringify(pre)),
     updatedAt: month,
@@ -196,11 +206,11 @@ function ensureDayEntry(date: string, text: string, turn: number) {
   story.value = [...story.value.slice(-11), { turn, date, text }]
 }
 
-async function onStart(eraId: string, kind: string) {
+async function onStart(eraId: string, identityId: string) {
   if (modelBusy.value || modelsBusy.value) return
   modelBusy.value = true
   try {
-    const { variables } = startGame({ eraId, identityId: kind || 'student', date: eraStartDateById(eraId) })
+    const { variables } = startGame({ eraId, identityId, date: eraStartDateById(eraId) })
     tree.value = variables
     versions.value = {}
     days.value = [] // VS-02：新局清空日结/月志/往事记要（旧局的日志不跨局沿用）
@@ -210,6 +220,9 @@ async function onStart(eraId: string, kind: string) {
     story.value = [{ turn: 0, date: `${variables.world.date}-01`, text: '序章 · 盖印开局（免 API 模式，零 LLM 调用）' }]
     started.value = true
     await persist()
+  } catch {
+    // 开局参数不成立（时代×出身非法）——不静默、也不留半开局状态
+    saveNote.value = '开局参数不成立（该出身不属于所选时代），请重新选择'
   } finally { modelBusy.value = false }
 }
 

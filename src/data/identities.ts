@@ -10,6 +10,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "student",
     "startMoney": 5,
     "startCity": "beijing",
+    "startsWithControl": false,
     "desc": "era-warlord 时代的student出身"
   },
   {
@@ -19,6 +20,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "worker",
     "startMoney": 5,
     "startCity": "shanghai",
+    "startsWithControl": false,
     "desc": "era-warlord 时代的worker出身"
   },
   {
@@ -28,6 +30,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "merchant",
     "startMoney": 50,
     "startCity": "shanghai",
+    "startsWithControl": false,
     "desc": "era-warlord 时代的merchant出身"
   },
   {
@@ -37,6 +40,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "journalist",
     "startMoney": 10,
     "startCity": "shanghai",
+    "startsWithControl": false,
     "desc": "era-warlord 时代的journalist出身"
   },
   {
@@ -46,6 +50,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "soldier",
     "startMoney": 15,
     "startCity": "wuhan",
+    "startsWithControl": false,
     "desc": "era-warlord 时代的soldier出身"
   },
   {
@@ -55,6 +60,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "teacher",
     "startMoney": 8,
     "startCity": "beijing",
+    "startsWithControl": false,
     "desc": "era-warlord 时代的teacher出身"
   },
   {
@@ -64,6 +70,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "doctor",
     "startMoney": 20,
     "startCity": "guangzhou",
+    "startsWithControl": false,
     "desc": "era-warlord 时代的doctor出身"
   },
   {
@@ -73,6 +80,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "industrialist",
     "startMoney": 200,
     "startCity": "tianjin",
+    "startsWithControl": false,
     "desc": "era-warlord 时代的industrialist出身"
   },
   {
@@ -82,6 +90,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "student",
     "startMoney": 5,
     "startCity": "beijing",
+    "startsWithControl": false,
     "desc": "era-nanjing 时代的student出身"
   },
   {
@@ -91,6 +100,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "worker",
     "startMoney": 5,
     "startCity": "shanghai",
+    "startsWithControl": false,
     "desc": "era-nanjing 时代的worker出身"
   },
   {
@@ -100,6 +110,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "merchant",
     "startMoney": 50,
     "startCity": "shanghai",
+    "startsWithControl": false,
     "desc": "era-nanjing 时代的merchant出身"
   },
   {
@@ -109,6 +120,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "journalist",
     "startMoney": 10,
     "startCity": "shanghai",
+    "startsWithControl": false,
     "desc": "era-nanjing 时代的journalist出身"
   },
   {
@@ -118,6 +130,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "soldier",
     "startMoney": 15,
     "startCity": "wuhan",
+    "startsWithControl": false,
     "desc": "era-nanjing 时代的soldier出身"
   },
   {
@@ -127,6 +140,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "teacher",
     "startMoney": 8,
     "startCity": "beijing",
+    "startsWithControl": false,
     "desc": "era-nanjing 时代的teacher出身"
   },
   {
@@ -136,6 +150,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "doctor",
     "startMoney": 20,
     "startCity": "guangzhou",
+    "startsWithControl": false,
     "desc": "era-nanjing 时代的doctor出身"
   },
   {
@@ -145,6 +160,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "industrialist",
     "startMoney": 200,
     "startCity": "tianjin",
+    "startsWithControl": false,
     "desc": "era-nanjing 时代的industrialist出身"
   },
   {
@@ -154,6 +170,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "student",
     "startMoney": 5,
     "startCity": "beijing",
+    "startsWithControl": false,
     "desc": "era-resistance 时代的student出身"
   },
   {
@@ -163,6 +180,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "worker",
     "startMoney": 5,
     "startCity": "shanghai",
+    "startsWithControl": false,
     "desc": "era-resistance 时代的worker出身"
   },
   {
@@ -172,6 +190,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "merchant",
     "startMoney": 50,
     "startCity": "shanghai",
+    "startsWithControl": false,
     "desc": "era-resistance 时代的merchant出身"
   },
   {
@@ -181,6 +200,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "journalist",
     "startMoney": 10,
     "startCity": "shanghai",
+    "startsWithControl": false,
     "desc": "era-resistance 时代的journalist出身"
   },
   {
@@ -190,6 +210,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "soldier",
     "startMoney": 15,
     "startCity": "wuhan",
+    "startsWithControl": false,
     "desc": "era-resistance 时代的soldier出身"
   },
   {
@@ -199,6 +220,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "teacher",
     "startMoney": 8,
     "startCity": "beijing",
+    "startsWithControl": false,
     "desc": "era-resistance 时代的teacher出身"
   },
   {
@@ -208,6 +230,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "doctor",
     "startMoney": 20,
     "startCity": "guangzhou",
+    "startsWithControl": false,
     "desc": "era-resistance 时代的doctor出身"
   },
   {
@@ -217,6 +240,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "industrialist",
     "startMoney": 200,
     "startCity": "tianjin",
+    "startsWithControl": false,
     "desc": "era-resistance 时代的industrialist出身"
   },
   {
@@ -226,6 +250,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "student",
     "startMoney": 5,
     "startCity": "beijing",
+    "startsWithControl": false,
     "desc": "era-civilwar 时代的student出身"
   },
   {
@@ -235,6 +260,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "worker",
     "startMoney": 5,
     "startCity": "shanghai",
+    "startsWithControl": false,
     "desc": "era-civilwar 时代的worker出身"
   },
   {
@@ -244,6 +270,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "merchant",
     "startMoney": 50,
     "startCity": "shanghai",
+    "startsWithControl": false,
     "desc": "era-civilwar 时代的merchant出身"
   },
   {
@@ -253,6 +280,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "journalist",
     "startMoney": 10,
     "startCity": "shanghai",
+    "startsWithControl": false,
     "desc": "era-civilwar 时代的journalist出身"
   },
   {
@@ -262,6 +290,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "soldier",
     "startMoney": 15,
     "startCity": "wuhan",
+    "startsWithControl": false,
     "desc": "era-civilwar 时代的soldier出身"
   },
   {
@@ -271,6 +300,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "teacher",
     "startMoney": 8,
     "startCity": "beijing",
+    "startsWithControl": false,
     "desc": "era-civilwar 时代的teacher出身"
   },
   {
@@ -280,6 +310,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "doctor",
     "startMoney": 20,
     "startCity": "guangzhou",
+    "startsWithControl": false,
     "desc": "era-civilwar 时代的doctor出身"
   },
   {
@@ -289,6 +320,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "industrialist",
     "startMoney": 200,
     "startCity": "tianjin",
+    "startsWithControl": false,
     "desc": "era-civilwar 时代的industrialist出身"
   },
   {
@@ -298,6 +330,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "student",
     "startMoney": 5,
     "startCity": "beijing",
+    "startsWithControl": false,
     "desc": "era-collapse 时代的student出身"
   },
   {
@@ -307,6 +340,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "worker",
     "startMoney": 5,
     "startCity": "shanghai",
+    "startsWithControl": false,
     "desc": "era-collapse 时代的worker出身"
   },
   {
@@ -316,6 +350,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "merchant",
     "startMoney": 50,
     "startCity": "shanghai",
+    "startsWithControl": false,
     "desc": "era-collapse 时代的merchant出身"
   },
   {
@@ -325,6 +360,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "journalist",
     "startMoney": 10,
     "startCity": "shanghai",
+    "startsWithControl": false,
     "desc": "era-collapse 时代的journalist出身"
   },
   {
@@ -334,6 +370,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "soldier",
     "startMoney": 15,
     "startCity": "wuhan",
+    "startsWithControl": false,
     "desc": "era-collapse 时代的soldier出身"
   },
   {
@@ -343,6 +380,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "teacher",
     "startMoney": 8,
     "startCity": "beijing",
+    "startsWithControl": false,
     "desc": "era-collapse 时代的teacher出身"
   },
   {
@@ -352,6 +390,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "doctor",
     "startMoney": 20,
     "startCity": "guangzhou",
+    "startsWithControl": false,
     "desc": "era-collapse 时代的doctor出身"
   },
   {
@@ -361,6 +400,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "industrialist",
     "startMoney": 200,
     "startCity": "tianjin",
+    "startsWithControl": false,
     "desc": "era-collapse 时代的industrialist出身"
   }
 ].map((r) => IdentitySchema.parse(r)))

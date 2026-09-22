@@ -29,6 +29,9 @@ export const IdentitySchema = z.object({
   name: z.string().min(1),
   startMoney: z.number().int().min(0), // 量级纪律（DAT-07）：学生/工人 ≤5、实业家 ≤200
   startCity: z.string(),
+  // 开局即控制 startCity 与否 —— 用户口径：「玩家开局不一定控制城，要看开局设定如何选择」。
+  // 默认 false：不写字段者即开局无控制城（occupation 的邻接前置由此决定通不通）。
+  startsWithControl: z.boolean().default(false),
   desc: z.string().min(1),
 })
 export type Identity = z.infer<typeof IdentitySchema>

@@ -4,6 +4,12 @@
 // 日期语义：era 年份闭区间 [fromYear, toYear]；其余时间字段半开区间 [from, to) 或 ISO 日期（D-07）。
 
 import { z } from 'zod'
+// 城市表是 L0 数据：L-01 分层表 L1 行明确「允许 import L0」，且与 `src/engine/fiscal.ts`
+// 等既有 L2 模块同向（都是上层读数据），非违规。目的是开局控城时按 startCity 解析
+// provinceId（claim 层的 polityId 口径 = 城市表的 provinceId）——把这条对应关系留在
+// 唯一一处，而不是复制到命令层。
+// 注意与 LAYER-007 区分：那条管的是**反向**（`src/data/*.ts` 只许 import dataSchemas.ts）。
+import { cities } from '../data/cities'
 
 // ── canonical 日期（闭区间 era 语义之外的通用日期一律 ISO）──────────
 export const IsoDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'ISO 日期 YYYY-MM-DD')
@@ -306,6 +312,32 @@ export const CrisisLedgerSchema = z.object({
 export type CrisisLedger = z.infer<typeof CrisisLedgerSchema>
 
 
+// ── 开局出身（开局设定）──────────────────────────────────────────
+// 开局设定 = 时代 + 出身（L0-02 身份表一行）。二者与 era 同性质：startGame 一次写入、
+// 此后只读（M-03）—— 运行时行为一律由 world.date / 各域状态推导，不得按 identity 分支。
+// 为什么必须进树：出身决定「从哪座城开局」（startCity）、开局现银（startMoney），
+// 而树是唯一可持久化的运行态；不进树则刷新恢复后出身丢失（原先 SaveRecord.meta 里
+// 的 identityId 走的是另一条路径且写死 'student'，与运行态不一致）。
+export const IdentityRefSchema = z.object({
+  id: z.string().regex(/^id-[a-z]+-[a-z]+$/, 'identity id：id-<era-slug>-<kind>'),
+  kind: z.string().min(1), // L0-02 IDENTITY_KINDS 之一（树内只需可显示，枚举封闭性由表守）
+  startCity: z.string().min(1), // L0-04 城市 id：玩家开局所在城
+})
+export type IdentityRef = z.infer<typeof IdentityRefSchema>
+
+// 开局设定（LAUNCH-01）：身份引用 + 该身份的开局现银。二者同源同行（L0-02 表一行），
+// 故必须一起传入 —— 分两个参数会允许「有身份但钱来自别处」这种漂移组合。
+// startsWithControl：该出身是否令玩家开局即控制 startCity（用户口径「控制城与否由开局
+// 设定决定」；地图/势力归属口径均以 claim 层为唯一事实源，故落 claim + 控城账两张账）。
+// 注：本 schema 与 IdentityRefSchema 同住 L1、由 L5 startGame 消费 —— 不放 dataSchemas.ts，
+// 避免 dataSchemas → tree 与 tree → data/cities 之间绕出循环依赖。
+export const OpeningSetupSchema = z.object({
+  identity: IdentityRefSchema,
+  startMoney: z.number().int().nonnegative(),
+  startsWithControl: z.boolean().default(false),
+})
+export type OpeningSetup = z.infer<typeof OpeningSetupSchema>
+
 // ── 变量树主体（SK-03 定案形状；后续批次按模块写域逐域扩充）──────────
 export const TreeSchema = z.object({
   world: z.object({
@@ -314,6 +346,9 @@ export const TreeSchema = z.object({
   era: z.object({
     eraId: z.string().min(1), // 出身标签：startGame 一次写入此后只读（M-03）
   }),
+  // 开局出身：nullable 而非 optional —— 缺省即「未选身份」（旧档无此域可载入，
+  // 语义显式为 null，不用猜测补默认；新局 startGame 必定写入真实身份）。
+  identity: IdentityRefSchema.nullable().default(null),
   economy: z.object({
     currency: z.string().min(1), // temporal 按日期锚点切换
     commodities: z.record(z.string(), CommodityQuoteSchema), // market 独占
@@ -347,30 +382,48 @@ export const TreeSchema = z.object({
 
 export type Tree = z.infer<typeof TreeSchema>
 
-// 初始树（startGame 开局命令写入；era 由开局选择一次写入）
-export function initialTree(eraId: string, date: GameDate): Tree {
+// 初始树（startGame 开局命令写入；era/identity 由开局选择一次写入）
+// opening 由调用方（L5 startGame）从 L0-02 身份表解析后传入 —— 身份表是 40 行枚举，
+// 其「id ↔ startMoney ↔ startCity ↔ startsWithControl」的四元组关系属于命令层语义，
+// 本层只收结构化结果（唯一例外是下方按 startCity 查省 id，那条对应关系不复制）。
+export function initialTree(eraId: string, date: GameDate, opening: OpeningSetup | null = null): Tree {
+  const identity: IdentityRef | null = opening ? opening.identity : null
+  const startMoney = opening ? opening.startMoney : 0
+  // 开局控城：两块账一起落（与运行时同一口径，不是特权通道）
+  //   ① claim 层：城市控制权唯一事实源（activeController/occupation 都读这里）
+  //   ② 控城账：财政模块按 fiscal/cities 出账，缺这行则「有 claim 无税」（口径不齐）
+  // interval.to 取 1950-01-01：开局所控之城默认持有到史实窗口之外（易主由后续 claim 追加）。
+  const controlCityId = opening?.startsWithControl ? opening.identity.startCity : ''
+  const controlPolityId = controlCityId === '' ? '' : (cities.find((c) => c.id === controlCityId)?.provinceId ?? '')
+  // 未知 startCity（不在 L0-04）→ 不控城：既无 claim 也无控城账（两账同进同出，不留半截）
+  const validControl = controlPolityId !== ''
+  const claims = validControl
+    ? [{ polityId: controlPolityId, controller: 'player' as const, interval: { from: `${date}-01`, to: '1950-01-01' } }]
+    : []
   return TreeSchema.parse({
     world: { date },
     era: { eraId },
+    identity,
     economy: {
       currency: 'yinyuan', // 银元（temporal 按锚点演进）
       commodities: {},
     },
     _authority: {
-      territoryControl: { claims: [] },
+      territoryControl: { claims },
       pendingSituations: { queue: {} },
       intelligenceObservations: { observations: [] },
     },
     trade: { routes: {} },
     settlement: { cash: 0, ledger: [] },
     finance: { businesses: {}, loyalty: 100 },
-    fiscal: { cities: {} },
+    // 控城账：开局控城才有行（taxBase 0 = 由 fiscal 模块按城市表 economy×2 推算，不在此复制口径）
+    fiscal: { cities: validControl ? { [controlCityId]: { cityId: controlCityId, taxBase: 0, militarySpend: 0, adminSpend: 0, lastRevenue: 0 } } : {} },
     map: {}, // 空 = worldtick 首月从 L0-04 城市表播种（初值来自数据非代码）
     seasonal: { month: Number(date.slice(5, 7)), grainFactor: 1 },
     memory: { items: {}, order: [] }, // 链③-1 管家域开局为空（保底在 resolves、补写在 TurnRunner）
     goals: { month: date, pool: [], rewardCursor: 0 },
     events: { eventCD: {}, resolvedEvents: [] },
-    career: { money: 0, reputation: 0, health: 100 }, // E-0.2 初值（开局钱由身份表 startMoney 覆写 —— SK-06 命令层）
+    career: { money: startMoney, reputation: 0, health: 100 }, // E-0.2 初值（开局现银 = 身份表 startMoney —— SK-06 命令层）
     // R3：势力兵力初值（E-2.3 台阶口径：正规营伍 100–500；势力基线 300——
     // 史实锚定校准（E-3.1 复核点）随五时代联测调）
     forces: { strength: { zhili: 300, fengxi: 300, zhiyuan: 300, guomin: 300, ri: 400 } },
@@ -387,6 +440,7 @@ export function initialTree(eraId: string, date: GameDate): Tree {
 export type ReadonlyTree = {
   readonly world: { readonly date: GameDate }
   readonly era: { readonly eraId: string }
+  readonly identity: Readonly<IdentityRef> | null
   readonly economy: {
     readonly currency: string
     readonly commodities: Readonly<Record<string, CommodityQuote>>
@@ -426,6 +480,36 @@ export function activeController(
     if (claim.interval.from <= iso && iso < claim.interval.to) active = claim.controller
   }
   return active // 空档 → null（与「无主」不可区分 —— 由合并器四守卫防，D-08）
+}
+
+// 城级控制权查询（半开区间 [from, to)，口径与 activeController 完全一致，只多一层
+// 「按该城 provinceId 过滤 claim」）。为什么必须有这个城级版本：
+//   claim 的 polityId 是**省** id（vic.jiangsu 同时含上海与南京），故「按日期取最后一条
+//   claim」在跨省场景下会把别省的控制者误当成本城控制者；控城财政是**逐城**结算的，
+//   用非城级查询会让 A 省的 claim 决定 B 城的账（错账而非空账）。城市控制权的唯一事实源
+//   仍是 claim 层，本函数只是它的城级投影。
+export function activeControllerForCity(
+  tree: Pick<Tree, '_authority'>,
+  cityId: string,
+  date: string,
+): string | null {
+  const iso = date.length === 7 ? `${date}-01` : date
+  const provinceId = cities.find((c) => c.id === cityId)?.provinceId
+  if (!provinceId) return null // 未知城市：不猜控制者（拒载不猜测）
+  // 优先级：玩家 claim 覆盖同省史实 claim。理由：史实由 history 模块逐月**追加**到 claims
+  // 末尾（`src/engine/history.ts` 的 append），而本函数按序取最后一条匹配 —— 若开局/占领
+  // 得到的 player 控制被后写的史实 claim 压过，玩家会在无任何事件的情况下失去自己的城。
+  // 玩家是链①平等写者（与 history/factions 同走 claimTerritory），其控制只应由明确事件让位。
+  let active: string | null = null
+  for (const claim of tree._authority.territoryControl.claims) {
+    if (claim.polityId !== provinceId) continue
+    if (claim.interval.from <= iso && iso < claim.interval.to && claim.controller === 'player') active = claim.controller
+  }
+  if (active !== null) return active
+  for (const claim of tree._authority.territoryControl.claims) {
+    if (claim.polityId === provinceId && claim.interval.from <= iso && iso < claim.interval.to) active = claim.controller
+  }
+  return active
 }
 
 // __proto__ 防护（DAT-22 三条共用断言之一）：解析前拒绝危险键
