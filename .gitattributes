@@ -1,0 +1,4 @@
+# 行尾纪律：账本副本必须与文档仓权威逐字节同源（gate:static TEC-2 会逐字节比对）。
+# 本仓 core.autocrlf=true + Windows 检出会把工作树改成 CRLF，使「逐字节同源」在本地不可稳定成立。
+# 故此处显式钉死 LF。改动本文件等于改契约检查的前提，需与 docs 侧同步说明。
+baseline/assertions.json text eol=lf
