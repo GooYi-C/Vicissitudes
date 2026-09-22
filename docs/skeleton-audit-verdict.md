@@ -580,3 +580,37 @@ if (turn.diagnostics.length) entry.text += `\n（回合注记 ${turn.diagnostics
 13. 「`activeController` R3 通电即错」—— **夸大**，见 §十二
 14. 「`political-1936` 4 组 9 条」—— **4 组对，条数 10**
 15. 「`loader.ts:17` polyfill 注释」—— 实际在 **`:27-29`**
+
+---
+
+## 十五·补 2026-09-23：面板接线（P0-1 的收口）
+
+**用户拍板的优先级第 ① 项**：把 `FinancePanel` / `StatusPanel` 从「挂载但恒空」接通真实数据。本项不改引擎、不加域，只把**已经产生的树状态**接到视图层——数据本来就在（`settlementPost`/`financePost`/`fiscalPost` 每月落账），缺的只是读通道与渲染。
+
+### 修了什么
+
+| 位置 | 原状 | 现状 |
+| --- | --- | --- |
+| `src/components/panels/FinancePanel.vue:18` | `v-if="false"`；且 `sheets.income`（迭代函数缺 `()`，`undefined.length`） | 去掉 `v-if`；各表用 `ul[aria-label]` 分开，流水/资产/负债三张表 |
+| `src/components/panels/StatusPanel.vue:18` | `v-if="false"`；只投影 date/currency/era | 去掉 `v-if`；`dl` 七项：日期/时代/出身/现金/随身/声望档位/健康档位 |
+| `src/stores/selectors/index.ts` `financeSheets` | `() => ({ income: [], assets: [], liabilities: [] })` **写死空账本** | 读 `settlement`/`finance`/`fiscal`/`economy.currency`：流水、资产（现金＋实业本金）、控城税收、忠诚度、账本笔数 |
+| `src/stores/selectors/index.ts` `statusSummary` | `{date, currency, era}` | 增 `identity`/`cash`/`personalCash`/`reputation`/`reputationTier`/`health`；新增导出 `reputationTier()` |
+
+### 三个刻意的口径决定
+
+1. **现金分两栏不合并**：`settlement.cash`（经营账本结余）与 `career.money`（随身现银）按 `tree.ts:157-158` 的分域注释分别显示 —— 合并会抹掉「事件代价扣的是随身钱」这个区别。
+2. **负债不编造**：全仓无借贷域（唯一 `debt` 命中是处境模板 `tmpl-old-debt`，与账目无关），故 `liabilities` 如实返回空集，UI 明标「负债：借贷域未接通」，**不用假行凑「收支/资产/负债」三件套**。
+3. **声望显示档位名**：按 `REBUILD.md:5662` 四档口径（无名 0–19 / 立身 20–49 / 扬名 50–79 / 一方之望 80–100）在 selector 派生 `reputationTier`，视图层不拼阈值——蓝图原话「UI 显示档位名，玩家记『我差一点扬名』比记『我差 3 点声望』自然」。
+
+### 测试面（这是本项真正的价值）
+
+- `tests/unit/ui/selectors.test.ts`：`statusSummary` 改「逐项对齐」断言；新增 `reputationTier` 四档边界（19/20、49/50、79/80）；新增账本 selector 两例（空树 → 空账本 + 现金 0；种入流水/实业/控城 → 三类聚合逐项对齐）；新增 `reads` 完备性（含 `economy.currency`）。
+- `tests/unit/ui/panels-render.test.ts`：面板覆盖从 7 个补到**全部 11 个**（新增账本/状态/生涯/地图）；新增 5 例（账本流水与资产、负债明标、状态七项、健康三档阈值、出身取树内 identity / 旧档显示「未选」）；新增「注册表成员一个不缺」的全挂载断言。
+
+### 顺带发现（可信度记录）
+
+**selector memo 的坑**：`evaluate` 以「reads 版本号元组 + state 对象同一性」为缓存键。测试里**就地改同一棵树**的字段而不 `bumpDomains`，memo 会返回旧值（实测 `evaluate(statusSummary, t, {})` 连读两次、中间把 `health` 从 45 改成 10，第二次仍返回 45）。生产侧由 U-02 的 `bumpDomains` 保证版本号随写入走，故不是产品缺陷；但**任何绕过版本号就地改树的调用方都会读到陈旧 selector**，已在测试里以注释固化这个口径（换树或 bump 版本号，二选一）。
+
+### 验证（全部在当前工作树实跑）
+
+`pnpm gate` exit 0（**569 tests** / 48 文件、test:data 29、gate:static 21）｜`gate:graph` PASS（298 边）｜`gate:mut` PASS 8/8｜`build` + `static-deploy` PASS｜`test:browser-smoke` status=pass（开局两步 → 12 月 → 读档 1922-07、0 次模型请求）。另在 `docs/acceptance-skeleton.md` 门 2 追加**勘误**：原「十一面板有内容」只对生涯面板成立，措辞已更正。

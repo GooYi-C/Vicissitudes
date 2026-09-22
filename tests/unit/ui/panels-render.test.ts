@@ -21,6 +21,10 @@ import MemoryPanel from '../../../src/components/panels/MemoryPanel.vue'
 import PressPanel from '../../../src/components/panels/PressPanel.vue'
 import RelationsPanel from '../../../src/components/panels/RelationsPanel.vue'
 import WorldPanel from '../../../src/components/panels/WorldPanel.vue'
+import FinancePanel from '../../../src/components/panels/FinancePanel.vue'
+import StatusPanel from '../../../src/components/panels/StatusPanel.vue'
+import CareerPanel from '../../../src/components/panels/CareerPanel.vue'
+import MapPanel from '../../../src/components/panels/MapPanel.vue'
 
 // 种子上限与内容表规模无关：这是「渲染是否发生」的最小证据，不是内容量断言。
 const SEED = {
@@ -60,10 +64,16 @@ let app: VueApp | undefined
 let host: HTMLDivElement
 
 function mountAll(tree: Tree): void {
+  // 重复挂载时先卸掉上一个实例（否则旧 app 仍挂在 host 上，查询命中旧 DOM ——
+  // selector memo 以「同 state 对象」为键，改完树再挂必须换 state 或重挂）
+  app?.unmount()
+  app = undefined
+  host?.remove()
   const versions = {}
   const panels = [
     ['目标', GoalsPanel], ['史册', HistoryPanel], ['情报', IntelPanel], ['记忆', MemoryPanel],
     ['报夹', PressPanel], ['人脉', RelationsPanel], ['世界', WorldPanel],
+    ['账本', FinancePanel], ['状态', StatusPanel], ['生涯', CareerPanel], ['地图', MapPanel],
   ] as const
   const Wrap = { setup: () => () => h('div', panels.map(([, C]) => h(C, { state: tree, versions }))) }
   host = document.createElement('div')
@@ -87,6 +97,49 @@ function listItems(label: string): HTMLLIElement[] {
 
 function texts(label: string): string[] {
   return listItems(label).map((li) => li.textContent!.replace(/\s+/g, ' ').trim())
+}
+
+// 账本/状态面板：一个 section 下有多张表，用 <ul aria-label> / <dl> 定位（不用 listItems
+// 的「section 下所有 ul > li」口径，否则几张表会串在一起）。
+function labelledItems(label: string): HTMLLIElement[] {
+  const list = host.querySelector(`ul[aria-label="${label}"]`)
+  if (!list) return []
+  return [...list.querySelectorAll(':scope > li')] as HTMLLIElement[]
+}
+
+function labelTexts(label: string): string[] {
+  return labelledItems(label).map((li) => li.textContent!.replace(/\s+/g, ' ').trim())
+}
+
+// 状态面板是 <dl class="vic-kv">：dt/dd 成对读成 Record
+function kvPairs(label: string): Record<string, string> {
+  const section = host.querySelector(`section[aria-label="${label}"]`)
+  expect(section, `面板 ${label} 未挂载`).not.toBeNull()
+  const out: Record<string, string> = {}
+  const children = [...section!.querySelectorAll('dt, dd')]
+  for (let i = 0; i + 1 < children.length; i += 2) {
+    out[children[i]!.textContent!.trim()] = children[i + 1]!.textContent!.replace(/\s+/g, ' ').trim()
+  }
+  return out
+}
+
+// 账本面板用：种入现金流水 / 实业 / 控城税收，且带上真实树内 identity 与生涯数值
+function seededFinanceTree(): Tree {
+  const tree = initialTree('era-warlord', '1921-07')
+  tree.settlement.cash = 845.96
+  tree.settlement.ledger = [
+    { month: '1921-08', amount: -12.4, what: '佣工月钱' },
+    { month: '1921-09', amount: 84.6, what: '财政净入' },
+  ]
+  tree.finance.businesses = {
+    'biz-teahouse@wuhan': { bizId: 'biz-teahouse', cityId: 'wuhan', level: 1, capital: 200, lastProfit: 9.5 },
+  }
+  tree.fiscal.cities = {
+    wuhan: { cityId: 'wuhan', taxBase: 150, militarySpend: 10, adminSpend: 5, lastRevenue: 84.58 },
+  }
+  tree.career.money = 12
+  tree.career.reputation = 50
+  return tree
 }
 
 describe('十一面板渲染层（v-for 绑定迭代函数返回值）', () => {
@@ -156,5 +209,80 @@ describe('十一面板渲染层（v-for 绑定迭代函数返回值）', () => {
     expect(listItems('情报')).toHaveLength(0)
     expect(listItems('记忆')).toHaveLength(0)
     expect(listItems('目标')).toHaveLength(0)
+  })
+
+  // ── 账本 / 状态面板：2026-09-23 从 v-if="false" 接通真实数据 ──────────────
+  // 这两个面板骨架期写的是 v-if="false"，且 FinancePanel 还叠着「迭代函数缺 ()」的同款缺陷
+  // （`sheets.income` 少写括号 → undefined.length）。下面把「数据进得去、li 出得来」锁死。
+  it('账本面板渲染流水与资产（现金计入资产，负债明标未接通）', () => {
+    const tree = seededFinanceTree()
+    mountAll(tree)
+    const flows = labelledItems('账本流水')
+    expect(flows).toHaveLength(2)
+    expect(flows[0].textContent).toContain('1921-08')
+    expect(flows[0].textContent).toContain('佣工月钱')
+    expect(labelTexts('账本资产')).toHaveLength(2)
+    expect(labelTexts('账本资产')[0]).toContain('845.96')
+    // 负债无数据源 → 不渲染 li，改为明标（不编造数值凑三件套）
+    expect(labelledItems('账本负债')).toHaveLength(0)
+    expect(host.querySelector('section[aria-label="账本"]')!.textContent).toContain('负债：借贷域未接通')
+  })
+
+  it('状态面板渲染日期/现金/声望档位/健康；声望显示档位名而非点数', () => {
+    const tree = seededFinanceTree()
+    mountAll(tree)
+    const kv = kvPairs('状态')
+    expect(kv['日期']).toBe('1921-07')
+    expect(kv['现金']).toBe('845.96 yinyuan')
+    expect(kv['随身']).toBe('12 元')
+    expect(kv['声望']).toBe('扬名（50）')
+    expect(kv['健康']).toBe('无恙（100）')
+  })
+
+  it('状态面板健康档位按 E-0.2 阈值（60 轻伤 / 30 重伤 / ≤0 死亡线）', () => {
+    // 每次换一个**新建** tree：selector memo 键是「域版本号 + state 对象」，
+    // 就地改同一棵树的字段而不 bump 版本号时 memo 会返回旧值（生产侧由 U-02 的
+    // bumpDomains 保证版本号跟着走；本测试不模拟版本号，故按用例新建树）。
+    for (const [health, label] of [[45, '轻伤（45）'], [10, '重伤（10）'], [0, '死亡线（0）']] as const) {
+      const tree = initialTree('era-warlord', '1921-07')
+      tree.career.health = health
+      mountAll(tree)
+      expect(kvPairs('状态')['健康']).toBe(label)
+    }
+  })
+
+  it('状态面板出身取树内 identity；旧档 identity=null 显示「未选」', () => {
+    const tree = initialTree('era-warlord', '1921-07')
+    mountAll(tree)
+    expect(kvPairs('状态')['出身']).toBe('未选')
+    app?.unmount()
+    const seeded = initialTree('era-warlord', '1921-07', {
+      identity: { id: 'id-warlord-soldier', kind: 'soldier', startCity: 'wuhan' },
+      startMoney: 0,
+      startsWithControl: true,
+    })
+    mountAll(seeded)
+    expect(kvPairs('状态')['出身']).toBe('soldier（wuhan）')
+  })
+
+  // ── UI-6 十一面板全覆盖：CareerPanel 与 MapPanel（挂起壳）此前不在本文件内 ──
+  it('生涯面板渲染身家/声望/健康（随身现银口径 = career.money）', () => {
+    const tree = initialTree('era-warlord', '1921-07')
+    tree.career.money = 23
+    tree.career.reputation = 7
+    mountAll(tree)
+    const kv = kvPairs('生涯')
+    expect(kv['身家']).toBe('23 银元')
+    expect(kv['声望']).toBe('7')
+    expect(kv['健康']).toBe('100')
+  })
+
+  it('十一面板全部挂载：注册表成员一个不缺（含挂起的地图壳）', () => {
+    mountAll(seededTree())
+    for (const label of ['生涯', '世界', '人脉', '记忆', '报夹', '账本', '状态', '目标', '情报', '史册', '地图']) {
+      expect(host.querySelector(`section[aria-label="${label}"]`), `面板 ${label} 未挂载`).not.toBeNull()
+    }
+    // 地图位是挂起壳：明示挂起、不假装有数据
+    expect(host.querySelector('section[aria-label="地图"]')!.textContent).toContain('整体挂起')
   })
 })

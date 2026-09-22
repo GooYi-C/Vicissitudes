@@ -33,23 +33,68 @@ export const worldSituations = createSelector(
   },
 )
 
-// StatusPanel：日期/货币/健康（world.date、economy.currency、career/*）
+// StatusPanel：日期/货币/时代/主角状态（world.date、economy.currency、career、settlement）。
+// 声望档位文案按 REBUILD.md 四档口径（无名 0–19 / 立身 20–49 / 扬名 50–79 / 一方之望 80–100）——
+// 蓝图明写「事件门槛数字全部挂档位，UI 显示档位名」，故档位名在 selector 层派生，视图层不拼阈值。
+export function reputationTier(value: number): string {
+  if (value >= 80) return '一方之望'
+  if (value >= 50) return '扬名'
+  if (value >= 20) return '立身'
+  return '无名'
+}
+
 export const statusSummary = createSelector(
   'status-summary',
-  ['world.date', 'economy.currency', 'career'],
+  ['world.date', 'economy.currency', 'career', 'settlement', 'era', 'identity'],
   (state: Readonly<Tree>) => ({
     date: state.world.date,
     currency: state.economy.currency,
     era: state.era.eraId,
+    // 出身：null = 旧档缺域/未选身份（语义显式，不猜默认）
+    identity: state.identity ? { kind: state.identity.kind, startCity: state.identity.startCity } : null,
+    // 现金口径：settlement.cash 是「经营账本结余」，career.money 是「随身现银」—— 两个都显示，
+    // 不合并（E-1.2 / E-0.2 分域，合并会抹掉「事件扣的是随身钱」这个区别）。
+    cash: state.settlement.cash,
+    personalCash: state.career.money,
+    reputation: state.career.reputation,
+    reputationTier: reputationTier(state.career.reputation),
+    health: state.career.health,
   }),
 )
 
-// FinancePanel：账本三件套骨架（settlement/finance/fiscal 域——SK-06 零产出期返回空账本）
-export const financeSheets = createSelector('finance-sheets', ['settlement', 'finance', 'fiscal'], () => ({
-  income: [] as { date: string; amount: number; what: string }[],
-  assets: [] as { name: string; value: number }[],
-  liabilities: [] as { name: string; amount: number }[],
-}))
+// FinancePanel：账本（settlement 现金流 + finance 实业资产 + fiscal 控城税收）。
+// 「现金/税收/实业」三类聚合值都是 L3 提交后的真实树状态（settlementPost/financePost/fiscalPost
+// 落账），selector 只读不改算 —— 视图层不再自己求和。
+export const financeSheets = createSelector(
+  'finance-sheets',
+  ['settlement', 'finance', 'fiscal', 'economy.currency'],
+  (state: Readonly<Tree>) => {
+    const ledger = state.settlement.ledger
+    const businesses = Object.values(state.finance.businesses)
+    const taxCities = Object.values(state.fiscal.cities)
+    // 收入面：流水按月分组；本月指树内当前月（world.date 不在此 selector 的 reads 内 ——
+    // 需要当前月时由视图层对照 date，故这里只给流水本身，不做「本月」切片）
+    const income = ledger.map((e) => ({ month: e.month, amount: e.amount, what: e.what }))
+    // 资产：现金 + 实业已投本金（lastProfit 是损益不是存量，不计入资产）
+    const assets = [
+      { name: `${state.economy.currency} 现金`, value: state.settlement.cash },
+      ...businesses.map((b) => ({ name: `实业 ${b.bizId}@${b.cityId}`, value: b.capital })),
+    ]
+    return {
+      income,
+      assets,
+      // 负债：引擎尚无借贷域（全仓无 debt/loan 域，唯一 "debt" 命中是处境模板 tmpl-old-debt）——
+      // 如实返回空集并在 UI 明标「未接通」，不编造数值凑三件套。
+      liabilities: [] as { name: string; amount: number }[],
+      cash: state.settlement.cash,
+      ledgerCount: ledger.length,
+      businesses: businesses.map((b) => ({ id: `${b.bizId}@${b.cityId}`, level: b.level, capital: b.capital, lastProfit: b.lastProfit })),
+      loyalty: state.finance.loyalty,
+      taxCities: taxCities.map((c) => ({ cityId: c.cityId, taxBase: c.taxBase, lastRevenue: c.lastRevenue })),
+      taxRevenue: taxCities.reduce((sum, c) => sum + c.lastRevenue, 0),
+    }
+  },
+)
 
 // IntelPanel：情报观察（_authority.intelligenceObservations）
 export const intelObservations = createSelector(
