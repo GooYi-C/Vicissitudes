@@ -60,7 +60,9 @@ export function allModules(): readonly EngineModule[] {
 // ── M-03 写域登记表（结构化；sanitize 白名单与 sanitize.ts 的投影同源）──────
 export const M03_WRITER_CHAINS: Record<string, readonly string[]> = {
   // 有序写者链（M-04）：同域多写者的合法链序（相位内序）
-  '_authority.territoryControl': ['history', 'factions', 'OccupationCommand'], // 链①
+  '_authority.territoryControl': ['history', 'factions', 'OccupationCommand', 'startGame'], // 链①
+  // ↑ 第 4 位是开局写者：startGame/initialTree 在 startsWithControl=true 时落一条 player claim，
+  //   只跑一次、不参与月度相位（同一编译路径 claimTerritory 的语义，非特权通道）。
   'map': ['fiscal', 'worldtick', 'crisis'], // 链②（六维）
   'memory.items': ['memory', 'resolve', 'TurnRunner.extractor'], // 链③（保底先于补写）
   'timeline': ['history'], // R3：游标单写者（history 独占 —— HistoryIntervene 命令皮肉期接链）

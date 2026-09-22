@@ -12,6 +12,7 @@ import type { JsonPatchOp } from '../validation/effects'
 const M03_REGISTRY = {
   'world.date': { tier: 'engine-exclusive' },
   era: { tier: 'engine-exclusive' }, // 开局一次写此后只读
+  identity: { tier: 'engine-exclusive' }, // 开局出身（LAUNCH-01）：与 era 同性质 —— startGame 一次写此后只读
   'economy.currency': { tier: 'engine-exclusive' },
   '_authority.territoryControl': { tier: 'authority' },
   '_authority.pendingSituations': { tier: 'authority' },

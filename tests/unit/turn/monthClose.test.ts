@@ -234,7 +234,7 @@ vi.mock('../../../src/components/OpeningDossier.vue', async () => {
         return () =>
           h(
             'button',
-            { 'data-testid': 'fixture-start', onClick: () => emit('start', 'era-warlord', 'student') },
+            { 'data-testid': 'fixture-start', onClick: () => emit('start', 'era-warlord', 'id-warlord-student') },
             '测试开局',
           )
       },

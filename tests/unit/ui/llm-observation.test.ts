@@ -16,7 +16,7 @@ vi.mock('../../../src/components/OpeningDossier.vue', async () => {
   return { default: defineComponent({
     emits: ['start'],
     setup(_props, { emit }) {
-      return () => h('button', { 'data-testid': 'fixture-start', onClick: () => emit('start', 'era-warlord', 'student') }, '测试开局')
+      return () => h('button', { 'data-testid': 'fixture-start', onClick: () => emit('start', 'era-warlord', 'id-warlord-student') }, '测试开局')
     },
   }) }
 })
