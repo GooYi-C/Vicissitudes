@@ -543,6 +543,24 @@ if (turn.diagnostics.length) entry.text += `\n（回合注记 ${turn.diagnostics
 
 **核验留下的未处理项**：`sanitize.ts:3-4` 自称「登记表 = 域键全集」仍不严谨（`tests/unit/turn/pipeline.test.ts:100` 只断言投影三键，不校验树域完备性）；`safeParseTree`（`__proto__` 防护）在 src 内**零调用**，真实载入路径走 `SaveRecordSchema.safeParse` —— 两条都属既有缺口，不在本项范围。
 
+### 15.6 开局控城通电：用户口径落数据（2026-09-23）
+
+用户口径：「按史实来，一般只有军阀能控城吧，控城已经代表是一个领袖人物了」⇒ 控城是**出身级例外**而非默认，只有「军阀 × 军人」（`id-warlord-soldier`，开局城武汉）翻 `startsWithControl: true`，其余 **39 行维持 false**（学生/工人/记者等平民不该有地盘）。回归用例把这条口径锁成断言（`opening-setup.test.ts` 的「身份表口径」与「走 startGame 全链」两例）。
+
+**实测（`startGame('era-warlord','id-warlord-soldier')` → 12 个月 tick）**：
+
+| 观察点 | 实测值 |
+| --- | --- |
+| 开局 claim | `[{polityId:'vic.hubei', controller:'player', interval:{from:'1921-07-01', to:'1950-01-01'}}]` |
+| 开局控武汉 | `player`（`activeControllerForCity`） |
+| 12 月后 | `world.date=1922-07`、`settlement.cash=845.96`、武汉 `taxBase=150`（城表 economy 75 × 2）、`lastRevenue=84.58` |
+| 过月流水 | 10 条，首条 `1921-09 财政净入 84.60`（首月财政不出账：fiscal 的净收益由 settlement **次月**消费） |
+| 带 150 兵攻南京 | `{reason:'no-intel', message:'对 南京 的情报不足 2 级（当前 0）—— 盲攻不可行'}` |
+
+最后一行是本项**最有价值的证据**：返回的是 `no-intel` 而**不是** `no-adjacency` ⇒ 邻接前置（`playerCities` 经武汉 → 南京 hop=1）确已解开，且兵力门槛（150 ≥ 100）也过了；整条链只剩情报前置。
+
+**⚠ 仍需留意的既有缺陷（P2，登记不修）**：`src/engine/fiscal.ts:50` 的续账判定 `stillOurs = controller === 'player' || f.taxBase > 0` 在开局控城通电后会真实生效 —— `taxBase` 一旦 >0 便永真，故注释里「易手城自动出账」不成立：该城易主后财政仍会继续出账（等于替新主收税）。1921–1935 无同省 claim 重叠，故当前不可达；1936 史实覆盖层接入后即会浮出。改法已记在 §15.5 表格第 3 行。
+
 ---
 
 ## 附录：本次核验对审计原文的更正清单

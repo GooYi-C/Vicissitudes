@@ -116,6 +116,28 @@ describe('LAUNCH-02 开局控城与否由开局设定决定', () => {
     expect(tree._authority.territoryControl.claims).toEqual([])
     expect(tree.fiscal.cities).toEqual({})
   })
+
+  // 数据侧口径（用户口径：「按史实来，一般只有军阀能控城，控城已代表是个领袖人物」）：
+  // 开局控城是**出身级的例外**，不是默认 —— 只有「军阀 × 军人」这一行翻 true。
+  it('身份表口径：唯一开局控城的是军阀×军人，其余 39 行一律不控城', () => {
+    const controllers = identities.filter((i) => i.startsWithControl)
+    expect(controllers.map((i) => i.id)).toEqual(['id-warlord-soldier'])
+    expect(controllers[0]).toMatchObject({ eraId: 'era-warlord', kind: 'soldier', startCity: 'wuhan' })
+    expect(identities).toHaveLength(40)
+    expect(identities.filter((i) => i.startsWithControl)).toHaveLength(1)
+  })
+
+  it('走 startGame 全链：军阀×军人开局即控武汉，默认第一个出身（学生）不控城', () => {
+    const soldier = startGame({ eraId: 'era-warlord', identityId: 'id-warlord-soldier', date: '1921-07' }).variables
+    expect(soldier.identity).toEqual({ id: 'id-warlord-soldier', kind: 'soldier', startCity: 'wuhan' })
+    expect(activeControllerForCity(soldier, 'wuhan', '1921-07')).toBe('player')
+    expect(Object.keys(soldier.fiscal.cities)).toEqual(['wuhan'])
+
+    const student = startGame({ eraId: 'era-warlord', identityId: 'id-warlord-student', date: '1921-07' }).variables
+    expect(student.identity?.startCity).toBe('beijing')
+    expect(student._authority.territoryControl.claims).toEqual([])
+    expect(activeControllerForCity(student, 'beijing', '1921-07')).toBeNull()
+  })
 })
 
 describe('LAUNCH-04 开局控城账活过首月（fiscal #7 早于 worldtick #8 的次序缺陷）', () => {

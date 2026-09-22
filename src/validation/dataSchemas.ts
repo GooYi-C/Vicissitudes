@@ -29,8 +29,10 @@ export const IdentitySchema = z.object({
   name: z.string().min(1),
   startMoney: z.number().int().min(0), // 量级纪律（DAT-07）：学生/工人 ≤5、实业家 ≤200
   startCity: z.string(),
-  // 开局即控制 startCity 与否 —— 用户口径：「玩家开局不一定控制城，要看开局设定如何选择」。
-  // 默认 false：不写字段者即开局无控制城（occupation 的邻接前置由此决定通不通）。
+  // 开局即控制 startCity 与否 —— 用户口径：「玩家开局不一定控制城，要看开局设定如何选择」；
+  // 「按史实来，一般只有军阀能控城吧，控城已经代表是一个领袖人物了」。
+  // 默认 false：不写字段者即开局无控制城。当前唯一为 true 的是「军阀 × 军人」
+  // （id-warlord-soldier）—— 其余出身是学生/工人/记者等平民，开局不该有地盘。
   startsWithControl: z.boolean().default(false),
   desc: z.string().min(1),
 })

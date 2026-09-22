@@ -50,7 +50,7 @@ export const identities: readonly Identity[] = Object.freeze([
     "name": "soldier",
     "startMoney": 15,
     "startCity": "wuhan",
-    "startsWithControl": false,
+    "startsWithControl": true,
     "desc": "era-warlord 时代的soldier出身"
   },
   {
