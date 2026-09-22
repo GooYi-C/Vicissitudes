@@ -67,6 +67,14 @@
     },
     {
       "from": "src/App.vue",
+      "to": "src/data/eras.ts"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/data/identities.ts"
+    },
+    {
+      "from": "src/App.vue",
       "to": "src/gameCommands/index.ts"
     },
     {
@@ -136,6 +144,10 @@
     {
       "from": "src/components/GameHud.vue",
       "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/components/OpeningDossier.vue",
+      "to": "src/gameCommands/index.ts"
     },
     {
       "from": "src/components/OpeningDossier.vue",
@@ -827,6 +839,10 @@
     },
     {
       "from": "src/gameCommands/index.ts",
+      "to": "src/data/identities.ts"
+    },
+    {
+      "from": "src/gameCommands/index.ts",
       "to": "src/turn/compiler.ts"
     },
     {
@@ -1047,6 +1063,10 @@
     },
     {
       "from": "src/stores/selectors/index.ts",
+      "to": "src/data/timeline.ts"
+    },
+    {
+      "from": "src/stores/selectors/index.ts",
       "to": "src/data/worldbook.ts"
     },
     {
@@ -1144,6 +1164,10 @@
     {
       "from": "src/turn/resolves.ts",
       "to": "src/validation/tree.ts"
+    },
+    {
+      "from": "src/validation/tree.ts",
+      "to": "src/data/cities.ts"
     }
   ]
 }

@@ -49,7 +49,9 @@ const LAYER_006_LIB_EXITS = new Set(['src/engine/settlement.ts→src/engine/trad
 
 // LAYER-007（单向豁免，§十六 L-07 豁免表 2026-09-15 登记）：
 // L0 数据文件 → L1 dataSchemas.ts（D-04「建表先建 schema」—— 数据 import 自己的 schema 自校验）
-// 反向（validation → data）仍禁。
+// 注意方向：被管的是 data → validation 这一向（data 文件只许 import 这两个目标）。
+// L1 读 L0 数据（如 validation/tree.ts → data/cities.ts）不在本规则内 —— L-01 分层表 L1 行
+// 明确「允许 import L0」，与本注释同行不会触发任何 zone。改动此处 = 改契约前提。
 const LAYER_007_TARGETS = new Set(['src/validation/dataSchemas.ts', 'src/validation/stableJson.ts'])
 
 function layerZones() {

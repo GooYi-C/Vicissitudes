@@ -491,6 +491,58 @@ if (turn.diagnostics.length) entry.text += `\n（回合注记 ${turn.diagnostics
 - **属性位置坑**：`data-start-date` 挂在按钮**内部的 `span.vic-opening__start`** 上，`button.vic-opening__era` 本身没有该属性。断言必须 `eraButton.querySelector('.vic-opening__start').getAttribute('data-start-date')`；直接读按钮会得到 5 个空串，且失败现象与「属性没渲染」一模一样（按钮文字仍正常显示「开局 1921-07」）。用 happy-dom + `createApp` 挂 `OpeningDossier` 打印 `outerHTML` 是定位这处最快的手段（仓内无 `@vue/test-utils`，`mount` 不可用）。
 - 调试期的诊断输出（dump 长度／标题／进度标记／早期错误／body 样本）保留在 no-marker 分支，便于下次 harness 出问题时一眼定位。
 
+### 15.4 开局设定（2026-09-23 落地）：身份进树、开局城、控城口径
+
+用户口径（m02000）：「先只定开局城市与身份，控制城与否由设定决定」⇒ 不动 `occupation.ts` 入口，改开局链路。
+
+**改动（代码仓，未 commit）**
+
+| 文件 | 改动 |
+| --- | --- |
+| `src/validation/tree.ts` | 新增 `IdentityRefSchema` `{id,kind,startCity}`、`OpeningSetupSchema` `{identity,startMoney,startsWithControl}`；`TreeSchema` 增 `identity: …nullable().default(null)`；`initialTree(eraId,date,opening)` 写入身份、`career.money = opening.startMoney`、按 `startsWithControl` 同批落 claim ＋ 控城账；新增 `activeControllerForCity(tree,cityId,date)` |
+| `src/data/identities.ts` `src/validation/dataSchemas.ts` | 40 行各加 `startsWithControl: false`（schema `.default(false)`） |
+| `src/gameCommands/index.ts` | 新增 `resolveOpeningSetup`/`StartGameError`；`startGame` 解析开局设定后传入 `initialTree` |
+| `src/components/OpeningDossier.vue` | 两步开局：选时代 → 出该时代 8 个出身（显示开局城/开局现银/是否控城）→ 选出身 → 盖印开局；`emit('start', eraId, identityId)` |
+| `src/App.vue` | `onStart(eraId, identityId)`；存档 `identityId` 改从树内 `identity.id` 取（原写死 `'student'`） |
+| `src/stores/saveSchema.ts` | `meta.identityId` 放宽为可选（旧档不因缺字段拒载） |
+| `src/engine/fiscal.ts` `src/gameCommands/occupation.ts` | 改用城级 `activeControllerForCity`（见下） |
+| `src/data/identities.ts` 变化连带 | `contentPacks.json` L0-02 hash 更新（`pnpm data:hash`） |
+| `baseline/layer-graph.json` | 人工登记 6 条合法新边（+24 行、0 删除）：`App.vue→data/eras.ts`、`App.vue→data/identities.ts`、`components/OpeningDossier.vue→gameCommands/index.ts`、`gameCommands/index.ts→data/identities.ts`、`stores/selectors/index.ts→data/timeline.ts`、`validation/tree.ts→data/cities.ts` |
+
+**开局设定现在决定什么**
+
+- **身份进树**：`identity {id, kind, startCity}` 与 `era` 同性质 —— `startGame` 一次写入、此后只读。刷新恢复后出身不再丢（原先只存 `SaveRecord.meta.identityId` 且写死 `'student'`）。
+- **开局现银**：`career.money = L0-02 的 startMoney`（5/5/50/10/15/8/20/200），命令层不再有 money 常量。
+- **开局城**：`identity.startCity`（L0-04 城市 id），UI 显示中文名。
+- **控城与否**：`startsWithControl=true` 时同批落两张账 —— claim（`polityId` 取该城 `provinceId`、`controller:'player'`、`interval` 到 `1950-01-01`）与 `fiscal.cities` 一行；未知 `startCity` 则两账都不落（不留半截）。
+- **开局参数不成立即报错**：身份 id 不存在、或身份不属于所选时代 → `StartGameError`（`kind` 词如 `'student'` 不再被接受）。
+
+**顺带修掉的真实缺陷（审计未抓）**：`src/engine/fiscal.ts:48` 原先用非城级的 `activeController`（`src/validation/tree.ts:419`，按日期取**最后一条** claim）做**逐城**控制权复核；而 claim 的 `polityId` 是**省** id（`shanghai`/`nanjing` 同为 `vic.jiangsu`），跨省时会把别省控制者算到本城 —— 是**错账**而非空账。已在 L1 新增城级 `activeControllerForCity` 并让 `fiscal.ts` 与 `occupation.ts`（原先自带一份副本）共用，回归测试 `tests/unit/gameCommands/opening-setup.test.ts` 锁住。
+
+**关键现状（需数值侧拍板）**：40 行身份表**全部** `startsWithControl: false` ⇒ 玩家开局**一律不控城**。这是严格按「不动 occupation 入口」执行的结果，机制已就位并有测试；若日后要让某些出身（如 `soldier`/`industrialist`）开局即控城，改数据表一行即可。
+
+**占领死锁的准确现状**（`src/gameCommands/occupation.ts`）：三条前置里 ①兵力 `career.forces ≥100` 与 ③情报 ≥2 级仍然卡死 —— 玩家兵力没有写入路径、`scoutCommand`（`src/gameCommands/scout.ts:26`）在 src 内零调用 ⇒ `intelligenceObservations` 恒空，`occupation.ts` 即便邻接通了也仍返回 `no-intel`。故本项**只解开前置②的因（有城才有邻接），未解开①②③整链**；战事开启需要「兵力+控城设定落数据 + Scout 接 UI」。
+
+### 15.5 开局设定：独立核验发现的缺陷与处理（2026-09-23）
+
+独立核验人（teammate `verify-opening`，只读 + 临时用例）在本轮改动上找出 3 处**潜伏**缺陷（40 行 `startsWithControl` 全 false，故当时不可达），已处理如下：
+
+| 缺陷 | 核验证据 | 处理 |
+| --- | --- | --- |
+| **P0 开局控城首月即被清账、此后永不恢复 ⇒ 控城终身零收益** | 注册序 `src/engine/registry.ts:32-33` fiscal(#7) 早于 worldtick(#8) ⇒ 首月 map 空 ⇒ `fiscal.ts:53-54` 原 `continue` 让该城从 `next` 消失 ⇒ `compiler.ts` 的 `fiscalPost` 是**全量 replace** ⇒ 账被删；实测 `tickWorld` 一月后 `map=14 城 / fiscal.cities={}` | **已修**：未播种月改为**原样留账**（`src/engine/fiscal.ts`），待 map 播种后按公式接管；回归 `tests/unit/gameCommands/opening-setup.test.ts` 的 LAUNCH-04 两例（首月留账 + 第二月出账） |
+| **P1 开局 claim 与史实 claim 同省双写，追加写的史实把玩家压过** | `history.ts` 把 overlay claim **append 到末尾**，而控制权查询取「最后一条匹配」⇒ 实测 1935-12 开局控上海 → `1936-06` 控制者变 `guomin`；受影响省仅 `vic.jiangsu`/`vic.guangdong` | **已修**：`activeControllerForCity` 改为**玩家 claim 优先**（同省先扫 player，再回落史实）；回归用例锁定，并在函数注释写明「玩家控制只应由明确事件让位」 |
+| **P2 `stillOurs` 兜底掩盖控制权变更** | `src/engine/fiscal.ts:50` `stillOurs = controller === 'player' \|\| f.taxBase > 0` ⇒ 首月写入 >0 后永真，注释「易手城自动出账」不成立；`git show HEAD` 该行原文相同 ⇒ **非本次引入** | **未修**（HEAD 既有）：已登记在案，改法＝逐月复核控制者（`taxBase` 只作基准不作续账条件） |
+
+**核验确认正确/合规的点**：`src/validation/tree.ts → src/data/cities.ts` 合规（`REBUILD.md` 的 L-01 分层表 L1 行明确「允许 import L0」，且 `import-x/no-cycle` 绿）；身份域只读性成立（src 内零 `/identity` 写点）；旧档 `identity` 缺域 `safeParse` 通过；浏览器冒烟 `opening` 字段确为 UI 实读（非硬编码）；`activeControllerForCity` 的必要性有最小反例（旧口径跨省取最后一条 ⇒ 上海账被删）。
+
+**核验同时纠正/改进的 4 处**：
+1. `OpeningDossier.vue` 的 `start()` 增加 `resolveOpeningSetup` 复核（同一 tick 内换时代后点旧按钮会带「新时代+旧出身」）；`App.vue:onStart` 增加 `catch` 兜底（原先会成未捕获 rejection）。
+2. `src/parser/sanitize.ts` 的 `M03_REGISTRY` 补登 `identity`（engine-exclusive）；`src/engine/registry.ts` 的 `M03_WRITER_CHAINS` 链①补第 4 位 `startGame`（登记而非「三写者」失准）。
+3. `src/stores/saveSchema.ts` 的 `meta.identityId` **撤回**放宽（恢复 `min(1)`）：真实旧档都有该字段，需要兜底的是 `App.saveIdentityId`（树内无 identity 时取该时代身份表首行），核验指出原放宽理由失准。
+4. 修正两处与 L-01 相反的注释：`src/validation/tree.ts` 头部（自称「validation→data 一律拦截」并不成立）与 `eslint.config.js:52`（LAYER-007 管的是 data→validation 方向）。
+
+**核验留下的未处理项**：`sanitize.ts:3-4` 自称「登记表 = 域键全集」仍不严谨（`tests/unit/turn/pipeline.test.ts:100` 只断言投影三键，不校验树域完备性）；`safeParseTree`（`__proto__` 防护）在 src 内**零调用**，真实载入路径走 `SaveRecordSchema.safeParse` —— 两条都属既有缺口，不在本项范围。
+
 ---
 
 ## 附录：本次核验对审计原文的更正清单
@@ -498,7 +550,7 @@ if (turn.diagnostics.length) entry.text += `\n（回合注记 ${turn.diagnostics
 1. `_l3-measure.spec.ts` 被列为「并发改动待决定」—— **是 Lead 按门禁要求删除的临时工装**
 2. 「`.vue` 零测试导入、共 16 个」—— **17 个**；`App.vue` 被 2 个测试 import、`OpeningDossier.vue` 被 2 处 `vi.mock`；零引用的是 15 个
 3. 「面板恒空 6 个」—— **9 个恒空 + 1 个挂起**；且根因是 `v-for` 缺 `()` ＋ `v-if="false"` ＋ selector 写死**三套叠加**
-4. 「开局卡写实业家 200 银元」—— **不存在开局卡，也没有身份选择 UI**
+4. 「开局卡写实业家 200 银元」—— **不存在开局卡，也没有身份选择 UI**（当时确实如此；2026-09-23 已补上两步开局与身份选择，见 §15.4）
 5. 「`compile` 失败玩家看不到」—— 看到**泛化计数**，且文案**归因错误**
 6. 「`turnLoop.ts:75` 用 `continue`」—— 是 **`break`**
 7. 「无人能产出 `claimTerritory`」—— **字面不成立**，有 3 个生产者
