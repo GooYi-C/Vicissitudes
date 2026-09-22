@@ -1,7 +1,7 @@
 {
   "$schema": "./schema.md",
   "version": 2,
-  "generated": "2026-09-17",
+  "generated": "2026-09-22",
   "source": "rebuild-v2.0/REBUILD.md（承 v1.0 REBUILD.md + 附录 D/E/F；v2.0 新增见 baseline/assertions-v2.json）",
   "note": "v1.0 的 10 组 85 条逐字保留；v2.0 新增组按 §十四～§二十六 各章「校验汇总」建账。条数以本文件为唯一事实源（正文不写死）。",
   "groups": [
@@ -1101,10 +1101,50 @@
           "mode": "zero-llm",
           "text": "分叉丢弃：分叉点后 DayLog／记忆条目清除（diff）；meta 成就保留",
           "rel": "S-12；承附录 F-5.3-11d（同上）"
+        },
+        {
+          "id": "SAV-21",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "日结先于月关账为报错级不变量：月志无对应日结／日结悬空月外 → 抛错且零副作用（不静默补偿）",
+          "mut": "撤销顺序断言 → 必须失败",
+          "rel": "S-08 不变量 1、SAV-11；VS-02 追账"
+        },
+        {
+          "id": "SAV-22",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "月初快照=提交前状态：auto-{月} 档记该月月初日期且不含该月后续结算；先推进后快照必须失败",
+          "mut": "先 tickWorld 再快照 → 必须失败",
+          "rel": "S-11 不变量 1、SAV-18；VS-02 追账（组合根挂载取证）"
+        },
+        {
+          "id": "SAV-23",
+          "tier": "unit",
+          "mode": "mock-llm",
+          "text": "双源独立降级：对话侧 facts 整批不可解析 → 逐条注记，引擎侧 deal/move/situation 照常全量落账",
+          "mut": "坏条提前返回丢引擎 facts → 必须失败",
+          "rel": "S-07 错误语义；VS-02 判据⑧"
+        },
+        {
+          "id": "SAV-24",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "日叙零语义红线：仅替换 narrative 文本 → DayLog 结构投影（facts/date/kind/turnRange）逐字节一致",
+          "mut": "令文本内容参与结构分支 → 必须失败",
+          "rel": "S-08 红线；VS-02 判据⑨"
+        },
+        {
+          "id": "SAV-25",
+          "tier": "unit",
+          "mode": "zero-llm",
+          "text": "日结重放一致：同（既有 dayLogs, effects）重放两次 → facts 序列逐位一致、不依赖会话状态",
+          "mut": "引入模块级可变状态渗入 → 必须失败",
+          "rel": "S-07 确定性；VS-02 判据⑤"
         }
       ],
       "notes": [
-        "〔v2.0〕v2.0 新增 SAV-12～SAV-20。SAV-1～SAV-11 为 v1.0 承继（不改）。SAV-19／SAV-20 承 v1.0 附录 F-5.3-11c／11d 的文字条目（v1.0 未建账，本次补建）。"
+        "〔v2.0〕v2.0 新增 SAV-12～SAV-25。SAV-1～SAV-11 为 v1.0 承继（不改）。SAV-19／SAV-20 承 v1.0 附录 F-5.3-11c／11d 的文字条目（v1.0 未建账，本次补建）。SAV-21～SAV-25 为 VS-02 DayLog 日结补账批次落地追账。"
       ]
     },
     {

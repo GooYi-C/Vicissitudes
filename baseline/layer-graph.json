@@ -103,7 +103,19 @@
     },
     {
       "from": "src/App.vue",
+      "to": "src/turn/dayClose.ts"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/turn/monthClose.ts"
+    },
+    {
+      "from": "src/App.vue",
       "to": "src/turn/monthRunner.ts"
+    },
+    {
+      "from": "src/App.vue",
+      "to": "src/validation/calendar.ts"
     },
     {
       "from": "src/App.vue",
@@ -500,6 +512,10 @@
     {
       "from": "src/engine/events.ts",
       "to": "src/engine/types.ts"
+    },
+    {
+      "from": "src/engine/events.ts",
+      "to": "src/validation/calendar.ts"
     },
     {
       "from": "src/engine/events.ts",
@@ -1086,6 +1102,18 @@
       "to": "src/validation/tree.ts"
     },
     {
+      "from": "src/turn/dayClose.ts",
+      "to": "src/validation/calendar.ts"
+    },
+    {
+      "from": "src/turn/dayClose.ts",
+      "to": "src/validation/effects.ts"
+    },
+    {
+      "from": "src/turn/monthRunner.ts",
+      "to": "src/engine/events.ts"
+    },
+    {
       "from": "src/turn/monthRunner.ts",
       "to": "src/engine/types.ts"
     },
@@ -1100,6 +1128,10 @@
     {
       "from": "src/turn/monthRunner.ts",
       "to": "src/validation/calendar.ts"
+    },
+    {
+      "from": "src/turn/monthRunner.ts",
+      "to": "src/validation/effects.ts"
     },
     {
       "from": "src/turn/monthRunner.ts",

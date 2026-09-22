@@ -21,6 +21,7 @@ import type { EngineModule, TickContext } from './types'
 import type { DomainEffect } from '../validation/effects'
 import type { Tree } from '../validation/tree'
 import type { EventDef } from '../validation/dataSchemas'
+import { monthIndexFrom } from '../validation/calendar'
 import { events as eventTable } from '../data/events'
 import { situationTemplates } from '../data/situationTemplates'
 import { timeline } from '../data/timeline'
@@ -173,4 +174,124 @@ export const events: EngineModule = {
     effects.push({ op: 'eventsPost', args: { eventCD: nextCD, resolvedEvents: ledger.resolvedEvents } })
     return effects
   },
+}
+
+// ══ S-10 约定到期：promise 台账机检（L2 纯函数；调用与并批在 L4 回合入口）══════
+// 〔契约/实现冲突留痕，不自行改契约〕S-10 原文「L2 events（月度检查）读 SaveRecord.dayLogs[*].facts」，
+// 但 dayLogs 住 L7（stores/saveSchema.ts）—— L2→L7 是越层非法（L-01，含 import type），
+// Tree 不含 dayLogs，TickContext（engine/types.ts）无该通道。故判定逻辑仍住本文件（L2／零 LLM／零提交权），
+// 入参显式化后由 L4 monthRunner 调用，并与月推进效果**同批单次提交**（B-06 单次提交不破）。
+// 不变量 1（台账驱动直入）：本函数不走 collect 的合池抽取 —— 效果不受单轮 ≤2 / 模板 ≤1 约束，
+// 也不挤占合池配额（S-10 不变量 1）。
+// 台账：复用既有 events 台账（S-10「台账驱动」），键前缀 promise: 与事件/模板 id 命名域不相交；
+// 值须为 ISO 日期（compiler.ts:173 eventsPost 值域校验）。
+export const PROMISE_LEDGER_PREFIX = 'promise:'
+
+// 本地结构声明（不引 L7 —— 与 saveSchema.DayFactPromise 形状同构；L-01 单向）
+export interface PromiseFactView {
+  kind: 'promise'
+  from: string
+  to: string
+  dueDate?: string
+  what: string
+}
+
+export interface DayLogFactsView {
+  date: string
+  facts: readonly unknown[]
+}
+
+export interface DuePromiseParams {
+  readonly date: string // 当月 YYYY-MM（推进前 canonical 日期）
+  readonly monthIndex: number // 当月月序（与 monthIndexFrom 同源）
+  readonly dayLogs: readonly DayLogFactsView[] // 台账来源（S-10 读侧）
+  readonly queue: Readonly<Record<string, unknown>> // 现有处境队列（同键幂等去重）
+  readonly eventCD?: Readonly<Record<string, string>> // 既有台账（已机检者不重入）
+  readonly resolvedEvents?: readonly unknown[] // 台账透传（本函数不改动）
+}
+
+export interface DuePromiseResult {
+  readonly effects: DomainEffect[] // situationEnqueue 批（调用方并进同批提交）
+  readonly ledgerAdditions: Record<string, string> // 本轮机检**新增**的台账键（调用方并进同批 eventsPost.eventCD）
+  readonly resolvedEvents: readonly unknown[]
+  readonly injectedKeys: string[] // 本轮机检注入的处境 key（证据面）
+  readonly notes: string[] // dueDate 缺失/不可解析 → 注记（不猜日期）
+}
+
+function isPromiseFact(v: unknown): v is PromiseFactView {
+  if (!v || typeof v !== 'object') return false
+  const f = v as Record<string, unknown>
+  return f.kind === 'promise' && typeof f.from === 'string' && typeof f.to === 'string' && typeof f.what === 'string'
+}
+
+// dueDate 机检口径：YYYY-MM 与 YYYY-MM-DD 皆收（前缀解析）；缺失/不可解析 → null
+function dueMonthIndex(dueDate: unknown): number | null {
+  if (typeof dueDate !== 'string') return null
+  const m = /^(\d{4})-(0[1-9]|1[0-2])(?:-\d{2})?$/.exec(dueDate)
+  return m ? monthIndexFrom(`${m[1]}-${m[2]}`) : null
+}
+
+// 稳定内容键（FNV-1a 32bit）：无外部依赖、无 '/'（键要进 JSON patch 路径段 compiler.ts:64）
+function stableKey(seed: string): string {
+  let h = 0x811c9dc5
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i)
+    h = Math.imul(h, 0x01000193) >>> 0
+  }
+  return h.toString(16).padStart(8, '0')
+}
+
+/**
+ * S-10 月度机检：扫 dayLogs[*].facts 的 promise 条目 → 到期/逾期入队处境。
+ * 确定性：同 (dayLogs, date, monthIndex) → 同 effects（同 dueDate 同 monthIndex → 同注入）。
+ */
+export function duePromiseSituations(params: DuePromiseParams): DuePromiseResult {
+  const effects: DomainEffect[] = []
+  const eventCD: Record<string, string> = { ...(params.eventCD ?? {}) }
+  const ledgerAdditions: Record<string, string> = {}
+  const notes: string[] = []
+  const injectedKeys: string[] = []
+  const resolvedEvents = params.resolvedEvents ?? []
+  const iso = `${params.date}-01`
+
+  for (const log of params.dayLogs) {
+    for (const raw of log.facts) {
+      if (!isPromiseFact(raw)) continue
+      const due = dueMonthIndex(raw.dueDate)
+      if (due === null) {
+        // 错误语义：降级 —— 该条不入机检队列 + 注记（不猜日期，S-10 错误语义）
+        notes.push(`${log.date} promise（${raw.from}→${raw.to}）dueDate 缺失或不可解析（${String(raw.dueDate)}）—— 不入机检队列`)
+        continue
+      }
+      if (due > params.monthIndex) continue // 未到期
+      const h = stableKey(`${raw.from}|${raw.to}|${raw.dueDate}|${raw.what}`)
+      const ledgerKey = `${PROMISE_LEDGER_PREFIX}${h}`
+      if (eventCD[ledgerKey]) continue // 已机检：不重复注入
+      const key = `promise#${h}`
+      if (key in params.queue) continue // 同键已在队：幂等
+      effects.push({
+        op: 'situationEnqueue',
+        args: {
+          situation: {
+            key,
+            // 表外 sentinel（Zod 只约束 min(1)）：promise 到期处境无定义表条目，payload 为全量快照
+            templateId: 'promise-due',
+            payload: {
+              version: 1,
+              title: raw.what,
+              desc: `与 ${raw.to} 的约定到期（${raw.dueDate ?? ''}）：${raw.what}`,
+              options: [{ text: '了结此事', effects: [] }], // 骨架期无机制效果（结算链不在本批）
+              tags: ['promise'],
+            },
+            arrivedAt: iso,
+            expiresAt: isoPlusMonths(params.date, EXPIRY_MONTHS), // 与合池处境同到期窗（LL-05）
+          },
+        },
+      })
+      eventCD[ledgerKey] = iso
+      ledgerAdditions[ledgerKey] = iso
+      injectedKeys.push(key)
+    }
+  }
+  return { effects, ledgerAdditions, resolvedEvents, injectedKeys, notes }
 }

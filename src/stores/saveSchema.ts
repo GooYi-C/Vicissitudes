@@ -10,6 +10,10 @@ import { z } from 'zod'
 import { TreeSchema, type PendingSituation } from '../validation/tree'
 
 export const SAVE_SCHEMA_VERSION = 1 // 重建版起版，无迁移链（承 §3.2 第 3 层裁决）
+// 〔VS-02 收紧 dayLogs/monthLogs 仍不递增版本的论证（S-05 版本门）〕
+// ① 两字段自 v1 起就在 SaveRecord 形状内，字段名/类型面未增删；② 既有档该二字段恒为空数组
+//    （saves.makeInitialSave 每次全新重建，VS-01 及以前无任何写入路径），收紧校验对空数组恒真；
+// ③ 故属非破坏性变更，不递增。若实测遇到不过的档 → 按 S-05 递增拒载并明确报错，不做投影替代。
 
 export interface StoryEntry {
   turn: number
@@ -67,6 +71,33 @@ export interface PressEntry {
   content: string
 }
 
+// ── S-07 逐字段 Schema（VS-02：SK-03 期的 z.unknown() 占位收紧为六 kind 判别联合）────
+// DayFact 六 kind（person/promise/deal/move/situation/note）＝判别联合；新增 kind 属改契约
+// （S-07 扩展方式：契约 + LL-15 矩阵 + 抽取/渲染两处同批）。
+export const DayFactSchema = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('person'), name: z.string().min(1), note: z.string().optional() }),
+  z.object({ kind: z.literal('promise'), from: z.string(), to: z.string(), dueDate: z.string().optional(), what: z.string() }),
+  z.object({ kind: z.literal('deal'), amount: z.number(), counterparty: z.string(), what: z.string() }),
+  z.object({ kind: z.literal('move'), from: z.string(), to: z.string() }),
+  z.object({ kind: z.literal('situation'), id: z.string().min(1), outcome: z.string().optional() }),
+  z.object({ kind: z.literal('note'), text: z.string() }),
+])
+export const DayLogSchema = z.object({
+  date: z.string(), // 游戏日（ISO）
+  facts: z.array(DayFactSchema), // 全量，永不压缩（S-07 不变量 2）
+  narrative: z.string(), // 日叙（超长按 LL-13 截断，截断在生成侧）
+  turnRange: z.tuple([z.number(), z.number()]), // [首回合, 末回合]（S-08 ③）
+  kind: z.literal('transit').optional(), // 在途合并标记（S-08 ①）
+})
+export const MonthLogSchema = z.object({ month: z.string(), text: z.string() })
+
+// 编译期形状同步守卫（防止「接口声明」与「Zod 收紧」两张皮漂移）：不同形即 typecheck 失败
+type Exact<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false
+type Assert<T extends true> = T
+export type DayFactShapeSynced = Assert<Exact<DayFact, z.infer<typeof DayFactSchema>>>
+export type DayLogShapeSynced = Assert<Exact<DayLog, z.infer<typeof DayLogSchema>>>
+export type MonthLogShapeSynced = Assert<Exact<MonthLog, z.infer<typeof MonthLogSchema>>>
+
 export const SaveRecordSchema = z.object({
   schemaVersion: z.literal(SAVE_SCHEMA_VERSION), // 版本门：字段值必须精确等于当前版本
   slotId: z.string().min(1),
@@ -82,8 +113,8 @@ export const SaveRecordSchema = z.object({
   activeWindow: z.array(z.object({ turn: z.number(), date: z.string(), text: z.string() })),
   pendingSituations: z.array(z.unknown()), // SK-04 接 PendingSituation[]（B-08 快照载荷）
   memory: z.object({ items: z.array(z.unknown()), order: z.array(z.string()) }),
-  dayLogs: z.array(z.unknown()), // SK-04 接 DayLog[]
-  monthLogs: z.array(z.unknown()), // SK-04 接 MonthLog[]
+  dayLogs: z.array(DayLogSchema), // S-07 DayLog[]（VS-02 收紧；生成侧住 L4 src/turn/dayClose.ts）
+  monthLogs: z.array(MonthLogSchema), // S-09 MonthLog[]（VS-02 收紧；生成侧住 L4 src/turn/monthClose.ts）
   pastDigest: z.string(),
   turnLog: z.array(z.unknown()), // SK-04 接 TurnRecord[]；不进 prompt（S-01 不变量 2）
   pressRack: z.array(z.unknown()), // SK-04 接 PressEntry[]
