@@ -6,10 +6,16 @@
 import { computed, onMounted, ref } from 'vue'
 import type { Tree } from './validation/tree'
 import { initialTree } from './validation/tree'
+import { monthIndexFrom } from './validation/calendar'
 import { bumpDomains } from './stores/selectors/types'
 import { tickWorld } from './turn/monthRunner'
-import { startGame, travel } from './gameCommands'
-import { writeSave, readSave, makeInitialSave, serializeSave } from './stores/saves'
+import { closeDay, type DayLog } from './turn/dayClose'
+import { closeMonth, PAST_DIGEST_BUDGETS, type MonthLogView } from './turn/monthClose'
+import { startGame } from './gameCommands'
+// 开局日由时代表派生（REBUILD.md:326「从哪个时代开局，世界就从哪年哪月开始推演」）；
+// 本文件不再写死 '1921-07'。eraStartDateById 对未知 era id 抛错（宁可报错不猜测）。
+import { eraStartDateById } from './data/eras'
+import { writeSave, readSave, makeInitialSave, serializeSave, writeAutoSave, listAutoSaves } from './stores/saves'
 import { loadSaveRecord } from './stores/saveSchema'
 import { loadSettings, saveSettings, type Settings } from './stores/settings'
 import { buildChatMessages, buildStaticHead } from './llm/prompt'
@@ -36,11 +42,20 @@ import MapPanel from './components/panels/MapPanel.vue'
 
 const started = ref(false)
 // 会话级状态（不入档）：树 + 域版本号（U-02 不变量 3：版本号从零起算）
-const tree = ref<Tree>(initialTree('era-warlord', '1921-07'))
+const tree = ref<Tree>(initialTree('era-warlord', eraStartDateById('era-warlord')))
 const versions = ref<Record<string, number>>({})
 const story = ref<{ turn: number; date: string; text: string }[]>([])
 const turnCount = ref(0)
 const SLOT = 'auto-current' // SK-07 门 5：当前档（刷新恢复用；自动档体系 S-11 完整策略在 R2）
+
+// ── VS-02：日结/月关账日志（S-07～S-11）────────────────────────────────
+// 会话级镜像 + 随档持久化（persist 不再经 makeInitialSave 清空 —— 那会丢 dayLogs）。
+// 生成侧：src/turn/dayClose.ts（日结）/ src/turn/monthClose.ts（月关账），本文件只做顺序编排：
+//   月初快照（提交前）→ tickWorld → closeDay（日结）→ closeMonth（月关账，日结之后——顺序锁死）。
+const days = ref<DayLog[]>([])
+const months = ref<MonthLogView[]>([])
+const pastDigest = ref('')
+const snapshottedMonths = ref<string[]>([]) // 已写月初快照的月份（S-11 不变量 2：滚动保留）
 
 // ── VS-01 设置区（LLM 配置；settings 是设备级——不进 SaveRecord/提示词快照/导出/日志，S-04）──
 const settings = ref<Settings | null>(null) // 默认值单点=settings.ts（SAV-4：组件侧不引用之）；loadSettings 回填
@@ -80,7 +95,14 @@ async function persist() {
       variables: JSON.parse(JSON.stringify(tree.value)), // 剥 Vue Proxy（存档投影纯数据）
       updatedAt: tree.value.world.date, // 引擎侧禁 Date（B-02）：用游戏日期作 updated 标记
     })
-    await writeSave({ ...record, meta: { ...record.meta, turnCount: turnCount.value } })
+    await writeSave({
+      ...record,
+      meta: { ...record.meta, turnCount: turnCount.value },
+      activeWindow: plain(story.value), // VS-02：叙事窗随档（刷新后历程条目完好）
+      dayLogs: plain(days.value), // S-08 日结产物（facts 永不压缩）
+      monthLogs: plain(months.value), // S-09 月志
+      pastDigest: pastDigest.value, // S-09 往事记要（预算档滚动）
+    })
     saveNote.value = `已保存 · ${record.meta.date}`
   } catch {
     saveNote.value = '保存失败，请勿刷新；本次进度尚未确认落档'
@@ -97,7 +119,10 @@ async function restore() {
     tree.value = record.variables
     versions.value = {} // U-02 不变量 3：版本号会话级从零起算，不从存档恢复
     turnCount.value = record.meta.turnCount
-    story.value = [{ turn: 0, date: record.variables.world.date, text: `读档恢复 · ${record.variables.world.date}（${serializeSave(record).length} 字节快照）` }]
+    days.value = record.dayLogs // VS-02：日结随档恢复（刷新读档 facts 完好）
+    months.value = record.monthLogs
+    pastDigest.value = record.pastDigest
+    story.value = [{ turn: 0, date: `${record.variables.world.date}-01`, text: `读档恢复 · ${record.variables.world.date}（${serializeSave(record).length} 字节快照）` }]
     started.value = true
   } catch (e) {
     // 拒载：回开局（拒绝必须可见 —— 控制台注记；完整 UI 呈现在 SK-06 设置页范围外）
@@ -107,20 +132,82 @@ async function restore() {
 
 onMounted(() => {
   void restore()
+  void refreshSnapshotLedger()
   void loadSettings().then(({ settings: s, note }) => {
     settings.value = s
     if (note) settingsNote.value = note
   })
 })
 
+/** 存档投影：剥 Vue Proxy —— IDB structuredClone 不能克隆 reactive 代理（DataCloneError） */
+function plain<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T
+}
+
+/** S-11 不变量 2：从 autoSaves 恢复「已快照月份」台账（滚动保留的近 12 月初值） */
+async function refreshSnapshotLedger() {
+  try {
+    snapshottedMonths.value = (await listAutoSaves()).map((a) => a.meta.date)
+  } catch {
+    // autoSaves 不可读：本会话台账从空起算（重写同月快照是幂等 put，不产生重复档）
+    snapshottedMonths.value = []
+  }
+}
+
+/**
+ * S-11 不变量 1：月初快照 = 该月**首回合提交前**状态（回溯锚点）。
+ * 每月恰一次（台账去重）；slotId = `auto-{月}` → 同月幂等 put、跨月滚动（writeAutoSave 保留 12）。
+ */
+async function snapshotMonthStart(pre: Readonly<Tree>) {
+  const month = pre.world.date
+  if (snapshottedMonths.value.includes(month)) return
+  const record = makeInitialSave({
+    slotId: `auto-${month}`,
+    eraId: pre.era.eraId,
+    identityId: 'student',
+    date: month,
+    variables: JSON.parse(JSON.stringify(pre)),
+    updatedAt: month,
+  })
+  await writeAutoSave({
+    ...record,
+    monthIndex: monthIndexFrom(month),
+    activeWindow: plain(story.value),
+    dayLogs: plain(days.value),
+    monthLogs: plain(months.value),
+    pastDigest: pastDigest.value,
+  })
+  snapshottedMonths.value = [...snapshottedMonths.value, month]
+}
+
+/**
+ * 历程（StoryView）逐日条目：同一游戏日只一条 —— 条目正文取自该日 DayLog 的日叙，
+ * 故「翻任何一天必有条目」（S-08 ④ 空日照落 → 空日条目为「本月平静。」）。
+ */
+function ensureDayEntry(date: string, text: string, turn: number) {
+  const idx = story.value.findIndex((e) => e.date === date)
+  if (idx >= 0) {
+    if (story.value[idx].text.length > 0) return // LLM 叙事已在位：不覆盖正文
+    const next = [...story.value]
+    next[idx] = { ...next[idx], text }
+    story.value = next
+    return
+  }
+  story.value = [...story.value.slice(-11), { turn, date, text }]
+}
+
 async function onStart(eraId: string, kind: string) {
   if (modelBusy.value || modelsBusy.value) return
   modelBusy.value = true
   try {
-    const { variables } = startGame({ eraId, identityId: kind || 'student', date: '1921-07' })
+    const { variables } = startGame({ eraId, identityId: kind || 'student', date: eraStartDateById(eraId) })
     tree.value = variables
     versions.value = {}
-    story.value = [{ turn: 0, date: variables.world.date, text: '序章 · 盖印开局（免 API 模式，零 LLM 调用）' }]
+    days.value = [] // VS-02：新局清空日结/月志/往事记要（旧局的日志不跨局沿用）
+    months.value = []
+    pastDigest.value = ''
+    snapshottedMonths.value = []
+    story.value = [{ turn: 0, date: `${variables.world.date}-01`, text: '序章 · 盖印开局（免 API 模式，零 LLM 调用）' }]
     started.value = true
     await persist()
   } finally { modelBusy.value = false }
@@ -147,19 +234,38 @@ async function onLoadModels() {
   } finally { modelsBusy.value = false }
 }
 
-/** 过月：L3 调度收集 → L4 单次原子提交 → 按实际写入域 bump（B-10/U-02）→ 落档 */
-async function advanceTurn(opts?: { silent?: boolean }) {
-  const result = tickWorld(tree.value)
+/** 过月：月初快照（提交前）→ L3 调度收集 → S-10 台账机检并批 → L4 单次原子提交 → 日结 → 月关账 → 落档 */
+async function advanceTurn(opts?: { silent?: boolean; dialogFacts?: readonly unknown[] }) {
+  const pre = tree.value
+  await snapshotMonthStart(pre) // S-11 不变量 1：快照必须是**提交前**状态
+  const result = tickWorld(pre, { dayLogs: days.value }) // S-10：dayLogs 台账 → 机检并批（同批单次提交）
   if (!result.ok) return
+  const nextTurn = turnCount.value + 1
+
+  // ── S-08 顺序锁死：日结（先）→ 月关账（后）。顺序违反由 closeMonth 前置断言报错，不静默补偿 ──
+  const day = closeDay({
+    from: pre.world.date,
+    to: result.state.world.date,
+    turn: nextTurn,
+    effects: result.effects ?? [],
+    dayLogs: days.value,
+    dialogFacts: opts?.dialogFacts ?? [],
+  })
+  days.value = day.dayLogs
+  const month = closeMonth({
+    month: day.monthClosed,
+    dayLogs: days.value,
+    monthLogs: months.value,
+    pastDigest: pastDigest.value,
+    budgetChars: PAST_DIGEST_BUDGETS[settings.value?.promptBudget ?? 'standard'],
+  })
+  months.value = [...month.monthLogs]
+  pastDigest.value = month.pastDigest // S-09：往事记要滚动（只压 narrative）
+
   tree.value = result.state
   versions.value = { ...bumpDomains(versions.value, result.writtenDomains) } as Record<string, number>
-  turnCount.value += 1
-  if (!opts?.silent) {
-    story.value = [
-      ...story.value.slice(-9),
-      { turn: turnCount.value, date: result.state.world.date, text: '本月平静。（规则日叙 —— 零 LLM 调用）' },
-    ]
-  }
+  turnCount.value = nextTurn
+  ensureDayEntry(day.appended?.date ?? `${pre.world.date}-01`, day.appended?.narrative ?? '本月平静。', nextTurn)
   await persist()
 }
 
@@ -169,7 +275,8 @@ async function onAction(text: string) {
   if (!llmReady.value) {
     modelBusy.value = true
     try {
-      if (text.includes('出趟远门')) void travel('1921-08', tree.value)
+      // 「出趟远门」的出行结算由 advanceTurn（L3 调度 + L4 单次提交）统一推演；
+      // 这里不再另发 travel 命令——原写法 void travel('1921-08', …) 是丢弃返回值且写死日期的死代码。
       await advanceTurn()
     } finally { modelBusy.value = false }
     return
@@ -178,7 +285,8 @@ async function onAction(text: string) {
   const firstCall = getCallStats().length + 1
   try {
     // ── LLM 回合（VS-01）：prompt 组装 → SSE → 结构块 → 下半管道 → 单次原子提交 → 过月落档
-    const entry = { turn: turnCount.value + 1, date: tree.value.world.date, text: '' }
+    // VS-02：条目日期用 ISO 日形（= 本回合关闭的那一日，与 DayLog.date 同口径）
+    const entry = { turn: turnCount.value + 1, date: `${tree.value.world.date}-01`, text: '' }
     story.value = [...story.value.slice(-9), entry]
     const rerender = () => { story.value = [...story.value] }
     const s = settings.value
@@ -395,7 +503,7 @@ const evidenceJson = computed(() => JSON.stringify({
           </p>
           <StoryView
             :entries="story"
-            digest=""
+            :digest="pastDigest"
           />
           <ChoiceInput
             :llm-ready="llmReady"

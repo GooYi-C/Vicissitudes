@@ -10,6 +10,12 @@ export const EraSchema = z.object({
   name: z.string().min(1),
   fromYear: z.number().int().min(1921).max(1949),
   toYear: z.number().int().min(1921).max(1949),
+  // 开局月：该时代的起始月份（1-12）。世界开局日 = fromYear + startMonth。
+  // 依据 §二十七 施工卷「五时代开局日各推 12 月」与 REBUILD.md:367 第 4 条
+  // 「时代表与时间线不得漂移：每条『开局那天的世界』= 时间线在该日期的状态查询」。
+  // 取值为史实锚定（见 data/eras.ts 逐条注），非运行时随 era 分支的行为参数：
+  // 运行时行为一律由 world.date 推导，era 字段仅此一处参与开局定日。
+  startMonth: z.number().int().min(1).max(12),
   desc: z.string().min(1),
 })
 export type Era = z.infer<typeof EraSchema>

@@ -47,7 +47,27 @@ const driver = `<script>
       const stage=sessionStorage.getItem('vic-smoke-stage');
       if (!stage) {
         await until(()=>document.querySelectorAll('.vic-opening__era').length===5,'five era buttons');
-        const buttons=[...document.querySelectorAll('.vic-opening__era')];
+        // 项目 2 回归：五时代开局日必须各自不同（App.vue 曾写死 1921-07）。
+        // 期望值取自 src/data/eras.ts 的 fromYear+startMonth，此处故意独立硬编码，
+        // 以免数据侧改错时测试跟着一起错；只读开局菜单上渲染出的 data-start-date，
+        // 不做「点五个时代各 reload 一次」——多次 location.reload() 与 --dump-dom 的
+        // 虚拟时间预算不兼容（第 3 次装载必被截断）。各时代点击后的开局日由
+        // tests/unit/data/era-start.test.ts 在 Node 侧逐条覆盖。
+        // 属性挂在按钮内的 .vic-opening__start 上（按钮本身没有 data-start-date）
+        const eraCases=[
+          [/军阀|北洋/,'1921-07'],
+          [/宁汉|南京/,'1928-01'],
+          [/抗战/,'1937-07'],
+          [/内战/,'1945-01'],
+          [/将倾|大厦/,'1949-01'],
+        ];
+        const eraButtons=[...document.querySelectorAll('.vic-opening__era')];
+        const eraStartDates=eraCases.map(([match,expect])=>({era:expect,date:eraButtons.find(b=>match.test(b.textContent))?.querySelector('.vic-opening__start')?.getAttribute('data-start-date')||''}));
+        const badEra=eraStartDates.filter(r=>r.date!==r.era);
+        if(badEra.length)throw new Error('开局菜单五时代开局日不符：'+JSON.stringify(eraStartDates));
+        if(new Set(eraStartDates.map(r=>r.date)).size!==5)throw new Error('五时代开局日存在重复：'+JSON.stringify(eraStartDates));
+        sessionStorage.setItem('vic-era-start-dates',JSON.stringify(eraStartDates));
+        const buttons=eraButtons;
         (buttons.find(b=>/军阀|北洋/.test(b.textContent)) || buttons[2]).click();
         await until(()=>document.querySelector('textarea[aria-label="验收观测 JSON"]'),'settings and observations');
         if(document.querySelector('.vic-statusbar span').textContent.trim()!=='1921-07')throw new Error('Unexpected initial date');
@@ -71,7 +91,9 @@ const driver = `<script>
         await until(()=>document.querySelector('textarea[aria-label="验收观测 JSON"]'),'restored settings');
         const observation=JSON.parse(document.querySelector('textarea[aria-label="验收观测 JSON"]').value);
         if(attempts.length||observation.summary.calls!==0||errors.length)throw new Error('Unexpected request/runtime error after reload');
-        result({status:'pass',automatic:true,liveProvider:false,openingEras:5,months:12,restoredDate:'1922-07',generationCalls:0,blockedModelFetches:attempts.length,transport:observation.transport});
+        const eraStartDates=JSON.parse(sessionStorage.getItem('vic-era-start-dates')||'[]');
+        if(eraStartDates.length!==5)throw new Error('五时代开局日探针结果缺失：'+JSON.stringify(eraStartDates));
+        result({status:'pass',automatic:true,liveProvider:false,openingEras:5,eraStartDates,months:12,restoredDate:'1922-07',generationCalls:0,blockedModelFetches:attempts.length,transport:observation.transport});
       }
     } catch(error) { result({status:'fail',message:String(error.message),errors,bodySample:document.body.innerText.slice(0,1800),blockedModelFetches:attempts.length}); }
   });

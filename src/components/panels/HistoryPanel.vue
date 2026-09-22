@@ -19,7 +19,7 @@ const entries = () => evaluate(timelineView, props.state, props.versions)
       class="vic-list"
     >
       <li
-        v-for="e in entries"
+        v-for="e in entries()"
         :key="e.id"
       >
         {{ e.date }} {{ e.title }}

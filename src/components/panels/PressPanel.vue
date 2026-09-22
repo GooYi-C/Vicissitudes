@@ -19,7 +19,7 @@ const papers = () => evaluate(pressRack, props.state, props.versions)
       class="vic-list"
     >
       <li
-        v-for="p in papers"
+        v-for="p in papers()"
         :key="p.id"
       >
         {{ p.name }}（{{ p.city }}）

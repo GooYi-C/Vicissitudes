@@ -11,6 +11,9 @@ try {
     cwd: root,
     stdio: 'inherit',
     shell: true,
+    // 实现体（tests/data/hash-writer.test.ts）只在 DATA_HASH_WRITE=1 时写回清单；
+    // 此前本脚本不设该变量，写回分支永不可达 —— 清单只在文件不存在时被首次生成兜底写盘。
+    env: { ...process.env, DATA_HASH_WRITE: '1' },
   })
 } catch {
   console.error('[data:hash] 写回失败 —— 见上方 vitest 输出')

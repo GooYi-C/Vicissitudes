@@ -19,7 +19,7 @@ const relations = () => evaluate(relationsList, props.state, props.versions)
       class="vic-list"
     >
       <li
-        v-for="r in relations"
+        v-for="r in relations()"
         :key="r.id"
       >
         {{ r.name }}

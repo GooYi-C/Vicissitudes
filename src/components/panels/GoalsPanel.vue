@@ -19,7 +19,7 @@ const goals = () => evaluate(goalsList, props.state, props.versions)
       class="vic-list"
     >
       <li
-        v-for="g in goals"
+        v-for="g in goals()"
         :key="g.id"
       >
         {{ g.text }}

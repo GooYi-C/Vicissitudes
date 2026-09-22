@@ -19,7 +19,7 @@ const book = () => evaluate(memoryBook, props.state, props.versions)
       class="vic-list"
     >
       <li
-        v-for="m in book.items"
+        v-for="m in book().items"
         :key="m.id"
       >
         {{ m.title }}

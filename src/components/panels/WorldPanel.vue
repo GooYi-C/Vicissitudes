@@ -19,7 +19,7 @@ const situations = () => evaluate(worldSituations, props.state, props.versions)
       class="vic-list"
     >
       <li
-        v-for="s in situations"
+        v-for="s in situations()"
         :key="s.key"
       >
         待决处境（{{ s.templateId }} · {{ s.key }}）

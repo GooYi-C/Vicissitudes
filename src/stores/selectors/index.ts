@@ -59,18 +59,21 @@ export const intelObservations = createSelector(
 )
 
 // 静态数据投影（L0 只读——数据本就是冻结的，selector 提供统一读通道）
-import { eras } from '../../data/eras'
+import { eras, eraStartDate } from '../../data/eras'
 import { identities } from '../../data/identities'
 import { cities } from '../../data/cities'
 import { commodities } from '../../data/commodities'
 import { newspapers } from '../../data/newspapers'
+import { timeline } from '../../data/timeline'
 import { achievements } from '../../data/achievements'
 import { worldbook } from '../../data/worldbook'
 import { situationTemplates } from '../../data/situationTemplates'
 
 // OpeningDossier：五时代开局菜单（全部可见，内容后填 —— U-06 不变量 5）
+// startMonth/startDate：开局菜单需显示「从哪年哪月开始」（REBUILD.md:326）；
+// startDate 由 L0 的 eraStartDate 派生，避免视图层再拼日期字面量。
 export const openingEras = createSelector('opening-eras', ['era'], () =>
-  eras.map((e) => ({ id: e.id, name: e.name, fromYear: e.fromYear, toYear: e.toYear })),
+  eras.map((e) => ({ id: e.id, name: e.name, fromYear: e.fromYear, toYear: e.toYear, startMonth: e.startMonth, startDate: eraStartDate(e) })),
 )
 
 export const openingIdentities = createSelector('opening-identities', ['era'], (state: Readonly<Tree>) =>
@@ -78,14 +81,48 @@ export const openingIdentities = createSelector('opening-identities', ['era'], (
 )
 
 // GoalsPanel / HistoryPanel / MemoryPanel / PressPanel / MapPanel（挂起）骨架读通道
-export const goalsList = createSelector('goals-list', ['goals'], () => [] as { id: string; text: string; done: boolean }[])
-export const memoryBook = createSelector('memory-book', ['memory.items'], () => ({ items: [] as { id: string; title: string }[], order: [] as string[] }))
-export const pressRack = createSelector('press-rack', ['press'], () => newspapers.map((n) => ({ id: n.id, name: n.name, city: n.city })))
-export const relationsList = createSelector('relations-list', ['relations'], () => [] as { id: string; name: string }[])
-export const timelineView = createSelector('timeline-view', ['timeline'], () =>
-  // HistoryPanel 史实时间线（L0 数据投影；视图非权威）
-  [] as { id: string; date: string; title: string }[],
+
+// GoalsPanel：当月目标池（E-2.5；goals 域 by goals 模块 —— TEC-07 已登记）
+export const goalsList = createSelector('goals-list', ['goals'], (state: Readonly<Tree>) =>
+  state.goals.pool.map((g) => ({ id: g.id, text: g.text, done: g.done })),
 )
+
+// MemoryPanel：记忆簿（append-only；order 是权威时序面，缺 order 时按 createdAt 稳定回退）
+export const memoryBook = createSelector('memory-book', ['memory.items'], (state: Readonly<Tree>) => {
+  const book = state.memory
+  const ids = book.order.length > 0
+    ? book.order
+    : Object.values(book.items).sort((a, b) => a.createdAt.localeCompare(b.createdAt)).map((i) => i.id)
+  return {
+    items: ids.flatMap((id) => {
+      const it = book.items[id]
+      return it ? [{ id: it.id, title: it.title, excerpt: it.content.slice(0, 60), monthIndex: it.monthIndex }] : []
+    }),
+    order: [...ids],
+  }
+})
+
+export const pressRack = createSelector('press-rack', ['press'], () => newspapers.map((n) => ({ id: n.id, name: n.name, city: n.city })))
+
+// RelationsPanel：人脉档（consistency 独占 relations.persons）—— 显示名回查记忆簿 people 引用，
+// 查不到退回 id（人脉是引擎别名，非 L0 人名表 —— 骨架期无姓名数据源，如实退回）
+export const relationsList = createSelector('relations-list', ['relations.persons', 'memory.items'], (state: Readonly<Tree>) => {
+  const persons = state.relations.persons
+  const titles = new Map<string, string>()
+  for (const it of Object.values(state.memory.items)) {
+    for (const pid of it.people) if (!titles.has(pid)) titles.set(pid, it.title)
+  }
+  return Object.values(persons).map((p) => ({ id: p.id, name: titles.get(p.id) ?? p.id, tier: p.tier, status: p.status }))
+})
+
+// HistoryPanel：史实时间线（L0-08 投影；视图非权威）—— 只投影到当前月为止，
+// 未来节点不提前泄露（视图层选择，非权威：不改变引擎时间线）
+export const timelineView = createSelector('timeline-view', ['world.date'], (state: Readonly<Tree>) => {
+  const now = `${state.world.date}-99`
+  return timeline
+    .filter((t) => t.date <= now)
+    .map((t) => ({ id: t.id, date: t.date, title: t.title }))
+})
 export const cityDirectory = createSelector('city-directory', ['map'], () => cities.map((c) => ({ id: c.id, name: c.name, isCore: c.isCore })))
 export const commodityPrices = createSelector('commodity-prices', ['economy.commodities'], () =>
   commodities.map((c) => ({ id: c.id, name: c.name, basePrice: c.basePrice, unit: c.unit })),

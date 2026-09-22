@@ -30,6 +30,10 @@ const idList = (eraId: string) =>
       >
         <strong>{{ e.name }}</strong>
         <span>{{ e.fromYear }}–{{ e.toYear }}</span>
+        <span
+          class="vic-opening__start"
+          :data-start-date="e.startDate"
+        >开局 {{ e.startDate }}</span>
       </button>
     </div>
     <div

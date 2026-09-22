@@ -19,7 +19,7 @@ const observations = () => evaluate(intelObservations, props.state, props.versio
       class="vic-list"
     >
       <li
-        v-for="o in observations"
+        v-for="o in observations()"
         :key="o.id"
       >
         {{ o.region }} · 迷雾 L{{ o.level }}
