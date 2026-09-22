@@ -12,6 +12,8 @@ import type { DomainEffect } from '../validation/effects'
 import type { Tree } from '../validation/tree'
 import { buildAdjacency } from '../engine/adjacency'
 import { cities } from '../data/cities'
+// 城级控制权查询住 L1（被 L2/L5 共用 —— 两条路径同口径，不再各有副本）
+import { activeControllerForCity } from '../validation/tree'
 
 export const OCCUPATION_ADVANTAGE = 1.2 // E-3.3 旧公式继承
 export const MIN_FORCES = 100 // 正规营伍门槛（E-2.3 三级台阶的第三级）
@@ -38,7 +40,7 @@ export function occupationCommand(input: OccupationInput, tree: Readonly<Tree>):
   // 前置②：邻接（claim 层控制区接触 —— 玩家控制城与目标城邻接）
   const adj = buildAdjacency()
   // 玩家控制城 = claim 层 per-city 查询（activeControllerForCity —— 与本文件守军口径同源）
-  const playerCities = cities.filter((c) => activeControllerForCity(tree, c.id) === 'player')
+  const playerCities = cities.filter((c) => activeControllerForCity(tree, c.id, tree.world.date) === 'player')
   // R3 骨架：玩家无控制城即无邻接资格（亮出邻接前置，不静默放行）
   const hasAdjacency = playerCities.some((pc) => adj.hopDistance(pc.id, input.cityId) === 1)
   if (!hasAdjacency) {
@@ -52,7 +54,7 @@ export function occupationCommand(input: OccupationInput, tree: Readonly<Tree>):
   }
 
   // 守军（势力兵力均摊口径 —— 与 factions.garrisonOf 同源；玩家/无主城守军 = 民团基线）
-  const controller = activeControllerForCity(tree, input.cityId)
+  const controller = activeControllerForCity(tree, input.cityId, tree.world.date)
   const garrison = garrisonFor(tree, controller)
   if (input.playerForces < garrison * OCCUPATION_ADVANTAGE) {
     return { ok: false, reason: 'lost', message: `兵力 ${input.playerForces} 对守军 ${garrison} 不满足 1.2 优势比 —— 攻坚不可行` }
@@ -74,28 +76,12 @@ export function occupationCommand(input: OccupationInput, tree: Readonly<Tree>):
   }
 }
 
-// ── 与 factions 同口径的守军/控制权投影（单点在命令层副本 —— factions 模块不可被
-// L5 import（L-01 越层）；口径经测试锁同步：garrison = 势力兵力/控制城数）──────
-function activeControllerForCity(tree: Readonly<Tree>, cityId: string): string | null {
-  const city = cities.find((c) => c.id === cityId)
-  if (!city) return null
-  const iso = `${tree.world.date}-01`
-  let active: string | null = null
-  for (const claim of tree._authority.territoryControl.claims) {
-    if (claim.polityId === city.provinceId && claim.interval.from <= iso && iso < claim.interval.to) active = claim.controller
-  }
-  return active
-}
-
+// ── 与 factions 同口径的守军/控制权投影（控制权查询 = L1 tree.ts 的城级口径
+// activeControllerForCity，不在此复制；factions 模块不可被 L5 import（L-01 越层），
+// 故守军公式仍在本层按同一口径重算）────────────────────────────────
 function garrisonFor(tree: Readonly<Tree>, controller: string | null): number {
   if (!controller || controller === 'none') return 150 // 无主城：民团基线（E-2.3 台阶中位）
   const strength = tree.forces.strength[controller] ?? 300
-  const controlled = cities.filter((c) => {
-    const iso = `${tree.world.date}-01`
-    for (const claim of tree._authority.territoryControl.claims) {
-      if (claim.polityId === c.provinceId && claim.interval.from <= iso && iso < claim.interval.to) return claim.controller === controller
-    }
-    return false
-  }).length
+  const controlled = cities.filter((c) => activeControllerForCity(tree, c.id, tree.world.date) === controller).length
   return Math.floor(strength / Math.max(1, controlled))
 }

@@ -15,7 +15,7 @@
 import type { EngineModule, TickContext } from './types'
 import type { DomainEffect } from '../validation/effects'
 import type { Tree, FiscalCity } from '../validation/tree'
-import { activeController } from '../validation/tree'
+import { activeControllerForCity } from '../validation/tree'
 import { cities } from '../data/cities'
 
 // 玩家控制器标识（OccupationCommand 落 claim 的 controller 值 —— R3 前无玩家 claim，
@@ -44,13 +44,21 @@ export const fiscal: EngineModule = {
     for (const [cityId, f] of Object.entries(current)) {
       const city = cities.find((c) => c.id === cityId)
       if (!city) continue // 未知城市：不入账（拒载不猜测 —— 数据面守 DAT 组）
-      // 控制权复核：玩家仍控该城才续账（claim 层查询 —— 半开区间口径）
-      const controller = activeController(tree, iso)
+      // 控制权复核：玩家仍控该城才续账（claim 层城级查询 —— 半开区间口径；
+      // 必须逐城查：claim 的 polityId 是省 id，跨省时非城级查询会把别省控制者算到本城）
+      const controller = activeControllerForCity(tree, cityId, iso)
       const stillOurs = controller === PLAYER_CONTROLLER || f.taxBase > 0 // 骨架：账在即续（R3 接真实复核）
       if (!stillOurs) continue // 易手城自动出账（军费停付 —— 撤离的财政面）
 
       const dims = tree.map?.[cityId]
-      if (!dims) continue // 城未播种（map 无此城）：不入账不灌注 —— 世界还没见过这座城
+      if (!dims) {
+        // 城未播种（map 无此城）：本模块早于 worldtick（registry 序：fiscal #7 → worldtick #8），
+        // 开局首月的 map 还是 initialTree 的空表。此前这里直接 continue ⇒ 该城从 next 消失，
+        // 而 fiscalPost 是**全量 replace**，于是开局控城账在首月被清掉、此后无行可循环 ⇒ 终身零收益。
+        // 故未播种月**原样留账**（不重算、不出账），待 map 播种后按公式接管。
+        next[cityId] = f
+        continue
+      }
       const avg = (dims.economy + dims.security + dims.culture + dims.transport + dims.industry + dims.population) / 6
       const taxBase = f.taxBase > 0 ? f.taxBase : city.dims.economy * 2 // 骨架口径（城表 economy × 2）
       const revenue = Math.round(taxBase * (avg / 100) * 100) / 100
