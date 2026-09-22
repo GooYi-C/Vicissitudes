@@ -1,7 +1,7 @@
 // tests/unit/llm/turn-loop.test.ts — VS-01 回合全链（下半管道确定性/原子性/降级零机制效果）
 import { describe, it, expect } from 'vitest'
 import { runModelTurn } from '../../../src/llm/turnLoop'
-import { initialTree, type Tree } from '../../../src/validation/tree'
+import { initialTree, type Tree, type PendingSituation } from '../../../src/validation/tree'
 import { sameWorld } from '../../../src/turn/TurnRunner'
 import { serializeSave, makeInitialSave } from '../../../src/stores/saves'
 
@@ -75,7 +75,40 @@ describe('VS-01 回合链：意图遵循与原子提交', () => {
     const r = runModelTurn(tree(), text)
     expect(r.ok).toBe(true)
     expect((r.state.career as unknown as { money?: number }).money).toBe(9)
-    expect(r.diagnostics.some((d) => d.code === 'bad-block')).toBe(true)
+    // 坏 JSON 走 bad-block；形状合法但载荷非法的块走 compile 捕获后的 rejected —— 两者都不得中断回合
+    expect(r.diagnostics.some((d) => d.code === 'bad-block' || d.code === 'rejected')).toBe(true)
+  })
+
+  // 复测取证（2026-09-22，deepseek-flash 真实输出第 3 回合）：批外 effects 的 compile 曾裸调用，
+  // 一条 payload 结构非法的块（modifyPlayer.field 空）直接抛穿整个回合。模型输出是不可信输入，
+  // 编译失败必须降级为诊断 + 整批丢弃（与 TurnRunner.commit 同语义）。
+  it('批外效果编译失败不抛穿回合（降级 rejected + 整批丢弃 + 世界逐位不变）', () => {
+    const bad: PendingSituation = {
+      key: 'sit-bad-effects',
+      templateId: 'evt-bad',
+      payload: {
+        version: 1,
+        title: '缺字段的处境',
+        desc: '载荷形状合法，内层效果缺 modifyPlayer.field。',
+        options: [{ text: '照做', effects: [{ op: 'modifyPlayer', args: { field: '' } }] }],
+        tags: ['test'],
+      },
+      arrivedAt: '1921-07-01',
+      expiresAt: '1921-09-01',
+    }
+    const base = tree()
+    const t: Tree = {
+      ...base,
+      _authority: { ...base._authority, pendingSituations: { queue: { [bad.key]: bad } } },
+    }
+    let r: ReturnType<typeof runModelTurn> | undefined
+    expect(() => { r = runModelTurn(t, '<Resolve>{"key":"sit-bad-effects","optionIndex":0}</Resolve>') }).not.toThrow()
+    expect(r).toBeDefined()
+    if (!r) return
+    expect(r.ok).toBe(false)
+    expect(r.state).toBe(t) // 原子回滚：世界零变更
+    expect(r.writtenDomains).toEqual([])
+    expect(r.diagnostics.some((d) => d.code === 'rejected' && d.detail.includes('批外效果编译失败'))).toBe(true)
   })
 
   it('自报 actor 被剥离（LLM-15：构造期不读取）', () => {

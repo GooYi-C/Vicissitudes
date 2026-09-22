@@ -1,0 +1,400 @@
+{
+  "meta": {
+    "model": "deepseek-flash",
+    "base": "https://tokenrhythm.studio/v1",
+    "budget": "standard",
+    "turns": 12,
+    "headHash": "404e2aaf",
+    "measuredAt": "2026-09-22T16:00:50.028Z",
+    "postContractFix": true
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "dateBefore": "1921-08",
+      "userText": "我在城里歇息一月，顺道打听外头的风声。",
+      "ms": 10074,
+      "ok": true,
+      "commitOk": true,
+      "narrativeChars": 507,
+      "metrics": {
+        "blocksTotal": 1,
+        "blocksApplied": 1,
+        "proposeSeen": 0,
+        "proposeUsable": 0
+      },
+      "writtenDomains": [
+        "memory.items"
+      ],
+      "badBlocks": 0,
+      "diagnosticCodes": [],
+      "usage": {
+        "source": "upstream",
+        "promptTokens": 1276,
+        "completionTokens": 520,
+        "totalTokens": 1796,
+        "cachedPromptTokens": 1024
+      },
+      "usageComplete": true,
+      "promptChars": 2320,
+      "completionChars": 822,
+      "headHash": "404e2aaf"
+    },
+    {
+      "turn": 2,
+      "dateBefore": "1921-09",
+      "userText": "去城南的茶馆坐坐，听听商帮的行情。",
+      "ms": 9160,
+      "ok": true,
+      "commitOk": true,
+      "narrativeChars": 288,
+      "metrics": {
+        "blocksTotal": 1,
+        "blocksApplied": 1,
+        "proposeSeen": 1,
+        "proposeUsable": 1
+      },
+      "writtenDomains": [
+        "_authority.pendingSituations"
+      ],
+      "badBlocks": 0,
+      "diagnosticCodes": [],
+      "usage": {
+        "source": "upstream",
+        "promptTokens": 1514,
+        "completionTokens": 373,
+        "totalTokens": 1887,
+        "cachedPromptTokens": 1024
+      },
+      "usageComplete": true,
+      "promptChars": 2656,
+      "completionChars": 596,
+      "headHash": "404e2aaf"
+    },
+    {
+      "turn": 3,
+      "dateBefore": "1921-10",
+      "userText": "寻个营生，先在铺子里帮工，攒些本钱。",
+      "ms": 7592,
+      "ok": true,
+      "commitOk": true,
+      "narrativeChars": 282,
+      "metrics": {
+        "blocksTotal": 1,
+        "blocksApplied": 1,
+        "proposeSeen": 1,
+        "proposeUsable": 1
+      },
+      "writtenDomains": [
+        "_authority.pendingSituations"
+      ],
+      "badBlocks": 0,
+      "diagnosticCodes": [],
+      "usage": {
+        "source": "upstream",
+        "promptTokens": 1703,
+        "completionTokens": 408,
+        "totalTokens": 2111,
+        "cachedPromptTokens": 1024
+      },
+      "usageComplete": true,
+      "promptChars": 2904,
+      "completionChars": 700,
+      "headHash": "404e2aaf"
+    },
+    {
+      "turn": 4,
+      "dateBefore": "1921-11",
+      "userText": "托人捎信给旧识，问问他近来可好。",
+      "ms": 8054,
+      "ok": true,
+      "commitOk": true,
+      "narrativeChars": 220,
+      "metrics": {
+        "blocksTotal": 2,
+        "blocksApplied": 1,
+        "proposeSeen": 1,
+        "proposeUsable": 0
+      },
+      "writtenDomains": [
+        "memory.items"
+      ],
+      "badBlocks": 0,
+      "diagnosticCodes": [
+        "proposal-rejected"
+      ],
+      "usage": {
+        "source": "upstream",
+        "promptTokens": 1867,
+        "completionTokens": 502,
+        "totalTokens": 2369,
+        "cachedPromptTokens": 1024
+      },
+      "usageComplete": true,
+      "promptChars": 3120,
+      "completionChars": 930,
+      "headHash": "404e2aaf"
+    },
+    {
+      "turn": 5,
+      "dateBefore": "1921-12",
+      "userText": "把手里余钱换成粮食，存着等价钱。",
+      "ms": 28611,
+      "ok": true,
+      "commitOk": true,
+      "narrativeChars": 671,
+      "metrics": {
+        "blocksTotal": 1,
+        "blocksApplied": 1,
+        "proposeSeen": 0,
+        "proposeUsable": 0
+      },
+      "writtenDomains": [
+        "memory.items"
+      ],
+      "badBlocks": 0,
+      "diagnosticCodes": [],
+      "usage": {
+        "source": "upstream",
+        "promptTokens": 2018,
+        "completionTokens": 2775,
+        "totalTokens": 4793,
+        "cachedPromptTokens": 0
+      },
+      "usageComplete": true,
+      "promptChars": 3285,
+      "completionChars": 1381,
+      "headHash": "404e2aaf"
+    },
+    {
+      "turn": 6,
+      "dateBefore": "1922-02",
+      "userText": "往北边跑一趟，看看铁路通的没有。",
+      "ms": 37425,
+      "ok": true,
+      "commitOk": true,
+      "narrativeChars": 387,
+      "metrics": {
+        "blocksTotal": 3,
+        "blocksApplied": 3,
+        "proposeSeen": 1,
+        "proposeUsable": 1
+      },
+      "writtenDomains": [
+        "world.date",
+        "_authority.pendingSituations",
+        "memory.items"
+      ],
+      "badBlocks": 0,
+      "diagnosticCodes": [],
+      "usage": {
+        "source": "upstream",
+        "promptTokens": 2197,
+        "completionTokens": 3153,
+        "totalTokens": 5350,
+        "cachedPromptTokens": 0
+      },
+      "usageComplete": true,
+      "promptChars": 3531,
+      "completionChars": 1460,
+      "headHash": "404e2aaf"
+    },
+    {
+      "turn": 7,
+      "dateBefore": "1922-03",
+      "userText": "到码头打听货运的脚力钱。",
+      "ms": 12311,
+      "ok": true,
+      "commitOk": true,
+      "narrativeChars": 566,
+      "metrics": {
+        "blocksTotal": 1,
+        "blocksApplied": 1,
+        "proposeSeen": 1,
+        "proposeUsable": 1
+      },
+      "writtenDomains": [
+        "_authority.pendingSituations"
+      ],
+      "badBlocks": 0,
+      "diagnosticCodes": [],
+      "usage": {
+        "source": "upstream",
+        "promptTokens": 2349,
+        "completionTokens": 589,
+        "totalTokens": 2938,
+        "cachedPromptTokens": 1024
+      },
+      "usageComplete": true,
+      "promptChars": 3762,
+      "completionChars": 924,
+      "headHash": "404e2aaf"
+    },
+    {
+      "turn": 8,
+      "dateBefore": "1922-04",
+      "userText": "给家里寄些银钱，报个平安。",
+      "ms": 7399,
+      "ok": true,
+      "commitOk": true,
+      "narrativeChars": 353,
+      "metrics": {
+        "blocksTotal": 1,
+        "blocksApplied": 0,
+        "proposeSeen": 1,
+        "proposeUsable": 0
+      },
+      "writtenDomains": [],
+      "badBlocks": 0,
+      "diagnosticCodes": [
+        "proposal-rejected"
+      ],
+      "usage": {
+        "source": "upstream",
+        "promptTokens": 2536,
+        "completionTokens": 386,
+        "totalTokens": 2922,
+        "cachedPromptTokens": null
+      },
+      "usageComplete": true,
+      "promptChars": 3985,
+      "completionChars": 597,
+      "headHash": "404e2aaf"
+    },
+    {
+      "turn": 9,
+      "dateBefore": "1922-05",
+      "userText": "去同业公会走动，认认门路。",
+      "ms": 5708,
+      "ok": true,
+      "commitOk": true,
+      "narrativeChars": 249,
+      "metrics": {
+        "blocksTotal": 1,
+        "blocksApplied": 1,
+        "proposeSeen": 1,
+        "proposeUsable": 1
+      },
+      "writtenDomains": [
+        "_authority.pendingSituations"
+      ],
+      "badBlocks": 0,
+      "diagnosticCodes": [],
+      "usage": {
+        "source": "upstream",
+        "promptTokens": 2657,
+        "completionTokens": 329,
+        "totalTokens": 2986,
+        "cachedPromptTokens": 512
+      },
+      "usageComplete": true,
+      "promptChars": 4136,
+      "completionChars": 534,
+      "headHash": "404e2aaf"
+    },
+    {
+      "turn": 10,
+      "dateBefore": "1922-06",
+      "userText": "盘算着盘下一间小铺，试试做买卖。",
+      "ms": 5410,
+      "ok": true,
+      "commitOk": true,
+      "narrativeChars": 178,
+      "metrics": {
+        "blocksTotal": 1,
+        "blocksApplied": 1,
+        "proposeSeen": 1,
+        "proposeUsable": 1
+      },
+      "writtenDomains": [
+        "_authority.pendingSituations"
+      ],
+      "badBlocks": 0,
+      "diagnosticCodes": [],
+      "usage": {
+        "source": "upstream",
+        "promptTokens": 2778,
+        "completionTokens": 280,
+        "totalTokens": 3058,
+        "cachedPromptTokens": 1024
+      },
+      "usageComplete": true,
+      "promptChars": 4294,
+      "completionChars": 509,
+      "headHash": "404e2aaf"
+    },
+    {
+      "turn": 11,
+      "dateBefore": "1922-07",
+      "userText": "入冬了，把铺面收拾妥当，添置些物件。",
+      "ms": 6866,
+      "ok": true,
+      "commitOk": true,
+      "narrativeChars": 244,
+      "metrics": {
+        "blocksTotal": 1,
+        "blocksApplied": 0,
+        "proposeSeen": 1,
+        "proposeUsable": 0
+      },
+      "writtenDomains": [],
+      "badBlocks": 0,
+      "diagnosticCodes": [
+        "proposal-rejected"
+      ],
+      "usage": {
+        "source": "upstream",
+        "promptTokens": 2753,
+        "completionTokens": 340,
+        "totalTokens": 3093,
+        "cachedPromptTokens": 1024
+      },
+      "usageComplete": true,
+      "promptChars": 4269,
+      "completionChars": 576,
+      "headHash": "404e2aaf"
+    },
+    {
+      "turn": 12,
+      "dateBefore": "1922-08",
+      "userText": "岁末盘点，与账房先生核算全年进出。",
+      "ms": 4406,
+      "ok": true,
+      "commitOk": true,
+      "narrativeChars": 134,
+      "metrics": {
+        "blocksTotal": 1,
+        "blocksApplied": 1,
+        "proposeSeen": 1,
+        "proposeUsable": 1
+      },
+      "writtenDomains": [
+        "_authority.pendingSituations"
+      ],
+      "badBlocks": 0,
+      "diagnosticCodes": [],
+      "usage": {
+        "source": "upstream",
+        "promptTokens": 2735,
+        "completionTokens": 259,
+        "totalTokens": 2994,
+        "cachedPromptTokens": 1024
+      },
+      "usageComplete": true,
+      "promptChars": 4234,
+      "completionChars": 503,
+      "headHash": "404e2aaf"
+    }
+  ],
+  "aggregate": {
+    "calls": 12,
+    "measuredCalls": 12,
+    "cacheMeasuredCalls": 11,
+    "promptChars": 42496,
+    "completionChars": 9532,
+    "promptTokens": 26383,
+    "completionTokens": 9914,
+    "cachedPromptTokens": null,
+    "cacheTokenRatio": null
+  }
+}

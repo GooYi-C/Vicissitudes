@@ -1,0 +1,1099 @@
+{
+  "meta": {
+    "model": "deepseek-flash",
+    "base": "https://tokenrhythm.studio/v1",
+    "turns": [
+      {
+        "turn": 1,
+        "date": "1921-07",
+        "userText": "我在城里歇息一月，顺道打听外头的风声。",
+        "ok": true,
+        "narrativeChars": 0,
+        "narrative": "",
+        "metrics": {
+          "blocksTotal": 0,
+          "blocksApplied": 0,
+          "proposeSeen": 0,
+          "proposeUsable": 0
+        },
+        "writtenDomains": [],
+        "diagnostics": [
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Resolve 块解析失败：Unexpected token '你', \"你在城里赁了间偏房住\"... is not valid JSON"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "UpdateVariable 块解析失败：Unexpected token '<', \"<JSONPatch\"... is not valid JSON"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Propose 块解析失败：Unexpected token '歇', \"歇够了，眼前有几条路\"... is not valid JSON"
+          }
+        ],
+        "commitOk": true,
+        "usage": {
+          "source": "upstream",
+          "promptTokens": 883,
+          "completionTokens": 464,
+          "totalTokens": 1347,
+          "cachedPromptTokens": 768
+        },
+        "usageComplete": true,
+        "promptChars": 1383,
+        "completionChars": 786,
+        "headHash": "ac768f48"
+      },
+      {
+        "turn": 2,
+        "date": "1921-08",
+        "userText": "托人搭线，宴请本地几位商会头面人物。",
+        "ok": true,
+        "narrativeChars": 0,
+        "narrative": "",
+        "metrics": {
+          "blocksTotal": 0,
+          "blocksApplied": 0,
+          "proposeSeen": 0,
+          "proposeUsable": 0
+        },
+        "writtenDomains": [],
+        "diagnostics": [
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Resolve 块解析失败：Unexpected token '入', \"入席者七人，到齐五人\"... is not valid JSON"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "UpdateVariable 块解析失败：Unexpected token '<', \"<JSONPatch\"... is not valid JSON"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Propose 块解析失败：Unexpected token '席', \"席散之后，你手头的人\"... is not valid JSON"
+          }
+        ],
+        "commitOk": true,
+        "usage": {
+          "source": "upstream",
+          "promptTokens": 956,
+          "completionTokens": 356,
+          "totalTokens": 1312,
+          "cachedPromptTokens": 768
+        },
+        "usageComplete": true,
+        "promptChars": 1502,
+        "completionChars": 633,
+        "headHash": "ac768f48"
+      },
+      {
+        "turn": 3,
+        "date": "1921-09",
+        "userText": "清点铺面账目，看看这个月实业进项如何。",
+        "ok": true,
+        "narrativeChars": 242,
+        "narrative": "账本摊在柜台上，纸页发黄，边角卷起。你翻到九月这一页，墨迹是新的，数字却不好看。\n铺面做的是棉布转手生意，从无锡进布，走运河运到城里，再批给四乡的布庄。这个月走了三批货，头一批顺当，后两批卡在码头——漕运局的厘金又加了一成，说是省里要练兵。你算了算，刨去进货、运费、厘金、伙计工钱和铺租，账面上剩不下几个子儿。\n柜上现洋只有几块，铜元一小匣。库房里还压着两匹卖不动的靛蓝布，是上个月看走眼进的货，颜色太深，乡下人不认。\n伙计老陈站在一旁，等你发话。他没催，可你晓得，月底的工钱拖不得。",
+        "metrics": {
+          "blocksTotal": 0,
+          "blocksApplied": 0,
+          "proposeSeen": 0,
+          "proposeUsable": 0
+        },
+        "writtenDomains": [],
+        "diagnostics": [
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Command 块解析失败：Unexpected token '清', \"清点铺面账目\" is not valid JSON"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "UpdateVariable 块解析失败：Unexpected token '<', \"<JSONPatch\"... is not valid JSON"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Resolve 块解析失败：Unexpected token '账', \"账目已清：本月实业进\"... is not valid JSON"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Propose 块解析失败：Unexpected token '·', \"· 老陈等你示下月底\"... is not valid JSON"
+          }
+        ],
+        "commitOk": true,
+        "usage": {
+          "source": "upstream",
+          "promptTokens": 962,
+          "completionTokens": 506,
+          "totalTokens": 1468,
+          "cachedPromptTokens": 768
+        },
+        "usageComplete": true,
+        "promptChars": 1512,
+        "completionChars": 839,
+        "headHash": "ac768f48"
+      },
+      {
+        "turn": 4,
+        "date": "1921-10",
+        "userText": "出趟远门，去邻省走一趟看看行情。",
+        "ok": true,
+        "narrativeChars": 0,
+        "narrative": "",
+        "metrics": {
+          "blocksTotal": 0,
+          "blocksApplied": 0,
+          "proposeSeen": 0,
+          "proposeUsable": 0
+        },
+        "writtenDomains": [],
+        "diagnostics": [
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Command 块解析失败：Unexpected token '出', \"出远门赴邻省探行情\" is not valid JSON"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "UpdateVariable 块解析失败：Unexpected token '<', \"<JSONPatch\"... is not valid JSON"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Resolve 块解析失败：Unexpected token '你', \"你把铺面托给老伙计照\"... is not valid JSON"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Propose 块解析失败：Unexpected token '·', \"·tmpl-fore\"... is not valid JSON"
+          }
+        ],
+        "commitOk": true,
+        "usage": {
+          "source": "upstream",
+          "promptTokens": 1134,
+          "completionTokens": 667,
+          "totalTokens": 1801,
+          "cachedPromptTokens": 768
+        },
+        "usageComplete": true,
+        "promptChars": 1721,
+        "completionChars": 1174,
+        "headHash": "ac768f48"
+      },
+      {
+        "turn": 5,
+        "date": "1921-11",
+        "userText": "在家休整，闭门读书，暂不见客。",
+        "ok": true,
+        "narrativeChars": 107,
+        "narrative": "十月你闭门未出，铺面交给伙计照看。账上那点现洋只出不进，靛蓝布仍压在库房。入冬后市面上风声渐紧，说北边败兵南下，沿途拉夫征粮，城里几家大铺已悄悄把货往租界里挪。你手头无银元可周转，健康尚可，只是闲坐久了，人也发闷。",
+        "metrics": {
+          "blocksTotal": 0,
+          "blocksApplied": 0,
+          "proposeSeen": 0,
+          "proposeUsable": 0
+        },
+        "writtenDomains": [],
+        "diagnostics": [
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Resolve 块解析失败：Unexpected non-whitespace character after JSON at position 4 (line 1 column 5)"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "UpdateVariable 块解析失败：Unexpected token '<', \"<JSONPatch\"... is not valid JSON"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Propose 块解析失败：Unexpected token '市', \"市口争执与乱兵拉夫两\"... is not valid JSON"
+          }
+        ],
+        "commitOk": true,
+        "usage": {
+          "source": "upstream",
+          "promptTokens": 1138,
+          "completionTokens": 379,
+          "totalTokens": 1517,
+          "cachedPromptTokens": 768
+        },
+        "usageComplete": true,
+        "promptChars": 1730,
+        "completionChars": 792,
+        "headHash": "ac768f48"
+      },
+      {
+        "turn": 6,
+        "date": "1921-12",
+        "userText": "招募几个可靠人手，扩充护院。",
+        "ok": true,
+        "narrativeChars": 0,
+        "narrative": "",
+        "metrics": {
+          "blocksTotal": 0,
+          "blocksApplied": 0,
+          "proposeSeen": 0,
+          "proposeUsable": 0
+        },
+        "writtenDomains": [],
+        "diagnostics": [
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Command 块解析失败：Unexpected token '招', \"招募几个可靠人手，扩充护院\" is not valid JSON"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Resolve 块解析失败：Unexpected token '你', \"你托了相熟的脚行把头\"... is not valid JSON"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "UpdateVariable 块解析失败：Unexpected token '<', \"<JSONPatch\"... is not valid JSON"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Propose 块解析失败：Unexpected token '溃', \"溃兵压境，铺面与库房\"... is not valid JSON"
+          }
+        ],
+        "commitOk": true,
+        "usage": {
+          "source": "upstream",
+          "promptTokens": 1228,
+          "completionTokens": 646,
+          "totalTokens": 1874,
+          "cachedPromptTokens": 768
+        },
+        "usageComplete": true,
+        "promptChars": 1843,
+        "completionChars": 1169,
+        "headHash": "ac768f48"
+      },
+      {
+        "turn": 7,
+        "date": "1922-01",
+        "userText": "与旧交叙旧，探问当年袍泽下落。",
+        "ok": true,
+        "narrativeChars": 0,
+        "narrative": "",
+        "metrics": {
+          "blocksTotal": 0,
+          "blocksApplied": 0,
+          "proposeSeen": 0,
+          "proposeUsable": 0
+        },
+        "writtenDomains": [],
+        "diagnostics": [
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Resolve 块解析失败：Unexpected non-whitespace character after JSON at position 4 (line 1 column 5)"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "UpdateVariable 块解析失败：Unexpected token '<', \"<JSONPatch\"... is not valid JSON"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Propose 块解析失败：Unexpected token '旧', \"旧交里有人提了一句：\"... is not valid JSON"
+          }
+        ],
+        "commitOk": true,
+        "usage": {
+          "source": "upstream",
+          "promptTokens": 1237,
+          "completionTokens": 363,
+          "totalTokens": 1600,
+          "cachedPromptTokens": 768
+        },
+        "usageComplete": true,
+        "promptChars": 1853,
+        "completionChars": 669,
+        "headHash": "ac768f48"
+      },
+      {
+        "turn": 8,
+        "date": "1922-02",
+        "userText": "巡视名下田产，安排佃户冬播。",
+        "ok": true,
+        "narrativeChars": 0,
+        "narrative": "",
+        "metrics": {
+          "blocksTotal": 0,
+          "blocksApplied": 0,
+          "proposeSeen": 0,
+          "proposeUsable": 0
+        },
+        "writtenDomains": [],
+        "diagnostics": [
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Resolve 块解析失败：Unexpected non-whitespace character after JSON at position 4 (line 1 column 5)"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "UpdateVariable 块解析失败：Unexpected token '<', \"<JSONPatch\"... is not valid JSON"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Propose 块解析失败：Unexpected token '田', \"田产粗安，但粮价低、\"... is not valid JSON"
+          }
+        ],
+        "commitOk": true,
+        "usage": {
+          "source": "upstream",
+          "promptTokens": 1241,
+          "completionTokens": 524,
+          "totalTokens": 1765,
+          "cachedPromptTokens": 768
+        },
+        "usageComplete": true,
+        "promptChars": 1867,
+        "completionChars": 945,
+        "headHash": "ac768f48"
+      },
+      {
+        "turn": 9,
+        "date": "1922-03",
+        "userText": "致信省城故友，请其代为疏通关节。",
+        "ok": true,
+        "narrativeChars": 0,
+        "narrative": "",
+        "metrics": {
+          "blocksTotal": 0,
+          "blocksApplied": 0,
+          "proposeSeen": 0,
+          "proposeUsable": 0
+        },
+        "writtenDomains": [],
+        "diagnostics": [
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Command 块解析失败：Unexpected token '致', \"致信省城故友，请其代为疏通关节\" is not valid JSON"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "UpdateVariable 块解析失败：Unexpected token '<', \"<JSONPatch\"... is not valid JSON"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Resolve 块解析失败：Unexpected token '信', \"信寄出去了，挂号，回\"... is not valid JSON"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Propose 块解析失败：Unexpected token '<', \"<JSONPatch\"... is not valid JSON"
+          }
+        ],
+        "commitOk": true,
+        "usage": {
+          "source": "upstream",
+          "promptTokens": 1249,
+          "completionTokens": 773,
+          "totalTokens": 2022,
+          "cachedPromptTokens": null
+        },
+        "usageComplete": true,
+        "promptChars": 1874,
+        "completionChars": 1605,
+        "headHash": "ac768f48"
+      },
+      {
+        "turn": 10,
+        "date": "1922-04",
+        "userText": "暂避风头，深居简出，静观其变。",
+        "ok": true,
+        "narrativeChars": 0,
+        "narrative": "",
+        "metrics": {
+          "blocksTotal": 0,
+          "blocksApplied": 0,
+          "proposeSeen": 0,
+          "proposeUsable": 0
+        },
+        "writtenDomains": [],
+        "diagnostics": [
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Resolve 块解析失败：Unexpected non-whitespace character after JSON at position 4 (line 1 column 5)"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Propose 块解析失败：Unexpected token '你', \"你听说城东茶馆近来常\"... is not valid JSON"
+          }
+        ],
+        "commitOk": true,
+        "usage": {
+          "source": "upstream",
+          "promptTokens": 1255,
+          "completionTokens": 171,
+          "totalTokens": 1426,
+          "cachedPromptTokens": null
+        },
+        "usageComplete": true,
+        "promptChars": 1887,
+        "completionChars": 235,
+        "headHash": "ac768f48"
+      },
+      {
+        "turn": 11,
+        "date": "1922-05",
+        "userText": "拿出一笔钱接济落难的旧部。",
+        "ok": true,
+        "narrativeChars": 0,
+        "narrative": "",
+        "metrics": {
+          "blocksTotal": 0,
+          "blocksApplied": 0,
+          "proposeSeen": 0,
+          "proposeUsable": 0
+        },
+        "writtenDomains": [],
+        "diagnostics": [
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Resolve 块解析失败：Unexpected token '你', \"你翻出压在柜底的那只\"... is not valid JSON"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "UpdateVariable 块解析失败：Unexpected token '<', \"<JSONPatch\"... is not valid JSON"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Propose 块解析失败：Unexpected token '入', \"入夏后漕运厘金又添名\"... is not valid JSON"
+          }
+        ],
+        "commitOk": true,
+        "usage": {
+          "source": "upstream",
+          "promptTokens": 1257,
+          "completionTokens": 406,
+          "totalTokens": 1663,
+          "cachedPromptTokens": 768
+        },
+        "usageComplete": true,
+        "promptChars": 1887,
+        "completionChars": 714,
+        "headHash": "ac768f48"
+      },
+      {
+        "turn": 12,
+        "date": "1922-06",
+        "userText": "岁末盘点，与账房先生核算全年进出。",
+        "ok": true,
+        "narrativeChars": 0,
+        "narrative": "",
+        "metrics": {
+          "blocksTotal": 0,
+          "blocksApplied": 0,
+          "proposeSeen": 0,
+          "proposeUsable": 0
+        },
+        "writtenDomains": [],
+        "diagnostics": [
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Resolve 块解析失败：Unexpected token '账', \"账房先生姓周，五十来\"... is not valid JSON"
+          },
+          {
+            "moduleId": "llm/pipe",
+            "code": "bad-block",
+            "detail": "Propose 块解析失败：Unexpected token '·', \"·evt-rice-\"... is not valid JSON"
+          }
+        ],
+        "commitOk": true,
+        "usage": {
+          "source": "upstream",
+          "promptTokens": 1261,
+          "completionTokens": 330,
+          "totalTokens": 1591,
+          "cachedPromptTokens": 768
+        },
+        "usageComplete": true,
+        "promptChars": 1902,
+        "completionChars": 464,
+        "headHash": "ac768f48"
+      }
+    ],
+    "at": "2026-09-22T15:11:27.124Z",
+    "note": "Node 侧真实测量（非浏览器）；浏览器 CORS 受限见验收单"
+  },
+  "summary": {
+    "calls": 12,
+    "measuredCalls": 12,
+    "cacheMeasuredCalls": 10,
+    "promptChars": 20961,
+    "completionChars": 10025,
+    "promptTokens": 13801,
+    "completionTokens": 5585,
+    "cachedPromptTokens": null,
+    "cacheTokenRatio": null
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "date": "1921-07",
+      "userText": "我在城里歇息一月，顺道打听外头的风声。",
+      "ok": true,
+      "narrativeChars": 0,
+      "narrative": "",
+      "metrics": {
+        "blocksTotal": 0,
+        "blocksApplied": 0,
+        "proposeSeen": 0,
+        "proposeUsable": 0
+      },
+      "writtenDomains": [],
+      "diagnostics": [
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Resolve 块解析失败：Unexpected token '你', \"你在城里赁了间偏房住\"... is not valid JSON"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "UpdateVariable 块解析失败：Unexpected token '<', \"<JSONPatch\"... is not valid JSON"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Propose 块解析失败：Unexpected token '歇', \"歇够了，眼前有几条路\"... is not valid JSON"
+        }
+      ],
+      "commitOk": true,
+      "usage": {
+        "source": "upstream",
+        "promptTokens": 883,
+        "completionTokens": 464,
+        "totalTokens": 1347,
+        "cachedPromptTokens": 768
+      },
+      "usageComplete": true,
+      "promptChars": 1383,
+      "completionChars": 786,
+      "headHash": "ac768f48"
+    },
+    {
+      "turn": 2,
+      "date": "1921-08",
+      "userText": "托人搭线，宴请本地几位商会头面人物。",
+      "ok": true,
+      "narrativeChars": 0,
+      "narrative": "",
+      "metrics": {
+        "blocksTotal": 0,
+        "blocksApplied": 0,
+        "proposeSeen": 0,
+        "proposeUsable": 0
+      },
+      "writtenDomains": [],
+      "diagnostics": [
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Resolve 块解析失败：Unexpected token '入', \"入席者七人，到齐五人\"... is not valid JSON"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "UpdateVariable 块解析失败：Unexpected token '<', \"<JSONPatch\"... is not valid JSON"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Propose 块解析失败：Unexpected token '席', \"席散之后，你手头的人\"... is not valid JSON"
+        }
+      ],
+      "commitOk": true,
+      "usage": {
+        "source": "upstream",
+        "promptTokens": 956,
+        "completionTokens": 356,
+        "totalTokens": 1312,
+        "cachedPromptTokens": 768
+      },
+      "usageComplete": true,
+      "promptChars": 1502,
+      "completionChars": 633,
+      "headHash": "ac768f48"
+    },
+    {
+      "turn": 3,
+      "date": "1921-09",
+      "userText": "清点铺面账目，看看这个月实业进项如何。",
+      "ok": true,
+      "narrativeChars": 242,
+      "narrative": "账本摊在柜台上，纸页发黄，边角卷起。你翻到九月这一页，墨迹是新的，数字却不好看。\n铺面做的是棉布转手生意，从无锡进布，走运河运到城里，再批给四乡的布庄。这个月走了三批货，头一批顺当，后两批卡在码头——漕运局的厘金又加了一成，说是省里要练兵。你算了算，刨去进货、运费、厘金、伙计工钱和铺租，账面上剩不下几个子儿。\n柜上现洋只有几块，铜元一小匣。库房里还压着两匹卖不动的靛蓝布，是上个月看走眼进的货，颜色太深，乡下人不认。\n伙计老陈站在一旁，等你发话。他没催，可你晓得，月底的工钱拖不得。",
+      "metrics": {
+        "blocksTotal": 0,
+        "blocksApplied": 0,
+        "proposeSeen": 0,
+        "proposeUsable": 0
+      },
+      "writtenDomains": [],
+      "diagnostics": [
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Command 块解析失败：Unexpected token '清', \"清点铺面账目\" is not valid JSON"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "UpdateVariable 块解析失败：Unexpected token '<', \"<JSONPatch\"... is not valid JSON"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Resolve 块解析失败：Unexpected token '账', \"账目已清：本月实业进\"... is not valid JSON"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Propose 块解析失败：Unexpected token '·', \"· 老陈等你示下月底\"... is not valid JSON"
+        }
+      ],
+      "commitOk": true,
+      "usage": {
+        "source": "upstream",
+        "promptTokens": 962,
+        "completionTokens": 506,
+        "totalTokens": 1468,
+        "cachedPromptTokens": 768
+      },
+      "usageComplete": true,
+      "promptChars": 1512,
+      "completionChars": 839,
+      "headHash": "ac768f48"
+    },
+    {
+      "turn": 4,
+      "date": "1921-10",
+      "userText": "出趟远门，去邻省走一趟看看行情。",
+      "ok": true,
+      "narrativeChars": 0,
+      "narrative": "",
+      "metrics": {
+        "blocksTotal": 0,
+        "blocksApplied": 0,
+        "proposeSeen": 0,
+        "proposeUsable": 0
+      },
+      "writtenDomains": [],
+      "diagnostics": [
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Command 块解析失败：Unexpected token '出', \"出远门赴邻省探行情\" is not valid JSON"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "UpdateVariable 块解析失败：Unexpected token '<', \"<JSONPatch\"... is not valid JSON"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Resolve 块解析失败：Unexpected token '你', \"你把铺面托给老伙计照\"... is not valid JSON"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Propose 块解析失败：Unexpected token '·', \"·tmpl-fore\"... is not valid JSON"
+        }
+      ],
+      "commitOk": true,
+      "usage": {
+        "source": "upstream",
+        "promptTokens": 1134,
+        "completionTokens": 667,
+        "totalTokens": 1801,
+        "cachedPromptTokens": 768
+      },
+      "usageComplete": true,
+      "promptChars": 1721,
+      "completionChars": 1174,
+      "headHash": "ac768f48"
+    },
+    {
+      "turn": 5,
+      "date": "1921-11",
+      "userText": "在家休整，闭门读书，暂不见客。",
+      "ok": true,
+      "narrativeChars": 107,
+      "narrative": "十月你闭门未出，铺面交给伙计照看。账上那点现洋只出不进，靛蓝布仍压在库房。入冬后市面上风声渐紧，说北边败兵南下，沿途拉夫征粮，城里几家大铺已悄悄把货往租界里挪。你手头无银元可周转，健康尚可，只是闲坐久了，人也发闷。",
+      "metrics": {
+        "blocksTotal": 0,
+        "blocksApplied": 0,
+        "proposeSeen": 0,
+        "proposeUsable": 0
+      },
+      "writtenDomains": [],
+      "diagnostics": [
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Resolve 块解析失败：Unexpected non-whitespace character after JSON at position 4 (line 1 column 5)"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "UpdateVariable 块解析失败：Unexpected token '<', \"<JSONPatch\"... is not valid JSON"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Propose 块解析失败：Unexpected token '市', \"市口争执与乱兵拉夫两\"... is not valid JSON"
+        }
+      ],
+      "commitOk": true,
+      "usage": {
+        "source": "upstream",
+        "promptTokens": 1138,
+        "completionTokens": 379,
+        "totalTokens": 1517,
+        "cachedPromptTokens": 768
+      },
+      "usageComplete": true,
+      "promptChars": 1730,
+      "completionChars": 792,
+      "headHash": "ac768f48"
+    },
+    {
+      "turn": 6,
+      "date": "1921-12",
+      "userText": "招募几个可靠人手，扩充护院。",
+      "ok": true,
+      "narrativeChars": 0,
+      "narrative": "",
+      "metrics": {
+        "blocksTotal": 0,
+        "blocksApplied": 0,
+        "proposeSeen": 0,
+        "proposeUsable": 0
+      },
+      "writtenDomains": [],
+      "diagnostics": [
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Command 块解析失败：Unexpected token '招', \"招募几个可靠人手，扩充护院\" is not valid JSON"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Resolve 块解析失败：Unexpected token '你', \"你托了相熟的脚行把头\"... is not valid JSON"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "UpdateVariable 块解析失败：Unexpected token '<', \"<JSONPatch\"... is not valid JSON"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Propose 块解析失败：Unexpected token '溃', \"溃兵压境，铺面与库房\"... is not valid JSON"
+        }
+      ],
+      "commitOk": true,
+      "usage": {
+        "source": "upstream",
+        "promptTokens": 1228,
+        "completionTokens": 646,
+        "totalTokens": 1874,
+        "cachedPromptTokens": 768
+      },
+      "usageComplete": true,
+      "promptChars": 1843,
+      "completionChars": 1169,
+      "headHash": "ac768f48"
+    },
+    {
+      "turn": 7,
+      "date": "1922-01",
+      "userText": "与旧交叙旧，探问当年袍泽下落。",
+      "ok": true,
+      "narrativeChars": 0,
+      "narrative": "",
+      "metrics": {
+        "blocksTotal": 0,
+        "blocksApplied": 0,
+        "proposeSeen": 0,
+        "proposeUsable": 0
+      },
+      "writtenDomains": [],
+      "diagnostics": [
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Resolve 块解析失败：Unexpected non-whitespace character after JSON at position 4 (line 1 column 5)"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "UpdateVariable 块解析失败：Unexpected token '<', \"<JSONPatch\"... is not valid JSON"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Propose 块解析失败：Unexpected token '旧', \"旧交里有人提了一句：\"... is not valid JSON"
+        }
+      ],
+      "commitOk": true,
+      "usage": {
+        "source": "upstream",
+        "promptTokens": 1237,
+        "completionTokens": 363,
+        "totalTokens": 1600,
+        "cachedPromptTokens": 768
+      },
+      "usageComplete": true,
+      "promptChars": 1853,
+      "completionChars": 669,
+      "headHash": "ac768f48"
+    },
+    {
+      "turn": 8,
+      "date": "1922-02",
+      "userText": "巡视名下田产，安排佃户冬播。",
+      "ok": true,
+      "narrativeChars": 0,
+      "narrative": "",
+      "metrics": {
+        "blocksTotal": 0,
+        "blocksApplied": 0,
+        "proposeSeen": 0,
+        "proposeUsable": 0
+      },
+      "writtenDomains": [],
+      "diagnostics": [
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Resolve 块解析失败：Unexpected non-whitespace character after JSON at position 4 (line 1 column 5)"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "UpdateVariable 块解析失败：Unexpected token '<', \"<JSONPatch\"... is not valid JSON"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Propose 块解析失败：Unexpected token '田', \"田产粗安，但粮价低、\"... is not valid JSON"
+        }
+      ],
+      "commitOk": true,
+      "usage": {
+        "source": "upstream",
+        "promptTokens": 1241,
+        "completionTokens": 524,
+        "totalTokens": 1765,
+        "cachedPromptTokens": 768
+      },
+      "usageComplete": true,
+      "promptChars": 1867,
+      "completionChars": 945,
+      "headHash": "ac768f48"
+    },
+    {
+      "turn": 9,
+      "date": "1922-03",
+      "userText": "致信省城故友，请其代为疏通关节。",
+      "ok": true,
+      "narrativeChars": 0,
+      "narrative": "",
+      "metrics": {
+        "blocksTotal": 0,
+        "blocksApplied": 0,
+        "proposeSeen": 0,
+        "proposeUsable": 0
+      },
+      "writtenDomains": [],
+      "diagnostics": [
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Command 块解析失败：Unexpected token '致', \"致信省城故友，请其代为疏通关节\" is not valid JSON"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "UpdateVariable 块解析失败：Unexpected token '<', \"<JSONPatch\"... is not valid JSON"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Resolve 块解析失败：Unexpected token '信', \"信寄出去了，挂号，回\"... is not valid JSON"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Propose 块解析失败：Unexpected token '<', \"<JSONPatch\"... is not valid JSON"
+        }
+      ],
+      "commitOk": true,
+      "usage": {
+        "source": "upstream",
+        "promptTokens": 1249,
+        "completionTokens": 773,
+        "totalTokens": 2022,
+        "cachedPromptTokens": null
+      },
+      "usageComplete": true,
+      "promptChars": 1874,
+      "completionChars": 1605,
+      "headHash": "ac768f48"
+    },
+    {
+      "turn": 10,
+      "date": "1922-04",
+      "userText": "暂避风头，深居简出，静观其变。",
+      "ok": true,
+      "narrativeChars": 0,
+      "narrative": "",
+      "metrics": {
+        "blocksTotal": 0,
+        "blocksApplied": 0,
+        "proposeSeen": 0,
+        "proposeUsable": 0
+      },
+      "writtenDomains": [],
+      "diagnostics": [
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Resolve 块解析失败：Unexpected non-whitespace character after JSON at position 4 (line 1 column 5)"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Propose 块解析失败：Unexpected token '你', \"你听说城东茶馆近来常\"... is not valid JSON"
+        }
+      ],
+      "commitOk": true,
+      "usage": {
+        "source": "upstream",
+        "promptTokens": 1255,
+        "completionTokens": 171,
+        "totalTokens": 1426,
+        "cachedPromptTokens": null
+      },
+      "usageComplete": true,
+      "promptChars": 1887,
+      "completionChars": 235,
+      "headHash": "ac768f48"
+    },
+    {
+      "turn": 11,
+      "date": "1922-05",
+      "userText": "拿出一笔钱接济落难的旧部。",
+      "ok": true,
+      "narrativeChars": 0,
+      "narrative": "",
+      "metrics": {
+        "blocksTotal": 0,
+        "blocksApplied": 0,
+        "proposeSeen": 0,
+        "proposeUsable": 0
+      },
+      "writtenDomains": [],
+      "diagnostics": [
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Resolve 块解析失败：Unexpected token '你', \"你翻出压在柜底的那只\"... is not valid JSON"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "UpdateVariable 块解析失败：Unexpected token '<', \"<JSONPatch\"... is not valid JSON"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Propose 块解析失败：Unexpected token '入', \"入夏后漕运厘金又添名\"... is not valid JSON"
+        }
+      ],
+      "commitOk": true,
+      "usage": {
+        "source": "upstream",
+        "promptTokens": 1257,
+        "completionTokens": 406,
+        "totalTokens": 1663,
+        "cachedPromptTokens": 768
+      },
+      "usageComplete": true,
+      "promptChars": 1887,
+      "completionChars": 714,
+      "headHash": "ac768f48"
+    },
+    {
+      "turn": 12,
+      "date": "1922-06",
+      "userText": "岁末盘点，与账房先生核算全年进出。",
+      "ok": true,
+      "narrativeChars": 0,
+      "narrative": "",
+      "metrics": {
+        "blocksTotal": 0,
+        "blocksApplied": 0,
+        "proposeSeen": 0,
+        "proposeUsable": 0
+      },
+      "writtenDomains": [],
+      "diagnostics": [
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Resolve 块解析失败：Unexpected token '账', \"账房先生姓周，五十来\"... is not valid JSON"
+        },
+        {
+          "moduleId": "llm/pipe",
+          "code": "bad-block",
+          "detail": "Propose 块解析失败：Unexpected token '·', \"·evt-rice-\"... is not valid JSON"
+        }
+      ],
+      "commitOk": true,
+      "usage": {
+        "source": "upstream",
+        "promptTokens": 1261,
+        "completionTokens": 330,
+        "totalTokens": 1591,
+        "cachedPromptTokens": 768
+      },
+      "usageComplete": true,
+      "promptChars": 1902,
+      "completionChars": 464,
+      "headHash": "ac768f48"
+    }
+  ]
+}

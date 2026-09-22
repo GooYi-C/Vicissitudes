@@ -26,8 +26,26 @@ export const BUDGET_TIERS: Readonly<Record<PromptBudgetTier, BudgetTier>> = Obje
 const SEG_STYLE = [
   '①文风契约：你是民国年代的叙事者。白话行文，口语与书面杂糅，节制不煽情。',
   '只叙事玩家行动的后果与当下处境，不替玩家做决定。',
-  '结构块只可用 <Command>（命令意图）、<UpdateVariable>/<JSONPatch>（微观变量补丁）、',
-  '<Resolve>（处境了结）、<Propose>（提议动态处境）；未知标签会被剥除。',
+  // 结构块载荷契约（2026-09-22 实测补全）：原仅列标签名、未规定载荷 JSON 形态，
+  // 真实模型据此把标签当「这段是什么」的标注、块内写散文 → 逐块 bad-block、blocksApplied 0/12。
+  // 补的是已实现契约的显式化：不改段序/段数（LL-12 不变量 1 仍成立），只改 ① 段内文字。
+  // 注意：段内**不得**出现 ASCII 的 <标签></标签> 字面量——parseBlocks 会把它们当结构块从叙事中剥除。
+  // 故标签一律写 HTML 实体（&lt;Command&gt;），显示给模型仍是「<Command>」，但解析器与 strip 逻辑均不识别。
+  '结构块只可用 &lt;Command&gt;（命令意图）、&lt;JSONPatch&gt; 或 &lt;UpdateVariable&gt;（微观变量补丁）、',
+  '&lt;Resolve&gt;（处境了结）、&lt;Propose&gt;（提议动态处境）五种标签。',
+  '每个块的内容必须且只能是一个 JSON 对象，不得写成散文；叙事正文写在所有块之外。',
+  '实际书写时用尖括号本身：<标签名>{JSON}</标签名>（标签名取上面五种之一，开闭同名、不做嵌套）。',
+  '&lt;Command&gt;：{"cmd":"Travel","args":{"to":"<YYYY-MM>"}}；cmd 只可为 Travel/Business/Trade/Railway/Scout/Fiscal。',
+  '&lt;JSONPatch&gt;：{"ops":[{"op":"replace","path":"/career/money","value":1}]}；',
+  '  op 与 path 必填，add/replace 另需 value；path 只可写 career/player/memory.items 下的域。',
+  '&lt;UpdateVariable&gt;：与 &lt;JSONPatch&gt; 同形（一个 ops 数组）；记忆条目形如',
+  '  {"ops":[{"op":"add","path":"/memory/items/{id}","value":{"id":"…","type":"event","title":"…",',
+  '  "content":"…","importance":5,"pinned":false,"archived":false,"people":[],"monthIndex":1,',
+  '  "createdAt":"<YYYY-MM-01>","source":"model"}}]}。',
+  '&lt;Resolve&gt;：{"key":"<处境 key>","optionIndex":0}；key 只可从 ⑨ 处境注入的可见 key 中取，块内不写散文。',
+  '&lt;Propose&gt;：{"title":"…","desc":"…","options":[{"text":"…","effects":[{"op":"modifyPlayer","args":{}}]}]}；',
+  '  options 须 2–4 个，单轮最多提议 1 个。',
+  '没有结构块时只写散文，这也是正常回复。',
 ].join('\n')
 
 function segPriceAnchors(): string {

@@ -119,7 +119,18 @@ export function runModelTurn(tree: Readonly<Tree>, modelText: string): ModelTurn
   }
 
   // 单次原子提交：compile(effects) + sanitize 接受补丁并批（序：engine 效果在前，补丁在后——序稳定）
-  const compiled = compile(effects, tree)
+  // 模型输出是不可信输入 → 编译失败必须降级为诊断 + 整批丢弃，绝不抛穿整个回合
+  // （与 TurnRunner.commit 的 compile try/catch 同语义；见 src/turn/TurnRunner.ts:125-129）
+  let compiled: ReturnType<typeof compile>
+  try {
+    compiled = compile(effects, tree)
+  } catch (e) {
+    return {
+      ok: false, state: tree as Tree, narrative: parsed.narrative, writtenDomains: [],
+      diagnostics: [...diagnostics, { moduleId: 'llm/pipe', code: 'rejected', detail: `批外效果编译失败——整批丢弃（原子回滚）：${(e as Error).message}` }],
+      metrics,
+    }
+  }
   const ops = [...compiled, ...sanitized.accepted]
   const next = applyPatch(tree, ops)
   if (next === null) {
